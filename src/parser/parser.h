@@ -88,4 +88,11 @@ enum parser_status parser_rule_if(struct lexer *lex, struct ast **res);
 */
 enum parser_status parser_else_clause(struct lexer *lex, struct ast **res);
 
+/**
+ * @brief Parse compound_list grammar :
+ * 
+ *  {'\n'} and_or { (';' | '\n') {'\n'} and_or} [';'] {'\n'}
+*/
+enum parser_status parser_compound_list(struct lexer *lex, struct ast **res);
+
 #endif PARSER_H /* !PARSER_H */
