@@ -20,5 +20,6 @@ AC_PROG_CC
 AC_CONFIG_FILES([
                     Makefile
                     src/logger/Makefile
+                    src/io_backend/Makefile
                 ])
 AC_OUTPUT
