@@ -12,7 +12,7 @@ struct ast *ast_new(enum ast_type type)
     return new;
 }
 
-void *ast_new_brother(struct ast *ast, struct ast *new_brother)
+void *ast_add_brother(struct ast *ast, struct ast *new_brother)
 {
     struct ast *p = ast;
     while (p->next != NULL)
