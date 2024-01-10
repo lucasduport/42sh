@@ -1,8 +1,14 @@
 #include "logger.h"
 
+// Global variable to store the logger object
 static struct my_logs *logger = NULL;
 
-struct my_logs *get_logger(void)
+/**
+ * @brief Get the logger object
+ *
+ * @return the logger object
+ */
+static struct my_logs *get_logger(void)
 {
     return logger;
 }
@@ -20,6 +26,11 @@ int create_logger(char *filename)
     return true;
 }
 
+/**
+ * @brief Opens the logger
+ *
+ * @return the logger file stream
+ */
 static FILE *open_logger(void)
 {
     struct my_logs *logger = get_logger();
@@ -37,6 +48,11 @@ static FILE *open_logger(void)
     return fd;
 }
 
+/**
+ * @brief Closes the logger
+ *
+ * @param fd the logger file stream
+ */
 static void close_logger(FILE *fd)
 {
     struct my_logs *logger = get_logger();
@@ -62,5 +78,16 @@ int debug_printf(const char *format, ...)
     va_end(args);
     va_end(args_copy);
     close_logger(fd);
+    return true;
+}
+
+int destroy_logger(void)
+{
+    struct my_logs *logger = get_logger();
+    if (logger == NULL)
+        return true;
+    if (logger->filename)
+        free(logger->filename);
+    free(logger);
     return true;
 }

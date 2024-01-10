@@ -1,11 +1,12 @@
+#ifndef _POSIX_C_SOURCE
+#    define _POSIX_C_SOURCE 200809L
+#endif /* !_POSIX_C_SOURCE */
+
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#ifndef _POSIX_C_SOURCE
-#    define _POSIX_C_SOURCE 200809L
-#endif /* !_POSIX_C_SOURCE */
+#include <string.h>
 
 struct my_logs
 {
@@ -15,30 +16,27 @@ struct my_logs
 };
 
 /**
- * @brief Get the logger object
+ * @brief Creates a logger
  *
- * @return the logger object
+ * @param filename the logger filename
+ * @return true if the logger was created
+ * @return false if an error occured
  */
-struct my_logs *get_logger(void);
-
-/**
- * @brief Opens the logger
- *
- * @return the logger file stream
- */
-static FILE *open_logger(void);
-
-/**
- * @brief Closes the logger
- *
- * @param fd the logger file stream
- */
-static void close_logger(FILE *fd);
+int create_logger(char *filename);
 
 /**
  * @brief Logs a message
  *
  * @param format the message format
  * @param ... the message arguments
+ * @return true if the message was logged
  */
 int debug_printf(const char *format, ...);
+
+/**
+ * @brief Destroys the logger
+ *
+ * @return true if the logger was destroyed
+ * @return false if an error occured
+ */
+int destroy_logger(void);
