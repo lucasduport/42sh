@@ -19,6 +19,8 @@ AC_PROG_CC
 # List Makefile in subdirectories
 AC_CONFIG_FILES([
                     Makefile
+                    src/Makefile
+                    src/lexer/Makefile
                     src/logger/Makefile
                     src/io_backend/Makefile
                 ])
