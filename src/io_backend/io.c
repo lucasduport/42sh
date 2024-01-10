@@ -14,7 +14,7 @@ int io_abstraction(int argc, char *argv[])
     if (argc == 1)
         stream = stdin;
     // String case.
-    else if (!strcmp(a+rgv[1], "-c"))
+    else if (!strcmp(argv[1], "-c"))
     {
         stream = fmemopen(argv[2], strlen(argv[2]), "r");
         if (stream == NULL)
