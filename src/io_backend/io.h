@@ -19,6 +19,13 @@ int io_abstraction(int argc, char *argv[]);
 char io_getchar(void);
 
 /**
+ * @brief Change the current position of the file pointer.
+ * @param offset Position to set.
+ * @return A character or '\0' if it reads EOF.
+ */
+int io_seek(size_t offset);
+
+/**
  * @brief Close used stream.
  * @return IO_SUCCESS if stream is closed successfuly, IO_FAILED otherwise.
  */
