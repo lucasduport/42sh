@@ -32,8 +32,8 @@ void list_append(struct list *l, char *current);
  * @brief Get the nth element.
  * 
  * @param l List to search in.
- * @param n Position of the element.
- * @return The n eme element if found, NULL otherwise.
+ * @param n Position of the element (begin at 0).
+ * @return The n-ieme element if found, NULL otherwise.
  */
 char *list_get_n(struct list *l, size_t n);
 

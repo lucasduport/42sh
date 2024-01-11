@@ -49,7 +49,7 @@ static void replace(char *element)
     }
 }
 
-void echo(struct list *list)
+int builtin_echo(struct list *list)
 {
     int i = 1;
     struct list *element = list_get_n(list, i);
@@ -89,4 +89,5 @@ void echo(struct list *list)
         if (!option_n)
             printf("\n");
     }
+    return 0;
 }
