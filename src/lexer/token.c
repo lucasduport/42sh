@@ -1,8 +1,10 @@
 #include "token.h"
 
+#include "../logger/logger.h"
+
 void print_token(struct token token)
 {
-    debug_printf("Token: %s\n", token.data);
+    debug_printf("Token: %s", token.data);
 
     switch (token.type)
     {

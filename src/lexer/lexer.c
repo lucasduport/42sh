@@ -11,6 +11,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../logger/logger.h"
+
 /**
  * @brief Creates a new token
  *
@@ -25,7 +27,7 @@ static struct token token_alloc(enum token_type type, struct lexer *lexer)
     token.type = type;
 
     string_reset(lexer->current_word);
-
+    
     print_token(token);
     return token;
 }
@@ -36,22 +38,22 @@ static struct token token_alloc(enum token_type type, struct lexer *lexer)
  * @param word
  * @return struct token
  */
-static struct token token_new(struct string *word)
+static struct token token_new(struct lexer *lexer)
 {
-    append_char(word, '\0');
+    string_append_char(lexer->current_word, '\0');
 
     char *reserved_words[] = { "if", "then", "elif", "else",
                                "fi", ";",    "\n",   "\0" };
 
     for (size_t i = 0; i < sizeof(reserved_words) / sizeof(char *); i++)
     {
-        if (!strcmp(reserved_words[i], word->data))
+        if (!strcmp(reserved_words[i], lexer->current_word->data))
         {
-            return token_alloc((enum token_type)i, word);
+            return token_alloc((enum token_type)i, lexer);
         }
     }
 
-    return token_alloc(TOKEN_WORD, word);
+    return token_alloc(TOKEN_WORD, lexer);
 }
 
 static int first_char_op(char c)
@@ -67,14 +69,15 @@ static int first_char_op(char c)
 
 static int is_valid_operator(struct lexer *lexer)
 {
-    char reserved_operators[] = { '&',  '&&', '(',  ')',  ';',   ';;',
-                                  '\n', '|',  '||', '<',  '>',   '>|',
-                                  '<<', '>>', '<&', '&>', '<<-', '<>' };
+    char *reserved_operators[] = { "&",  "&&", "(",  ")",  ";",   ";;",
+                                  "\n", "|",  "||", "<",  ">",   ">|",
+                                  "<<", ">>", "<&", "&>", "<<-", "<>" };
 
     string_append_char(lexer->current_word, lexer->current_char);
-    for (size_t i = 0; i < sizeof(reserved_operators) / sizeof(char); i++)
+    for (size_t i = 0; i < sizeof(reserved_operators) / sizeof(char *); i++)
     {
-        if (strstr(reserved_operators[i], lexer->current_word) != NULL)
+        // FIXME: May be a probleme with the last null char
+        if (strstr(reserved_operators[i], lexer->current_word->data) != NULL)
         {
             string_pop_char(lexer->current_word);
             return 1;
@@ -117,46 +120,60 @@ static void get_char(struct lexer *lexer)
 {
     lexer->current_char = io_getchar();
     lexer->offset++;
+    debug_printf("'%c'", lexer->current_char);
 }
 
 static void skip_space(struct lexer *lexer)
 {
-    get_char(lexer);
     while (lexer->current_char == ' ' || lexer->current_char == '\t')
     {
         get_char(lexer);
     }
+    io_seek(--lexer->offset);
 }
 
 static void skip_comment(struct lexer *lexer)
 {
-    get_char(lexer);
     while (lexer->current_char == '\n')
     {
         get_char(lexer);
     }
+    io_seek(--lexer->offset);
 }
 
 static struct token parse_input_for_tok(struct lexer *lexer)
 {
+    if (lexer->current_word->len == 0)
+        lexer->last_is_op = 0;
+
     get_char(lexer);
 
     if (lexer->current_char == '\0')
     {
+        debug_printf("rule 1");
         if (lexer->current_word->len == 0)
             string_append_char(lexer->current_word, lexer->current_char);
 
-        return token_new(lexer->current_word);
+        return token_new(lexer);
     }
 
     else if (lexer->last_is_op && !lexer->is_quoted && is_valid_operator(lexer))
+    {
+        debug_printf("rule 2");
         string_append_char(lexer->current_word, lexer->current_char);
+    }
 
     else if (lexer->last_is_op && !is_valid_operator(lexer))
-        return token_new(lexer->current_word);
+    {
+        debug_printf("rule 3");
+        return token_new(lexer);
+    }
 
-    else if (is_quote(lexer->current_char && !lexer->is_quoted))
+    else if (is_quote(lexer) && !lexer->is_quoted)
+    {
+        debug_printf("rule 4");
         update_quote(lexer);
+    }
 
     else if (!lexer->is_quoted && is_subshell(lexer))
     {
@@ -165,28 +182,44 @@ static struct token parse_input_for_tok(struct lexer *lexer)
 
     else if (!lexer->is_quoted && first_char_op(lexer->current_char))
     {
-        struct token tok = token_new(lexer->current_word);
+        debug_printf("rule 6");
+        lexer->last_is_op = 1;
+        struct token tok = token_new(lexer);
         string_append_char(lexer->current_word, lexer->current_char);
         return tok;
     }
+
     else if (!lexer->is_quoted && lexer->current_char == '\n')
-        return token_new(lexer->current_word);
+    {
+        debug_printf("rule 7");
+        return token_new(lexer);
+    }
 
     else if (!lexer->is_quoted && lexer->current_char == ' ')
     {
-        struct token tok = token_new(lexer->current_word);
+        debug_printf("rule 8");
+        struct token tok = token_new(lexer);
         skip_space(lexer);
         return tok;
     }
 
     else if (lexer->current_word->len != 0)
+    {
+        //debug_printf("rule 9");
         string_append_char(lexer->current_word, lexer->current_char);
+    }
 
     else if (lexer->current_char == '#')
+    {
+        debug_printf("rule 10");
         skip_comment(lexer);
+    }
 
     else
+    {
+        //debug_printf("rule 11\n");
         string_append_char(lexer->current_word, lexer->current_char);
+    }
 
     return parse_input_for_tok(lexer);
 }
@@ -197,11 +230,7 @@ struct lexer *lexer_new(int argc, char *argv[])
         return NULL;
 
     struct lexer *lexer = calloc(1, sizeof(struct lexer));
-<<<<<<< .merge_file_6hfCWL
     lexer->current_word = string_create();
-=======
-  
->>>>>>> .merge_file_Co2ik4
     return lexer;
 }
 
@@ -224,5 +253,6 @@ struct token lexer_pop(struct lexer *lexer)
 
 void lexer_free(struct lexer *lexer)
 {
+    string_destroy(lexer->current_word);
     free(lexer);
 }

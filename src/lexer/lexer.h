@@ -2,17 +2,14 @@
 #define LEXER_H
 
 #include "../utils/string/string.h"
-#include "../utils/string/string.h"
 #include "../io_backend/io.h"
-#include "../logger/logger.h"
 #include "token.h"
 
 struct lexer
 {
     struct string *current_word;
-    char *current_char;
-    char *previous_char;
-
+    char current_char;
+    
     int last_is_op; 
     int is_quoted;
     size_t offset;

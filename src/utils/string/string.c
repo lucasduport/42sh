@@ -4,6 +4,8 @@
 
 #include "string.h"
 
+#include "../logger/logger.h"
+
 struct string *string_create(void)
 {
     struct string *str = malloc(sizeof(struct string));
