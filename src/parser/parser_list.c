@@ -42,7 +42,10 @@ enum parser_status parser_compound_list(struct lexer *lex, struct ast **res)
     }
 
     if (parser_and_or(lex, res) == PARSER_UNEXPECTED_TOKEN)
+    {
+        debug_printf("[PARSER] Failed parse first and_or - compound_list");
         return PARSER_UNEXPECTED_TOKEN;
+    }
     
     peek = lexer_peek(lex);
 
@@ -65,6 +68,7 @@ enum parser_status parser_compound_list(struct lexer *lex, struct ast **res)
         //Else we need to parse 'and_or'
         if (parser_and_or(lex, &tmp_ast) == PARSER_UNEXPECTED_TOKEN)
         {
+            debug_printf("[PARSER] Failed parse optional and_or - compound_list");
             ast_free(tmp_ast);
             return PARSER_UNEXPECTED_TOKEN;
         }

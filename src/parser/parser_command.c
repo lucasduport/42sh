@@ -6,11 +6,17 @@ enum parser_status parser_command(struct lexer *lex, struct ast **res)
 
     //TOKEN_WORD -> first of simple_command
     if (peek.type == TOKEN_WORD)
+    {
+        debug_printf("[PARSER] token WORD - command");
         return parser_simple_command(lex, res);
+    }
     
     //TOKEN_IF -> first of shell_command
     if (peek.type == TOKEN_IF)
+    {
+        debug_printf("[PARSER] token IF - command");
         return parser_shell_command(lex, res);
+    }
     
     return PARSER_UNEXPECTED_TOKEN;
 }
@@ -28,17 +34,14 @@ enum parser_status parser_simple_command(struct lexer *lex, struct ast **res)
 
     peek = lexer_peek(lex);
     //EOF and '\n' -> follow of parser_simple_command
-    while (peek.type != TOKEN_EOF && peek.type != TOKEN_NEWLINE && parser_element(lex) == PARSER_OK)
+    while (parser_element(lex) == PARSER_OK)
     {
         //pop because peek (and not pop) in element
         peek = lexer_pop(lex);
         list_append((*res)->arg, peek.data);
     }
 
-    //If while boucle exit properly (with EOF or '\n')
-    if (peek.type != TOKEN_EOF && peek.type != TOKEN_NEWLINE)
-        return PARSER_OK;
-    return PARSER_UNEXPECTED_TOKEN;
+    return PARSER_OK;
 }
 
 enum parser_status parser_shell_command(struct lexer *lex, struct ast **res)

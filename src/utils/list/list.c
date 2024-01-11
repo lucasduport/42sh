@@ -56,10 +56,12 @@ void list_print(struct list *l)
 {
     printf("[ ");
 
-    while (l->next != NULL)
+    struct list *tmp = l;
+    while (tmp->next != NULL)
     {
-        printf("%s, ", l->current);
+        printf("%s, ", tmp->current);
+        tmp = tmp->next;
     }
 
-    printf("%s ]", l->current);
+    printf("%s ]", tmp->current);
 }
