@@ -87,7 +87,7 @@ void ast_print(struct ast *ast)
     else
     {
         struct ast *child = ast->first_child;
-        printf("{ ");
+        printf("list { ");
         while (child != NULL)
         {
             ast_print(child);

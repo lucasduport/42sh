@@ -14,7 +14,12 @@ enum parser_status parser_list(struct lexer *lex, struct ast **res)
 
         //';' is the last optional => EOF or '\n' -> follow of list
         if (peek.type == TOKEN_EOF || peek.type == TOKEN_NEWLINE)
+        {
+            struct ast *tmp = *res;
+            *res = ast_new(AST_LIST);
+            (*res)->first_child = tmp;
             return PARSER_OK;
+        }
         
         struct ast *tmp_ast = NULL;
         //Else we need to parse 'and_or'
@@ -29,6 +34,9 @@ enum parser_status parser_list(struct lexer *lex, struct ast **res)
         peek = lexer_peek(lex);
 
     }
+    struct ast *tmp = *res;
+    *res = ast_new(AST_LIST);
+    (*res)->first_child = tmp;
     return PARSER_OK;
 }
 
@@ -62,7 +70,12 @@ enum parser_status parser_compound_list(struct lexer *lex, struct ast **res)
         }
 
         if(peek.type == TOKEN_ELSE || peek.type == TOKEN_ELIF || peek.type == TOKEN_THEN || peek.type == TOKEN_FI)
+        {
+            struct ast *tmp = *res;
+            *res = ast_new(AST_LIST);
+            (*res)->first_child = tmp;
             return PARSER_OK;
+        }
         
         struct ast *tmp_ast = NULL;
         //Else we need to parse 'and_or'
@@ -77,5 +90,9 @@ enum parser_status parser_compound_list(struct lexer *lex, struct ast **res)
         ast_add_brother(*res, tmp_ast);
         peek = lexer_peek(lex);
     }
+    
+    struct ast *tmp = *res;
+    *res = ast_new(AST_LIST);
+    (*res)->first_child = tmp;
     return PARSER_OK;
 }

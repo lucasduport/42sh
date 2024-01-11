@@ -28,9 +28,6 @@ enum parser_status parser_input(struct lexer *lex, struct ast **res)
     if (peek.type == TOKEN_EOF || peek.type == TOKEN_NEWLINE)
     {
         //Create ast RES with type AST_LIST
-        struct ast *tmp = *res;
-        *res = ast_new(AST_LIST);
-        (*res)->first_child = tmp;
         return PARSER_OK;
     }
 
