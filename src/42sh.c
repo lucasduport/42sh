@@ -1,10 +1,21 @@
-#include "src/logger/logger.h"
+#include "parser/parser.h"
 
 int main(int argc, char **argv)
 {
-    create_logger("stdout");
-    debug_printf("Hello World!");
-    (void)argc;
-    (void)argv;
-    return (0);
+
+    //create_logger("stdout");
+    
+    struct ast *res;
+    if (parser(argc, argv, &res) != PARSER_OK)
+    {
+        debug_printf("42sh: ast creation failed\n");
+        return 2;
+    }
+
+    ast_print(res);
+    puts("");
+
+    // TODO: Ast evalutation.
+
+    return 0;
 }

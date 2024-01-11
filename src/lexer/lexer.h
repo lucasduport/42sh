@@ -19,11 +19,11 @@ struct lexer
 };
 
 /**
- * @brief Creates a new lexer
+ * @brief Initialize io_abstraction and create a new lexer
  *
- * @return The new lexer
+ * @return A new lexer or NULL if something failed
  */
-struct lexer *lexer_new(void);
+struct lexer *lexer_new(int argc, char *argv[]);
 
 /**
  * @brief Gets the next token without consuming it

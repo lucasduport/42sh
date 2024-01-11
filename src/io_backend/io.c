@@ -1,16 +1,20 @@
 #define _POSIX_C_SOURCE 200809L
 
-#include <string.h>
-#include <stdio.h>
-#include <errno.h>
-
 #include "io.h"
+
+#include <errno.h>
+#include <stdio.h>
+#include <string.h>
+
+#include "../logger/logger.h"
 
 FILE *stream = NULL;
 
 int io_abstraction(int argc, char *argv[])
 {
-    // Stdin case.  
+    // TODO: handle arg error
+
+    // Stdin case.
     if (argc == 1)
         stream = stdin;
     // String case.
@@ -20,7 +24,7 @@ int io_abstraction(int argc, char *argv[])
         if (stream == NULL)
             goto error;
     }
-    // File case 
+    // File case
     else
     {
         stream = fopen(argv[1], "r");
@@ -30,9 +34,9 @@ int io_abstraction(int argc, char *argv[])
 
     return IO_SUCCESS;
 
-    error: 
-        fprintf(stderr, "io_abstraction: open stream failed <%d>\n", errno);
-        return IO_FAILED;
+error:
+    debug_printf("io_abstraction: open stream failed <%d>\n", errno);
+    return IO_FAILED;
 }
 
 char io_getchar(void)
@@ -48,7 +52,7 @@ int io_seek(size_t offset)
 {
     if (fseek(stream, offset, SEEK_SET) == -1)
     {
-        fprintf(stderr, "io_reverse: fseek failed <%d>", errno);
+        fprintf(stderr, "io_reverse: fseek failed <%d>\n", errno);
         return IO_FAILED;
     }
 

@@ -1,5 +1,5 @@
 #ifndef _POSIX_C_SOURCE
-#    define _POSIX_C_SOURCE 200809L
+#define _POSIX_C_SOURCE 200809L
 #endif
 
 #include "lexer.h"
@@ -191,10 +191,17 @@ static struct token parse_input_for_tok(struct lexer *lexer)
     return parse_input_for_tok(lexer);
 }
 
-struct lexer *lexer_new(void)
-{
+struct lexer *lexer_new(int argc, char *argv[])
+{  
+    if (io_abstraction(argc, argv) == IO_FAILED)
+        return NULL;
+
     struct lexer *lexer = calloc(1, sizeof(struct lexer));
+<<<<<<< .merge_file_6hfCWL
     lexer->current_word = string_create();
+=======
+  
+>>>>>>> .merge_file_Co2ik4
     return lexer;
 }
 
