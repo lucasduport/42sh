@@ -121,7 +121,7 @@ enum parser_status parser_element(struct lexer *lex, struct ast **res)
 {
     struct token peek = lexer_peek(lexer);
     
-    if (peek.type == TOKEN_WORD)
+    if (peek.type != TOKEN_SEMICOLONS && peek.type != TOKEN_NEWLINE && peek.type != TOKEN_EOF)
         return PARSER_OK;
     
     return PARSER_UNEXPECTED_TOKEN;

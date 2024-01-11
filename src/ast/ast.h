@@ -6,11 +6,7 @@
 enum ast_type
 {
     AST_IF,
-    AST_CONDITION,
-    AST_THEN,
-    AST_ELSE,
     AST_COMMAND,
-    AST_BOOL,
     AST_LIST
 };
 
