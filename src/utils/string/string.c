@@ -15,7 +15,7 @@ struct string *create_string(void)
 
 void append_char(struct string *str, char c)
 {
-    if (str->len == str->capacity)
+    if (str->len + 1 == str->capacity)
     {
         str->capacity *= 2;
         str->data = realloc(str->data, str->capacity * sizeof(char));
