@@ -5,7 +5,7 @@
 
 enum token_type
 {
-    TOKEN_IF,
+    TOKEN_IF = 0,
     TOKEN_THEN,
     TOKEN_ELIF,
     TOKEN_ELSE,
@@ -13,11 +13,11 @@ enum token_type
     TOKEN_SEMICOLONS,
     
     TOKEN_NEWLINE,
-    TOKEN_SINGLE_QUOTE,
-    
-    TOKEN_WORD,
 
     TOKEN_EOF,
+
+    TOKEN_WORD,
+
     TOKEN_ERROR
 };
 

@@ -2,6 +2,7 @@
 
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 struct string *create_string(void)
 {
@@ -14,7 +15,7 @@ struct string *create_string(void)
 
 void append_char(struct string *str, char c)
 {
-    if (str->len + 1 == str->capacity)
+    if (str->len == str->capacity)
     {
         str->capacity *= 2;
         str->data = realloc(str->data, str->capacity * sizeof(char));

@@ -1,6 +1,7 @@
 #ifndef LEXER_H
 #define LEXER_H
 
+#include "../utils/string/string.h"
 #include "token.h"
 
 struct lexer
@@ -27,24 +28,6 @@ struct lexer *lexer_new(void);
 struct token new_token(enum token_type type, struct string *str);
 
 /**
- * @brief Builds a string character by character using get_char()
- *
- *  char c = get_char();
- *
- *  If c is a space -> continue
- *  If single_quote is 1 and c is a quote -> update_quote()
- *      return token word
- *  Else
- *      build the string
- *      checl if the string is a reserved word then return the token
- *
- * @return The token built from the string
- * @see new_token()
- * @see check_for_reserved_tok()
- */
-struct token parse_input_for_tok(struct lexer *lexer);
-
-/**
  * @brief Gets the next token without consuming it
  *
  * @return The next token
@@ -52,17 +35,18 @@ struct token parse_input_for_tok(struct lexer *lexer);
 struct token lexer_peek(struct lexer *lexer);
 
 /**
- * @brief Gets the next token and consumes it
+ * @brief Gets the next token and consumes it.
  *
- * @return The next token
+ * @param lexer
+ * @return The next token.
  */
 struct token lexer_pop(struct lexer *lexer);
 
 /**
- * @brief Frees the lexer
+ * @brief Frees the lexer.
  *
- * @return The token
+ * @param lexer Struc lexer to free.
  */
-struct token lexer_free(struct lexer *lexer);
+void lexer_free(struct lexer *lexer);
 
 #endif /* ! LEXER_H */
