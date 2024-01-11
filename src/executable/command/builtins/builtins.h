@@ -2,14 +2,7 @@
 #define BUILTINS_H
 
 #include <unistd.h>
-
-struct list
-{
-    char *current;
-    struct list *next;
-};
-
-char *list_get_n(struct list *l, size_t n);
+#include "../utils/list/list.h"
 
 /**
  * @brief echo builtin
