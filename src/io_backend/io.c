@@ -10,6 +10,8 @@ FILE *stream = NULL;
 
 int io_abstraction(int argc, char *argv[])
 {
+    //TODO: handle arg error
+
     // Stdin case.  
     if (argc == 1)
         stream = stdin;
@@ -31,7 +33,7 @@ int io_abstraction(int argc, char *argv[])
     return IO_SUCCESS;
 
     error: 
-        fprintf(stderr, "io_abstraction: open stream failed <%d>\n", errno);
+        debug_printf("io_abstraction: open stream failed <%d>\n", errno);
         return IO_FAILED;
 }
 

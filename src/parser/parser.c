@@ -2,13 +2,34 @@
 
 #include <stdio.h>
 
-enum parser_status parser_input(struct lexer *lex, struct ast **res)
+enum parser_status parser(int argc, char *argv[], struct ast **res)
+{
+    struct lexer *lexer = lexer_new(argc, argv);
+    if (lexer == NULL)
+        return PARSER_ARG_ERROR;
+
+    return parser_input(lexer, res);
+}
+
+/**
+ * @brief Parse global grammar :
+ * 
+ *   list '\n'
+ * | list EOF
+ * | '\n'
+ * | EOF
+ * 
+ * @param parameter1 lexer used in current execution
+ * @param parameter2 result ast of parsing
+ * @return enum parser_status OK or UNEXPECTED_TOKEN if there is an error
+*/
+static enum parser_status parser_input(struct lexer *lex, struct ast **res)
 {
     struct token peek = lexer_peek(lex);
     *res = NULL;
 
     //first token = EOF or NEWLINE -> OK
-    if (peek.type == TOKEN_EOF || peek_type == TOKEN_NEWLINE)
+    if (peek.type == TOKEN_EOF || peek.type == TOKEN_NEWLINE)
         return PARSER_OK;
 
     if (peek.type == TOKEN_ERROR || parse_list(lex, res) == PARSER_UNEXPECTED_TOKEN)
@@ -16,7 +37,7 @@ enum parser_status parser_input(struct lexer *lex, struct ast **res)
 
     // parse_list works => there must be an EOF or NEWLINE.
     peek = lexer_peek(lex);
-    if (peek.type == TOKEN_EOF || peek_type == TOKEN_NEWLINE)
+    if (peek.type == TOKEN_EOF || peek.type == TOKEN_NEWLINE)
     {
         //Create ast RES with type AST_LIST
         struct ast *tmp = *res;
@@ -34,7 +55,12 @@ error:
     return PARSER_UNEXPECTED_TOKEN;
 }
 
-enum parser_status parser_list(struct lexer *lex, struct ast **res)
+/**
+ * @brief Parse list grammar :
+ * 
+ * and_or {';' and_or} [';']
+*/
+static enum parser_status parser_list(struct lexer *lex, struct ast **res)
 {
     if (parser_and_or(lex, res) == PARSER_UNEXPECTED_TOKEN)
         return PARSER_UNEXPECTED_TOKEN;
@@ -66,17 +92,33 @@ enum parser_status parser_list(struct lexer *lex, struct ast **res)
     return PARSER_OK;
 }
 
-enum parser_status parser_and_or(struct lexer *lex, struct ast **res)
+/**
+ * @brief Parse and and or grammar :
+ * 
+ * pipeline
+*/
+static enum parser_status parser_and_or(struct lexer *lex, struct ast **res)
 {
     return parser_pipeline(lex, res);
 }
 
-enum parser_status parser_pipeline(struct lexer *lex, struct ast **res)
+/**
+ * @brief Parse pipeline grammar :
+ * 
+ * command
+*/
+static enum parser_status parser_pipeline(struct lexer *lex, struct ast **res)
 {
     return parser_command(lex, res);
 }
 
-enum parser_status parser_command(struct lexer *lex, struct ast **res)
+/**
+ * @brief Parse command grammar :
+ * 
+ *   simple_command
+ * | shell command
+*/
+static enum parser_status parser_command(struct lexer *lex, struct ast **res)
 {
     struct token peek = lexer_peek(lex);
 
@@ -91,23 +133,28 @@ enum parser_status parser_command(struct lexer *lex, struct ast **res)
     return PARSER_UNEXPECTED_TOKEN;
 }
 
-enum parser_status parser_simple_command(struct lexer *lex, struct ast **res)
+/**
+ * @brief Parse simple command grammar :
+ * 
+ * WORD {element}
+*/
+static enum parser_status parser_simple_command(struct lexer *lex, struct ast **res)
 {
-    struct token peek = lexer_peek(lexer);
+    struct token peek = lexer_peek(lex);
 
     if (peek.type != TOKEN_WORD)
         return PARSER_UNEXPECTED_TOKEN;
-    lexer_pop(lexer);
+    lexer_pop(lex);
 
     *res = ast_new(AST_COMMAND);
     (*res)->arg = list_create(peek.data);
 
-    peek = lexer_peek(lexer);
+    peek = lexer_peek(lex);
     //EOF and '\n' -> follow of parser_simple_command
     while (peek.type != TOKEN_EOF && peek.type != TOKEN_NEWLINE && parser_element(lex, res) == PARSER_OK)
     {
         //pop because peek (and not pop) in element
-        peek = lexer_pop(lexer);
+        peek = lexer_pop(lex);
         list_append((*res)->arg, peek.data);
     }
 
@@ -117,9 +164,14 @@ enum parser_status parser_simple_command(struct lexer *lex, struct ast **res)
     return PARSER_UNEXPECTED_TOKEN;
 }
 
-enum parser_status parser_element(struct lexer *lex, struct ast **res)
+/**
+ * @brief Parse element grammar :
+ * 
+ * WORD
+*/
+static enum parser_status parser_element(struct lexer *lex, struct ast **res)
 {
-    struct token peek = lexer_peek(lexer);
+    struct token peek = lexer_peek(lex);
     
     if (peek.type != TOKEN_SEMICOLONS && peek.type != TOKEN_NEWLINE && peek.type != TOKEN_EOF)
         return PARSER_OK;
@@ -127,14 +179,24 @@ enum parser_status parser_element(struct lexer *lex, struct ast **res)
     return PARSER_UNEXPECTED_TOKEN;
 }
 
-enum parser_status parser_shell_command(struct lexer *lex, struct ast **res)
+/**
+ * @brief Parse shell command grammar :
+ * 
+ * rule_if
+*/
+static enum parser_status parser_shell_command(struct lexer *lex, struct ast **res)
 {
     return parser_rule_if(lex, res);
 }
 
-enum parser_status parser_rule_if(struct lexer *lex, struct ast **res)
+/**
+ * @brief Parse if grammar :
+ * 
+ * 'if' compund_list 'then' compound_list [else clause] 'fi'
+*/
+static enum parser_status parser_rule_if(struct lexer *lex, struct ast **res)
 {
-    struct token *peek = lexer_peek(lex);
+    struct token peek = lexer_peek(lex);
 
     if (peek.type == TOKEN_IF)
     {
@@ -196,9 +258,15 @@ enum parser_status parser_rule_if(struct lexer *lex, struct ast **res)
     return PARSER_UNEXPECTED_TOKEN;
 }
 
-enum parser_status parser_else_clause(struct lexer *lex, struct ast **res)
+/**
+ * @brief Parse else clause grammar :
+ * 
+ *   'else' compund_list
+ * | 'elif' compound_list 'then' compound_list [else clause]
+*/
+static enum parser_status parser_else_clause(struct lexer *lex, struct ast **res)
 {
-    struct token *peek = lexer_peek(lex);
+    struct token peek = lexer_peek(lex);
     if (peek.type == TOKEN_ELSE)
     {
         lexer_pop(lex);
@@ -258,7 +326,12 @@ enum parser_status parser_else_clause(struct lexer *lex, struct ast **res)
     return PARSER_UNEXPECTED_TOKEN;
 }
 
-enum parser_status parser_compound_list(struct lexer *lex, struct ast **res)
+/**
+ * @brief Parse compound_list grammar :
+ * 
+ *  {'\n'} and_or { (';' | '\n') {'\n'} and_or} [';'] {'\n'}
+*/
+static enum parser_status parser_compound_list(struct lexer *lex, struct ast **res)
 {
     struct token peek = lexer_peek(lex);
     while (peek.type == TOKEN_NEWLINE)

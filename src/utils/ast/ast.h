@@ -2,6 +2,7 @@
 #define AST_H
 
 #include <unistd.h>
+#include "../list/list.h"
 
 enum ast_type
 {
@@ -13,7 +14,7 @@ enum ast_type
 struct ast
 {
     enum ast_type type; ///< AST_TYPE of actual node
-    struct list *arg; ///< List of arguments if there are
+    struct list *arg; ///< List of arguments if there are some
     struct ast *next; ///< Point to the next child of the parent's node
     struct ast *first_child; ///< Point to the first child of the node
 };
@@ -47,5 +48,12 @@ void *ast_add_brother(struct ast *ast, struct ast *new_brother);
  * @param parameter1 ast that we want to free
  */
 void ast_free(struct ast *ast);
+
+/**
+ * @brief Print ast format pretty-print
+ *
+ * @param parameter1 ast that we want to print
+ */
+void ast_print(struct ast *ast);
 
 #endif /* !AST_H */

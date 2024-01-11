@@ -29,7 +29,7 @@ struct list *list_create(char *current);
 void list_append(struct list *l, char *current);
 
 /**
- * @brief Get the n eme argument.
+ * @brief Get the nth element.
  * 
  * @param l List to search in.
  * @param n Position of the element.
@@ -43,5 +43,12 @@ char *list_get_n(struct list *l, size_t n);
  * @param l Linked list to free.
  */
 void list_destroy(struct list *l);
+
+/**
+ * @brief Display a linked list.
+ *
+ * @param l Linked list to display.
+ */
+void list_print(struct list *l)
 
 #endif /* ! LIST_H */

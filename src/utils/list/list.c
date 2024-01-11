@@ -51,3 +51,15 @@ void list_destroy(struct list *l)
         free(tmp);
     }
 }
+
+void list_print(struct list *l)
+{
+    printf("[ ");
+
+    while (l->next != NULL)
+    {
+        printf("%s, ", l->current);
+    }
+
+    printf("%s ]", l->current);
+}
