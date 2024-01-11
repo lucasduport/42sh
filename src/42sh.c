@@ -1,5 +1,4 @@
 #include "parser/parser.h"
-#include "logger/logger.h"
 
 int main(int argc, char **argv)
 {

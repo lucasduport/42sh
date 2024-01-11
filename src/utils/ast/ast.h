@@ -2,6 +2,7 @@
 #define AST_H
 
 #include <unistd.h>
+#include "../../logger/logger.h"
 #include "../list/list.h"
 
 enum ast_type
@@ -40,7 +41,7 @@ struct ast *ast_new(enum ast_type type);
  * @param parameter1 current ast node
  * @param parameter2 brother that we want to add
 */
-void *ast_add_brother(struct ast *ast, struct ast *new_brother);
+void ast_add_brother(struct ast *ast, struct ast *new_brother);
 
 /**
  * @brief Recursively free the given ast

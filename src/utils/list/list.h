@@ -49,6 +49,6 @@ void list_destroy(struct list *l);
  *
  * @param l Linked list to display.
  */
-void list_print(struct list *l)
+void list_print(struct list *l);
 
 #endif /* ! LIST_H */

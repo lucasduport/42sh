@@ -4,6 +4,8 @@
 #define IO_SUCCESS 0
 #define IO_FAILED 1
 
+#include <stddef.h>
+
 /**
  * @brief Transform all inputs to a unique stream.
  * @param argc Number of argument.

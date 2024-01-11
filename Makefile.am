@@ -4,5 +4,5 @@ all:
 clean:
 	@cd src && $(MAKE) clean
 
-check:
-	@cd src && $(MAKE) check
+check: all
+	@cd tests && $(MAKE) check-all
