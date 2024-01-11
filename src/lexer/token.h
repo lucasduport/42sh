@@ -11,14 +11,10 @@ enum token_type
     TOKEN_ELSE,
     TOKEN_FI,
     TOKEN_SEMICOLONS,
-    
     TOKEN_NEWLINE,
-
     TOKEN_EOF,
 
     TOKEN_WORD,
-
-    TOKEN_ERROR
 };
 
 struct token

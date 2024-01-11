@@ -13,10 +13,48 @@
 
 #include "../io_backend/io.h"
 #include "../utils/string/string.h"
+#include "../logger/logger.h"
 
-static void update_single_quote(struct lexer *lexer)
+/**
+ * @brief Print token data & token type if --verbose
+*/
+static void print_token(struct token token)
 {
-    lexer->single_quote = lexer->single_quote == 0 ? 1 : 0;
+    debug_printf("Token: %s\n", token.data);
+
+    switch (token.type)
+    {
+    case TOKEN_IF:
+        debug_printf("Type: TOKEN_IF\n");
+        break;
+    case TOKEN_THEN:
+        debug_printf("Type: TOKEN_THEN\n");
+        break;
+    case TOKEN_ELIF:
+        debug_printf("Type: TOKEN_ELIF\n");
+        break;
+    case TOKEN_ELSE:
+        debug_printf("Type: TOKEN_ELSE\n");
+        break;
+    case TOKEN_FI:
+        debug_printf("Type: TOKEN_FI\n");
+        break;
+    case TOKEN_SEMICOLONS:
+        debug_printf("Type: TOKEN_SEMICOLONS\n");
+        break;
+    case TOKEN_NEWLINE:
+        debug_printf("Type: TOKEN_NEWLINE\n");
+        break;
+    case TOKEN_WORD:
+        debug_printf("Type: TOKEN_WORD\n");
+        break;
+    case TOKEN_EOF:
+        debug_printf("Type: TOKEN_EOF\n");
+        break;
+    default:
+        debug_printf("Type: TOKEN_UNKNOWN\n");
+        break;
+    }
 }
 
 struct token new_token(enum token_type type, struct string *str)
@@ -26,7 +64,8 @@ struct token new_token(enum token_type type, struct string *str)
     token.type = type;
 
     delete_string(str);
-
+    
+    print_token(token);
     return token;
 }
 
@@ -103,7 +142,7 @@ static void feed_word(struct lexer *lexer, struct string *word, char c)
 {
     while (is_valid_char(c))
     {
-        printf("'%c -- %ld'\n", c, lexer->offset);
+        //debug_printf("'%c -- %ld'\n", c, lexer->offset);
         append_char(word, c);
         c = io_getchar();
         lexer->offset++;
@@ -113,6 +152,23 @@ static void feed_word(struct lexer *lexer, struct string *word, char c)
         append_char(word, c);
     else
         io_seek(--lexer->offset);
+}
+
+static void single_quote_process(struct lexer *lexer, struct string *word, char c)
+{
+    c = io_getchar();
+    lexer->offset++;
+    while (c != '\'')
+    {
+        if (c == '\0')
+            errx(2, "(lexer): missing single quote");
+
+        //debug_printf("'%c -- %ld'\n", c, lexer->offset);
+        append_char(word, c);
+        c = io_getchar();
+        lexer->offset++;
+    }
+    append_char(word, '\0');
 }
 
 /**
@@ -141,26 +197,13 @@ static struct token parse_input_for_tok(struct lexer *lexer)
         current_char = skip_comment(lexer);
 
     if (current_char == '\'')
-        update_single_quote(lexer);
-
-    if (lexer->single_quote)
     {
-        while (current_char != '\'')
-        {
-            if (current_char == '\0')
-                errx(2, "single quote is missing!\n");
-
-            append_char(word, current_char);
-            current_char = io_getchar();
-            lexer->offset++;
-        }
-        update_single_quote(lexer);
+        single_quote_process(lexer, word, current_char);
         return new_token(TOKEN_WORD, word);
     }
     else
     {
         feed_word(lexer, word, current_char);
-
         return create_token(word);
     }
 }
