@@ -1,24 +1,17 @@
-check_PROGRAMS = criterion_lexer criterion_io
+check_PROGRAMS = testsIo
 
-criterion_lexer_SOURCES = tests_lexer.c
-criterion_lexer_CPP = -I$(top_srcdir)/src
+testsIo_SOURCES = tests_io.c
 
-criterion_lexer_LDADD = -lcriterion \
-                $(top_builddir)/src/liblexer.a
+testsIo_LDADD = -lcriterion \
+			$(top_srcdir)/src/io_backend/libio_backend.a \
+			$(top_srcdir)/src/logger/liblogger.a
 
-criterion_io_SOURCES = tests_io.c
-criterion_io_CPP = -I$(top_srcdir)/src
+check-io: testsIo
+	./testsIo
 
-criterion_io_LDADD = -lcriterion \
-                $(top_builddir)/src/libio_backend.a
+check-local: testsIo
+	./$(check_PROGRAMS)
+	./launch_tests.sh
 
-check-lexer: criterion_lexer
-    ./criterion_lexer
-
-check-io: criterion_io
-    ./criterion_io
-
-check-all: criterion_io criterion_lexer
-    ./criterion_io
-    ./criterion_lexer
-    ./launch_tests.sh
+clean-local:
+	rm -f testsIo

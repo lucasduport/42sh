@@ -7,7 +7,6 @@ libutils_a_SOURCES =  \
     list/list.h \
     string/string.c \
     string/string.h
-
 libutils_a_CPPFLAGS = -I$(top_srcdir)/src
 
 libutils_a_CFLAGS = -std=c99 -Werror -Wall -Wextra -Wvla -pedantic

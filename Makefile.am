@@ -1,8 +1,9 @@
 all:
-	@cd src && $(MAKE) all
+	@cd src && $(MAKE) -s all
 
 clean:
-	@cd src && $(MAKE) clean
+	@cd src && $(MAKE) -s clean
+	@cd tests && $(MAKE) -s clean
 
-check: all
-	@cd tests && $(MAKE) check-all
+check:
+	@cd tests && $(MAKE) -s check-local
