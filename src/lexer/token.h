@@ -23,4 +23,9 @@ struct token
     char* data;
 };
 
+/**
+ * @brief Print token data & token type if --verbose
+ */
+void print_token(struct token token);
+
 #endif /* ! TOKEN_H */

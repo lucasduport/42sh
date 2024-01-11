@@ -1,10 +1,10 @@
-#include "string.h"
-
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-struct string *create_string(void)
+#include "string.h"
+
+struct string *string_create(void)
 {
     struct string *str = malloc(sizeof(struct string));
     str->data = malloc(sizeof(char) * 16);
@@ -13,7 +13,7 @@ struct string *create_string(void)
     return str;
 }
 
-void append_char(struct string *str, char c)
+void string_append_char(struct string *str, char c)
 {
     if (str->len + 1 == str->capacity)
     {
@@ -24,8 +24,20 @@ void append_char(struct string *str, char c)
     str->len++;
 }
 
-void delete_string(struct string *str)
+void string_pop_char(struct string *str)
+{
+    str->len--;
+    str->data[str->len] = '\0';
+}
+
+void string_destroy(struct string *str)
 {
     free(str->data);
     free(str);
+}
+
+struct string *string_reset(struct string *str)
+{
+    string_destroy(str);
+    return string_create();
 }

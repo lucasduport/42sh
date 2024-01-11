@@ -11,60 +11,21 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../io_backend/io.h"
-#include "../utils/string/string.h"
-#include "../logger/logger.h"
-
 /**
- * @brief Print token data & token type if --verbose
-*/
-static void print_token(struct token token)
-{
-    debug_printf("Token: %s\n", token.data);
-
-    switch (token.type)
-    {
-    case TOKEN_IF:
-        debug_printf("Type: TOKEN_IF\n");
-        break;
-    case TOKEN_THEN:
-        debug_printf("Type: TOKEN_THEN\n");
-        break;
-    case TOKEN_ELIF:
-        debug_printf("Type: TOKEN_ELIF\n");
-        break;
-    case TOKEN_ELSE:
-        debug_printf("Type: TOKEN_ELSE\n");
-        break;
-    case TOKEN_FI:
-        debug_printf("Type: TOKEN_FI\n");
-        break;
-    case TOKEN_SEMICOLONS:
-        debug_printf("Type: TOKEN_SEMICOLONS\n");
-        break;
-    case TOKEN_NEWLINE:
-        debug_printf("Type: TOKEN_NEWLINE\n");
-        break;
-    case TOKEN_WORD:
-        debug_printf("Type: TOKEN_WORD\n");
-        break;
-    case TOKEN_EOF:
-        debug_printf("Type: TOKEN_EOF\n");
-        break;
-    default:
-        debug_printf("Type: TOKEN_UNKNOWN\n");
-        break;
-    }
-}
-
-struct token new_token(enum token_type type, struct string *str)
+ * @brief Creates a new token
+ *
+ * @param type The type of the token
+ * @param lexer
+ * @return The new token
+ */
+static struct token token_alloc(enum token_type type, struct lexer *lexer)
 {
     struct token token;
-    token.data = strdup(str->data);
+    token.data = strdup(lexer->current_word->data);
     token.type = type;
 
-    delete_string(str);
-    
+    string_reset(lexer->current_word);
+
     print_token(token);
     return token;
 }
@@ -75,7 +36,7 @@ struct token new_token(enum token_type type, struct string *str)
  * @param word
  * @return struct token
  */
-static struct token create_token(struct string *word)
+static struct token token_new(struct string *word)
 {
     append_char(word, '\0');
 
@@ -86,131 +47,154 @@ static struct token create_token(struct string *word)
     {
         if (!strcmp(reserved_words[i], word->data))
         {
-            return new_token((enum token_type)i, word);
+            return token_alloc((enum token_type)i, word);
         }
     }
-    return new_token(TOKEN_WORD, word);
+
+    return token_alloc(TOKEN_WORD, word);
 }
 
-static char skip_spaces(struct lexer *lexer)
+static int first_char_op(char c)
 {
-    char current_char = io_getchar();
+    char reserved_char[] = { ';', '>', '<', '|', '&', '\n', '(', ')' };
+    for (size_t i = 0; i < sizeof(reserved_char) / sizeof(char); i++)
+    {
+        if (c == reserved_char[i])
+            return 1;
+    }
+    return 0;
+}
+
+static int is_valid_operator(struct lexer *lexer)
+{
+    char reserved_operators[] = { '&',  '&&', '(',  ')',  ';',   ';;',
+                                  '\n', '|',  '||', '<',  '>',   '>|',
+                                  '<<', '>>', '<&', '&>', '<<-', '<>' };
+
+    string_append_char(lexer->current_word, lexer->current_char);
+    for (size_t i = 0; i < sizeof(reserved_operators) / sizeof(char); i++)
+    {
+        if (strstr(reserved_operators[i], lexer->current_word) != NULL)
+        {
+            string_pop_char(lexer->current_word);
+            return 1;
+        }
+    }
+    string_pop_char(lexer->current_word);
+    return 0;
+}
+
+static int is_quote(struct lexer *lexer)
+{
+    char quotes[] = { '\\', '\'', '\"' };
+    for (size_t i = 0; i < sizeof(quotes) / sizeof(char); i++)
+    {
+        if (lexer->current_char == quotes[i])
+            return 1;
+    }
+    return 0;
+}
+
+static int is_subshell(struct lexer *lexer)
+{
+    char sub_shell_char[] = { '$', '`' };
+
+    for (size_t i = 0; i < sizeof(sub_shell_char) / sizeof(char); i++)
+    {
+        if (sub_shell_char[i] == lexer->current_char)
+            return 1;
+    }
+
+    return 0;
+}
+
+static void update_quote(struct lexer *lexer)
+{
+    lexer->is_quoted = lexer->is_quoted == 0 ? 1 : 0;
+}
+
+static void get_char(struct lexer *lexer)
+{
+    lexer->current_char = io_getchar();
     lexer->offset++;
-
-    while (current_char == ' ')
-    {
-        current_char = io_getchar();
-        lexer->offset++;
-    }
-    return current_char;
 }
 
-static char skip_comment(struct lexer *lexer)
+static void skip_space(struct lexer *lexer)
 {
-    char current_char = io_getchar();
-    lexer->offset++;
-
-    while (current_char != '\n' && current_char != '\0')
+    get_char(lexer);
+    while (lexer->current_char == ' ' || lexer->current_char == '\t')
     {
-        current_char = io_getchar();
-        lexer->offset++;
+        get_char(lexer);
     }
-    return current_char;
 }
 
-static int is_valid_char(char c)
+static void skip_comment(struct lexer *lexer)
 {
-    char invalid_char[] = { ' ', '\n', ';', '\0' };
-
-    for (size_t i = 0; i < 4; i++)
+    get_char(lexer);
+    while (lexer->current_char == '\n')
     {
-        if (c == invalid_char[i])
-            return 0;
+        get_char(lexer);
     }
-
-    return 1;
 }
 
-/**
- * @brief Builds a word string character by character using io_getchar()
- * 
- * @param lexer
- * @param word
- * @param c
-*/
-static void feed_word(struct lexer *lexer, struct string *word, char c)
-{
-    while (is_valid_char(c))
-    {
-        //debug_printf("'%c -- %ld'\n", c, lexer->offset);
-        append_char(word, c);
-        c = io_getchar();
-        lexer->offset++;
-    }
-
-    if (word->len == 0)
-        append_char(word, c);
-    else
-        io_seek(--lexer->offset);
-}
-
-static void single_quote_process(struct lexer *lexer, struct string *word, char c)
-{
-    c = io_getchar();
-    lexer->offset++;
-    while (c != '\'')
-    {
-        if (c == '\0')
-            errx(2, "(lexer): missing single quote");
-
-        //debug_printf("'%c -- %ld'\n", c, lexer->offset);
-        append_char(word, c);
-        c = io_getchar();
-        lexer->offset++;
-    }
-    append_char(word, '\0');
-}
-
-/**
- * @brief Builds a string character by character using io_getchar()
- *
- *  char c = get_char();
- *
- *  If c is a space -> continue
- *  If single_quote is 1 and c is a quote -> update_quote()
- *      return token word
- *  Else
- *      build the string
- *      checl if the string is a reserved word then return the token
- *
- * @return The token built from the string
- * @see new_token()
- * @see check_for_reserved_tok()
- */
 static struct token parse_input_for_tok(struct lexer *lexer)
 {
-    struct string *word = create_string();
+    get_char(lexer);
 
-    char current_char = skip_spaces(lexer);
-    
-    if (current_char == '#')
-        current_char = skip_comment(lexer);
-
-    if (current_char == '\'')
+    if (lexer->current_char == '\0')
     {
-        single_quote_process(lexer, word, current_char);
-        return new_token(TOKEN_WORD, word);
+        if (lexer->current_word->len == 0)
+            string_append_char(lexer->current_word, lexer->current_char);
+
+        return token_new(lexer->current_word);
     }
+
+    else if (lexer->last_is_op && !lexer->is_quoted && is_valid_operator(lexer))
+        string_append_char(lexer->current_word, lexer->current_char);
+
+    else if (lexer->last_is_op && !is_valid_operator(lexer))
+        return token_new(lexer->current_word);
+
+    else if (is_quote(lexer->current_char && !lexer->is_quoted))
+        update_quote(lexer);
+
+    else if (!lexer->is_quoted && is_subshell(lexer))
+    {
+        // TODO: subshell completion.
+    }
+
+    else if (!lexer->is_quoted && first_char_op(lexer->current_char))
+    {
+        struct token tok = token_new(lexer->current_word);
+        string_append_char(lexer->current_word, lexer->current_char);
+        return tok;
+    }
+    else if (!lexer->is_quoted && lexer->current_char == '\n')
+        return token_new(lexer->current_word);
+
+    else if (!lexer->is_quoted && lexer->current_char == ' ')
+    {
+        struct token tok = token_new(lexer->current_word);
+        skip_space(lexer);
+        return tok;
+    }
+
+    else if (lexer->current_word->len != 0)
+        string_append_char(lexer->current_word, lexer->current_char);
+
+    else if (lexer->current_char == '#')
+        skip_comment(lexer);
+
     else
-    {
-        feed_word(lexer, word, current_char);
-        return create_token(word);
-    }
+        string_append_char(lexer->current_word, lexer->current_char);
+
+    return parse_input_for_tok(lexer);
 }
 
 struct lexer *lexer_new(void)
 {
     struct lexer *lexer = calloc(1, sizeof(struct lexer));
+    lexer->current_word = string_create();
     return lexer;
 }
 
