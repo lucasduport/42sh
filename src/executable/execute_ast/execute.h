@@ -7,10 +7,10 @@
 #include "../../utils/list/list.h"
 
 /** ERROR VALUE
- * 0 if successfull
- * 127 if there is wrong command
- * -1 if there is an error on our part
- * 1 otherwhise
+ *  0    if successfull
+ *  127  if there is wrong command
+ * -1    if there is an error on our part
+ *  1    otherwhise
  * */
 
 /**

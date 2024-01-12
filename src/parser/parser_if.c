@@ -13,10 +13,12 @@ static enum parser_status sub_parse_then(struct lexer *lex, struct ast *tmp_cond
     if (peek.type != TOKEN_THEN)
     {
         debug_printf("[PARSER] Failed parse 'then' token");
+        token_free(peek);
         return PARSER_UNEXPECTED_TOKEN;
     }
 
-    lexer_pop(lex);
+    token_free(peek);
+    token_free(lexer_pop(lex));
 
     struct ast *tmp_then = NULL;
 
@@ -48,6 +50,7 @@ static enum parser_status sub_parse_else(struct lexer *lex, struct ast *tmp_cond
         struct ast *tmp_else = NULL;
         if (parser_else_clause(lex, &tmp_else) == PARSER_UNEXPECTED_TOKEN)
         {
+            token_free(peek);
             debug_printf("[PARSER] Failed parse else_clause");
             ast_free(tmp_else);
             return PARSER_UNEXPECTED_TOKEN;
@@ -55,6 +58,7 @@ static enum parser_status sub_parse_else(struct lexer *lex, struct ast *tmp_cond
             
         ast_add_brother(tmp_condition, tmp_else);
     }
+    token_free(peek);
     return PARSER_OK;
 }
 
@@ -64,7 +68,8 @@ enum parser_status parser_rule_if(struct lexer *lex, struct ast **res)
 
     if (peek.type == TOKEN_IF)
     {
-        lexer_pop(lex);
+        token_free(peek);
+        token_free(lexer_pop(lex));
         *res = ast_new(AST_IF);
 
         //PARSE CONDITION
@@ -91,10 +96,12 @@ enum parser_status parser_rule_if(struct lexer *lex, struct ast **res)
         peek = lexer_peek(lex);
         if (peek.type == TOKEN_FI)
         {
-            lexer_pop(lex);
+            token_free(peek);
+            token_free(lexer_pop(lex));
             return PARSER_OK;
         }
     }
+    token_free(peek);
     return PARSER_UNEXPECTED_TOKEN;
 }
 
@@ -103,14 +110,15 @@ enum parser_status parser_else_clause(struct lexer *lex, struct ast **res)
     struct token peek = lexer_peek(lex);
     if (peek.type == TOKEN_ELSE)
     {
-        lexer_pop(lex);
+        token_free(peek);
+        token_free(lexer_pop(lex));
         return parser_compound_list(lex, res);
     }
 
     else if (peek.type == TOKEN_ELIF)
     {
-        debug_printf("[PARSER] Enter in elif - else_clause");
-        lexer_pop(lex);
+        token_free(peek);
+        token_free(lexer_pop(lex));
         *res = ast_new(AST_IF);
 
         //PARSE CONDITION
@@ -135,5 +143,6 @@ enum parser_status parser_else_clause(struct lexer *lex, struct ast **res)
         return PARSER_OK;
     }
 
+    token_free(peek);
     return PARSER_UNEXPECTED_TOKEN;
 }

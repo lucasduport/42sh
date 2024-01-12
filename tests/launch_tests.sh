@@ -1,8 +1,8 @@
 #!/bin/sh
 
 # Constants
-BINARY=/bin/bash
-REFERENCE=/bin/bash
+BINARY=../src/42sh -c  
+REFERENCE=bash -c
 
 # Colors
 RED='\033[0;31m'

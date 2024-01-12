@@ -38,5 +38,7 @@ int main(int argc, char **argv)
     //tok = lexer_pop(lexer);
     */
 
+    ast_free(res);
+
     return 0;
 }

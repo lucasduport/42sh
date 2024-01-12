@@ -5,10 +5,13 @@
 
 struct ast *ast_new(enum ast_type type)
 {
-    struct ast *new = calloc(1, sizeof(struct ast));
+    struct ast *new = malloc(sizeof(struct ast));
     if (!new)
         return NULL;
     new->type = type;
+    new->arg = NULL;
+    new->first_child = NULL;
+    new->next = NULL;
     return new;
 }
 
@@ -25,22 +28,15 @@ void ast_free(struct ast *ast)
     if (ast == NULL)
         return;
 
-    //Free other child of the same parent
-    struct ast *p = ast->next;
-    struct ast *tmp;
-    while (p != NULL)
-    {
-        tmp = p;
-        p = p->next;
-        ast_free(tmp);
-    }
-
     //Free first child of the ast
     ast_free(ast->first_child);
     
     //Free argument of the node
-    list_destroy(ast->arg); 
+    list_destroy(ast->arg);
 
+    //Free next child of the same parent
+    ast_free(ast->next);
+    
     free(ast);
 }
 
@@ -49,7 +45,6 @@ void ast_print(struct ast *ast)
     if (ast == NULL)
         return;
 
-    
     if (ast->type == AST_IF)
     {
         printf("if { ");
