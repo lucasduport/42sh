@@ -12,8 +12,8 @@ int main(int argc, char **argv)
         return 2;
     }
 
-    //ast_print(res);
-    //puts("");
+    ast_print(res);
+    puts("");
 
     execute_ast(res);
 
