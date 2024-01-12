@@ -17,8 +17,8 @@ enum parser_status
 /**
  * @brief Initialize lexer and parse imput
  * 
- * @param parameter1 argc given in main
- * @param parameter2 argv given in main
+ * @param argc argc given in main
+ * @param argv argv given in main
  * @return parser_status > PARSER_ARG_ERROR if lexing failed
  *                      > PARSER_UNEXPECTED_TOKEN if parsing failed
  *                      > PARSER_OK otherwhise
@@ -33,8 +33,8 @@ enum parser_status parser(int argc, char *argv[], struct ast **res);
  * | '\n'
  * | EOF
  * 
- * @param parameter1 lexer used in current execution
- * @param parameter2 result ast of parsing
+ * @param lex Lexer used in current execution
+ * @param res Result ast of parsing
  * @return enum parser_status OK or UNEXPECTED_TOKEN if there is an error
 */
 enum parser_status parser_input(struct lexer *lex, struct ast **res);

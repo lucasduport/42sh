@@ -3,7 +3,7 @@
 
 int main(int argc, char **argv)
 {
-    //create_logger("stdout");
+    create_logger("stdout");
     
     struct ast *res;
     if (parser(argc, argv, &res) != PARSER_OK)
