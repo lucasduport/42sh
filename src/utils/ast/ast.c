@@ -37,6 +37,9 @@ void ast_free(struct ast *ast)
 
     //Free first child of the ast
     ast_free(ast->first_child);
+    
+    //Free argument of the node
+    list_destroy(ast->arg); 
 
     free(ast);
 }
@@ -71,7 +74,7 @@ void ast_print(struct ast *ast)
         {
             printf(" } else { ");
             ast_print(child->next);
-            printf(" }\n");
+            printf(" }");
         }
     }
     
