@@ -40,3 +40,8 @@ void print_token(struct token token)
         break;
     }
 }
+
+void token_free(struct token token)
+{
+    free(token.data);
+}

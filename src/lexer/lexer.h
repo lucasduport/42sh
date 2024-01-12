@@ -9,7 +9,8 @@ struct lexer
 {
     struct string *current_word;
     char current_char;
-    
+    char current_quote;
+
     int last_is_op; 
     int is_quoted;
     size_t offset;

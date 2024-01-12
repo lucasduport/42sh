@@ -4,7 +4,7 @@
 int main(int argc, char **argv)
 {
     // create_logger("stdout");
-    /*
+
     struct ast *res;
     if (parser(argc, argv, &res) != PARSER_OK)
     {
@@ -16,8 +16,8 @@ int main(int argc, char **argv)
     puts("");
 
     // TODO: Ast evalutation.
-    */
 
+    /*
     create_logger("stdout");
 
     struct lexer *lexer = lexer_new(argc, argv);
@@ -29,6 +29,7 @@ int main(int argc, char **argv)
 
         free(tok.data);
     }
+    */
 
     return 0;
 }
