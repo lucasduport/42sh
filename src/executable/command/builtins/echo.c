@@ -22,7 +22,7 @@ static int parse_option(char *str, struct option *options)
     int newline = 0;
     int escape = 0;
 
-    for (size_t i = 0; str[i] != '\0'; i++)
+    for (size_t i = 1; str[i] != '\0'; i++)
     {
         char c = str[i];
         if (c == 'e')
