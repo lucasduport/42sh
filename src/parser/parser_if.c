@@ -1,6 +1,39 @@
 #include "parser.h"
 
 /**
+ * @brief Sub function to parse then_clause
+ * 
+ * @param lex Lexer used in current execution
+ * @param tmp_condition Ast that contains condition of the if concern by else_parsing
+ * @return parser_status
+*/
+static enum parser_status sub_parse_then(struct lexer *lex, struct ast *tmp_condition)
+{
+    struct token peek = lexer_peek(lex);
+    if (peek.type != TOKEN_THEN)
+    {
+        debug_printf("[PARSER] Failed parse 'then' token");
+        return PARSER_UNEXPECTED_TOKEN;
+    }
+
+    lexer_pop(lex);
+
+    struct ast *tmp_then = NULL;
+
+    if (parser_compound_list(lex, &tmp_then) == PARSER_UNEXPECTED_TOKEN)
+    {
+        debug_printf("[PARSER] Failed parse 'then' list");
+        ast_free(tmp_then);
+        return PARSER_UNEXPECTED_TOKEN;
+    }
+
+    //add brother at tmp_condition (and not res) because that is IF node that have different child
+    ast_add_brother(tmp_condition, tmp_then);
+
+    return PARSER_OK;
+}
+
+/**
  * @brief Sub function to parse else_clause
  * 
  * @param lex Lexer used in current execution
@@ -47,26 +80,8 @@ enum parser_status parser_rule_if(struct lexer *lex, struct ast **res)
         (*res)->first_child = tmp_condition;
 
         //PARSE THEN
-        peek = lexer_peek(lex);
-        if (peek.type != TOKEN_THEN)
-        {
-            debug_printf("[PARSER] Failed parse 'then' token - rule_if");
+        if (sub_parse_then(lex, tmp_condition) == PARSER_UNEXPECTED_TOKEN)
             return PARSER_UNEXPECTED_TOKEN;
-        }
-
-        lexer_pop(lex);
-
-        struct ast *tmp_then = NULL;
-
-        if (parser_compound_list(lex, &tmp_then) == PARSER_UNEXPECTED_TOKEN)
-        {
-            debug_printf("[PARSER] Failed parse 'then' list - rule_if");
-            ast_free(tmp_then);
-            return PARSER_UNEXPECTED_TOKEN;
-        }
-
-        //add brother at tmp_condition (and not res) because that is IF node that have different child
-        ast_add_brother(tmp_condition, tmp_then);
 
         //PARSE ELSE (IF THERE IS)
         if (sub_parse_else(lex, tmp_condition) == PARSER_UNEXPECTED_TOKEN)
@@ -76,7 +91,6 @@ enum parser_status parser_rule_if(struct lexer *lex, struct ast **res)
         peek = lexer_peek(lex);
         if (peek.type == TOKEN_FI)
         {
-            debug_printf("[PARSER] Failed parse 'fi' token - rule_if");
             lexer_pop(lex);
             return PARSER_OK;
         }
@@ -111,22 +125,8 @@ enum parser_status parser_else_clause(struct lexer *lex, struct ast **res)
         (*res)->first_child = tmp_condition;
 
         //PARSE THEN
-        peek = lexer_peek(lex);
-        if (peek.type != TOKEN_THEN)
+        if (sub_parse_then(lex, tmp_condition) == PARSER_UNEXPECTED_TOKEN)
             return PARSER_UNEXPECTED_TOKEN;
-
-        lexer_pop(lex);
-
-        struct ast *tmp_then = NULL;
-
-        if (parser_compound_list(lex, &tmp_then) == PARSER_UNEXPECTED_TOKEN)
-        {
-            ast_free(tmp_then);
-            return PARSER_UNEXPECTED_TOKEN;
-        }
-
-        //add brother at tmp_condition (and not res) because that is IF node that have different child
-        ast_add_brother(tmp_condition, tmp_then);
 
         //PARSE ELSE (IF THERE IS)
         if (sub_parse_else(lex, tmp_condition) == PARSER_UNEXPECTED_TOKEN)
