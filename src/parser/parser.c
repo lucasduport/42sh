@@ -56,6 +56,8 @@ enum parser_status parser_element(struct lexer *lex)
     
     if (peek.type != TOKEN_SEMICOLONS && peek.type != TOKEN_NEWLINE && peek.type != TOKEN_EOF)
         return PARSER_OK;
+
     
+    debug_printf("[PARSER] It's not an element");
     return PARSER_UNEXPECTED_TOKEN;
 }

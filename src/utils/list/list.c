@@ -48,6 +48,7 @@ void list_destroy(struct list *l)
     {
         struct list *tmp = l;
         l = l->next;
+        free(tmp->current);
         free(tmp);
     }
 }
