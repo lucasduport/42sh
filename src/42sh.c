@@ -21,12 +21,20 @@ int main(int argc, char **argv)
     /*
     create_logger("stdout");
 
+    debug_printf("LEXER_PEEK");
     struct lexer *lexer = lexer_new(argc, argv);
 
-    struct token tok = lexer_pop(lexer);
+    struct token tok = lexer_peek(lexer);
     while (tok.type != TOKEN_EOF)
     {
+        debug_printf("offset after peek: %zu\n", lexer->offset);
+        
+        debug_printf("LEXER_POP");
         tok = lexer_pop(lexer);
+        debug_printf("offset after pop: %zu\n", lexer->offset);
+
+        debug_printf("LEXER_PEEK");
+        tok = lexer_peek(lexer);
 
         free(tok.data);
     }
