@@ -2,29 +2,30 @@
 #define BUILTINS_H
 
 #include <unistd.h>
-#include "../../utils/list/list.h"
+#include "../../../utils/list/list.h"
+#include "../../../logger/logger.h"
 
 /**
  * @brief echo builtin
  * 
  * @param list Linked list of argument (echo -> ...)
- * @return return code
+ * @return 0
 */
 int builtin_echo(struct list *list);
+
+/**
+ * @brief true builtin
+ * 
+ * @param list Linked list (not used)
+  * @return returns 0
+*/
+int builtin_true(struct list *list);
 
 /**
  * @brief false builtin
  * 
  * @param list Linked list (not used)
   * @return returns 1
-*/
-int builtin_false(struct list *list);
-
-/**
- * @brief false builtin
- * 
- * @param list Linked list (not used)
-  * @return returns 0
 */
 int builtin_false(struct list *list);
 

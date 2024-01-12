@@ -2,6 +2,9 @@
 #define EXECUTE_H
 
 #include "../../utils/ast/ast.h"
+#include "../../logger/logger.h"
+#include "../command/builtins/builtins.h"
+#include "../../utils/list/list.h"
 
 /** ERROR VALUE
  * 0 if successfull

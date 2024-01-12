@@ -6,6 +6,7 @@ SUBDIRS = \
 		  utils \
 		  lexer \
 		  parser \
+		  executable/execute_ast \
 		  executable/command
 
 bin_PROGRAMS = 42sh 42sh_gdb 42sh_fsanitize
@@ -24,7 +25,8 @@ bin_PROGRAMS = 42sh 42sh_gdb 42sh_fsanitize
 	lexer/liblexer.a \
 	parser/libparser.a \
 	utils/libutils.a \
-	executable/command/lib_command.a
+	executable/command/libcommand.a \
+	executable/execute_ast/libexecute.a
 
 42sh_gdb_SOURCES = 42sh.c
 
@@ -40,7 +42,8 @@ bin_PROGRAMS = 42sh 42sh_gdb 42sh_fsanitize
 	lexer/liblexer.a \
 	parser/libparser.a \
 	utils/libutils.a \
-	executable/command/lib_command.a
+	executable/command/libcommand.a \
+	executable/execute_ast/libexecute.a
 
 42sh_fsanitize_SOURCES = 42sh.c
 
@@ -56,7 +59,8 @@ bin_PROGRAMS = 42sh 42sh_gdb 42sh_fsanitize
 	lexer/liblexer.a \
 	parser/libparser.a \
 	utils/libutils.a \
-	executable/command/lib_command.a
+	executable/command/libcommand.a \
+	executable/execute_ast/libexecute.a
 
 all: 42sh
 

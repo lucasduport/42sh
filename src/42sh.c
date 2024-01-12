@@ -1,8 +1,8 @@
 #include "parser/parser.h"
+#include "executable/execute_ast/execute.h"
 
 int main(int argc, char **argv)
 {
-
     //create_logger("stdout");
     
     struct ast *res;
@@ -15,7 +15,7 @@ int main(int argc, char **argv)
     ast_print(res);
     puts("");
 
-    // TODO: Ast evalutation.
+    execute_ast(res);
 
     return 0;
 }

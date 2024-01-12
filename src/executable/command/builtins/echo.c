@@ -51,23 +51,23 @@ static void replace(char *element)
 
 int builtin_echo(struct list *list)
 {
-    int i = 1;
-    struct list *element = list_get_n(list, i);
+    //To browse all arg list without echo at the beginning
+    struct list *p = list->next;
 
     int option_n = 0;
     int option_e = 1;
 
-    int option_error = 0;
+    int end_option = 0;
 
-    while (element != NULL)
+    while (p != NULL && !end_option)
     {
-        if (element->current[0] == '-')
+        if (p->current[0] == '-' && !end_option)
         {
-            for (int i = 1; element->current[i] != '\0'; i++)
+            for (int i = 1; p->current[i] != '\0'; i++)
             {
-                char c = element->current[i];
+                char c = p->current[i];
                 if (c != 'e' && c != 'E' && c != 'n')
-                    option_error = 1;
+                    end_option = 1;
 
                 if (c == 'e' || c == 'E')
                     option_e = option_e == 0 ? 1 : 0;
@@ -76,18 +76,28 @@ int builtin_echo(struct list *list)
                     option_n = 1;
             }
         }
+        else
+            end_option = 1;
+        
+        if (!end_option)
+            p = p->next;
+    }
 
+    while (p != NULL)
+    {
         if (option_e)
-        {
-            printf("%s", element->current);
-        }
+            printf("%s", p->current);
+
         else
         {
-            replace(element->current);
-            printf("%s", element->current);
+            replace(p->current);
+            printf("%s", p->current);
         }
+
         if (!option_n)
             printf("\n");
+
+        p = p->next;
     }
     return 0;
 }

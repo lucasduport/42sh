@@ -1,25 +1,6 @@
 #include "execute.h"
 #include <string.h>
 
-#include "../../logger/logger.h"
-#include "../command/builtins/builtins.h"
-#include "../../utils/list/list.h"
-
-int execute_ast(struct ast *ast)
-{
-    if (ast == NULL)
-        return 0;
-    
-    if (ast->type == AST_IF)
-        return execute_if(ast->first_child);
-
-    else if (ast->type == AST_LIST)
-        return execute_list(ast->first_child);
-    
-    else
-        return execute_command(ast);
-}
-
 /**
  * @brief Execute if node
  *
@@ -98,4 +79,19 @@ static int execute_command(struct ast *command)
         fprintf(stderr, "unknown command : %s\n", first_arg);
         return 127;
     }
+}
+
+int execute_ast(struct ast *ast)
+{
+    if (ast == NULL)
+        return 0;
+    
+    if (ast->type == AST_IF)
+        return execute_if(ast->first_child);
+
+    else if (ast->type == AST_LIST)
+        return execute_list(ast->first_child);
+    
+    else
+        return execute_command(ast);
 }
