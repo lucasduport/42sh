@@ -23,8 +23,6 @@ struct lexer
  */
 struct lexer *lexer_new(int argc, char *argv[]);
 
-void token_free(struct token token);
-
 /**
  * @brief Gets the next token without consuming it
  *

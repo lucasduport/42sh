@@ -32,12 +32,6 @@ static struct token token_alloc(enum token_type type, struct lexer *lexer)
     return token;
 }
 
-void token_free(struct token token)
-{
-    debug_printf("[TOKEN] Free %s", token.data);
-    free(token.data);
-}
-
 /**
  * @brief check if the word is a reserved word
  *
