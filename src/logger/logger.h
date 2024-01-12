@@ -2,6 +2,9 @@
 #    define _POSIX_C_SOURCE 200809L
 #endif /* !_POSIX_C_SOURCE */
 
+#ifndef LOGGER_H
+#define LOGGER_H
+
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -40,3 +43,5 @@ int debug_printf(const char *format, ...);
  * @return false if an error occured
  */
 int destroy_logger(void);
+
+#endif /* !LOGGER_H*/

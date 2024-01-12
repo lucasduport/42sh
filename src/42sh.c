@@ -1,5 +1,6 @@
 #include "lexer/lexer.h"
 #include "parser/parser.h"
+#include "executable/execute_ast/execute.h"
 
 int main(int argc, char **argv)
 {
@@ -15,7 +16,7 @@ int main(int argc, char **argv)
     ast_print(res);
     puts("");
 
-    // TODO: Ast evalutation.
+    execute_ast(res);
 
     /*
     create_logger("stdout");
