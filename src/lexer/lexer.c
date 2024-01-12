@@ -62,10 +62,15 @@ struct token new_token(enum token_type type, struct string *str)
     token.data = strdup(str->data);
     token.type = type;
 
-    delete_string(str);
-    
-    print_token(token);
+    delete_string(str); 
+   
     return token;
+}
+
+void token_free(struct token token)
+{
+    debug_printf("[TOKEN] Free %s", token.data);
+    free(token.data);
 }
 
 /**
@@ -226,12 +231,16 @@ struct token lexer_peek(struct lexer *lexer)
 
     lexer->offset = offset_save;
 
+    print_token(tok);
+
     return tok;
 }
 
 struct token lexer_pop(struct lexer *lexer)
 {
-    return parse_input_for_tok(lexer);
+    struct token res = parse_input_for_tok(lexer);
+    print_token(res);
+    return res;
 }
 
 void lexer_free(struct lexer *lexer)

@@ -58,7 +58,7 @@ enum parser_status parser_pipeline(struct lexer *lex, struct ast **res);
  * 
  * WORD
 */
-enum parser_status parser_element(struct lexer *lex);
+enum parser_status parser_element(struct lexer *lex, struct ast **res);
 
 ////// PARSER_COMMAND //////
 /**
