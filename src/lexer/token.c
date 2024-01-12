@@ -2,7 +2,7 @@
 
 #include "../logger/logger.h"
 
-static void print_token(struct token token)
+void print_token(struct token token)
 {
     debug_printf("[TOKEN] Data: %s", token.data);
     switch (token.type)

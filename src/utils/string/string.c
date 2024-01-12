@@ -1,6 +1,11 @@
+#ifndef _POSIX_C_SOURCE
+#    define _POSIX_C_SOURCE 200809L
+#endif
+
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "string.h"
 
@@ -36,6 +41,15 @@ void string_destroy(struct string *str)
 {
     free(str->data);
     free(str);
+}
+
+struct string *string_dup(struct string *str)
+{
+    struct string *dup = calloc(1, sizeof(struct string));
+    dup->data = strdup(str->data);
+    dup->len = str->len;
+    dup->capacity = str->capacity;
+    return dup;
 }
 
 struct string *string_reset(struct string *str)

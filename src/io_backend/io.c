@@ -52,7 +52,7 @@ int io_seek(size_t offset)
 {
     if (fseek(stream, offset, SEEK_SET) == -1)
     {
-        fprintf(stderr, "io_reverse: fseek failed <%d>\n", errno);
+        fprintf(stderr, "io_seek: fseek failed <%d>\n", errno);
         return IO_FAILED;
     }
 

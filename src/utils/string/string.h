@@ -42,6 +42,11 @@ void string_pop_char(struct string *str);
 void string_destroy(struct string *str);
 
 /**
+ * @brief duplicate a string
+*/
+struct string *string_dup(struct string *str);
+
+/**
  * @brief Reset a string
  *
  * @param str The string to reset

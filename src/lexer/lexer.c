@@ -156,6 +156,8 @@ static void update_quote(struct lexer *lexer)
 
     if (lexer->current_char == lexer->current_quote)
         lexer->is_quoted = !lexer->is_quoted;
+
+    string_append_char(lexer->current_word, lexer->current_char);
 }
 
 /**
@@ -169,7 +171,7 @@ static void get_char(struct lexer *lexer)
 {
     lexer->current_char = io_getchar();
     lexer->offset++;
-    debug_printf("'%c'", lexer->current_char);
+    debug_printf("-'%c'", lexer->current_char);
 }
 
 /**
@@ -178,7 +180,7 @@ static void get_char(struct lexer *lexer)
  * Skip all the space char and set the offset to the last char.
  *
  * @param lexer
- */
+
 static void skip_space(struct lexer *lexer)
 {
     while (lexer->current_char == ' ' || lexer->current_char == '\t')
@@ -187,6 +189,7 @@ static void skip_space(struct lexer *lexer)
     }
     io_seek(--lexer->offset);
 }
+*/
 
 /**
  * @brief Skip all the comment char
@@ -214,6 +217,7 @@ static struct token parse_input_for_tok(struct lexer *lexer)
 {
     get_char(lexer);
 
+    // rule 1
     if (lexer->current_char == '\0')
     {
         if (lexer->current_word->len == 0)
@@ -222,44 +226,68 @@ static struct token parse_input_for_tok(struct lexer *lexer)
         return token_new(lexer);
     }
 
+    // rule 2
     else if (lexer->last_is_op && !lexer->is_quoted && is_valid_operator(lexer))
         string_append_char(lexer->current_word, lexer->current_char);
 
+    // rule 3
     else if (lexer->last_is_op && !is_valid_operator(lexer))
     {
         lexer->last_is_op = 0;
-        return token_new(lexer);
+        struct token tok = token_new(lexer);
+
+        if (lexer->current_char != ' ' && lexer->current_char != '\t')
+            string_append_char(lexer->current_word, lexer->current_char);
+        
+        return tok;
     }
 
+    // rule 4       
     else if (is_quote(lexer))
         update_quote(lexer);
 
+    // rule 5
     else if (!lexer->is_quoted && is_subshell(lexer))
     {
         // TODO: subshell completion.
     }
 
+    // rule 6
     else if (!lexer->is_quoted && first_char_op(lexer))
     {
         lexer->last_is_op = 1;
-        struct token tok = token_new(lexer);
+
+        if (lexer->current_word->len != 0)
+        {
+            struct token tok = token_new(lexer);
+            string_append_char(lexer->current_word, lexer->current_char);
+            return tok;
+        }
+
         string_append_char(lexer->current_word, lexer->current_char);
-        return tok;
     }
 
+    // rule 7
+    // FIXME: May be a problem with the '\n'
     else if (!lexer->is_quoted && lexer->current_char == '\n')
         return token_new(lexer);
 
+    // rule 8
     else if (!lexer->is_quoted && lexer->current_char == ' ')
     {
-        struct token tok = token_new(lexer);
-        skip_space(lexer);
-        return tok;
+        if (lexer->current_word->len != 0)
+        {
+            struct token tok = token_new(lexer);
+            //skip_space(lexer);
+            return tok;
+        }
     }
 
+    // rule 9
     else if (lexer->current_word->len != 0)
         string_append_char(lexer->current_word, lexer->current_char);
 
+    // rule 10
     else if (lexer->current_char == '#')
         skip_comment(lexer);
 
@@ -279,14 +307,28 @@ struct lexer *lexer_new(int argc, char *argv[])
     return lexer;
 }
 
+static struct lexer *lexer_copy(struct lexer *lexer)
+{
+    struct lexer *copy = calloc(1, sizeof(struct lexer));
+    copy->current_word = string_dup(lexer->current_word);
+    copy->current_char = lexer->current_char;
+    copy->current_quote = lexer->current_quote;
+
+    copy->is_quoted = lexer->is_quoted;
+    copy->last_is_op = lexer->last_is_op;
+    copy->offset = lexer->offset;
+
+    return copy;
+}
+
 struct token lexer_peek(struct lexer *lexer)
 {
-    size_t offset_save = lexer->offset;
+    struct lexer *copy = lexer_copy(lexer);
+    struct token tok = parse_input_for_tok(copy);
 
-    struct token tok = parse_input_for_tok(lexer);
-    io_seek(offset_save);
+    lexer_free(copy);
 
-    lexer->offset = offset_save;
+    io_seek(lexer->offset);
 
     return tok;
 }
