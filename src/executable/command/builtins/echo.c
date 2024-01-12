@@ -161,5 +161,7 @@ int builtin_echo(struct list *list)
 
     if (!options->newline)
         putchar('\n');
+    
+    free(options);
     return 0;
 }
