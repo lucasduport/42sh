@@ -12,7 +12,7 @@ static enum parser_status sub_parse_then(struct lexer *lex, struct ast *tmp_cond
     struct token peek = lexer_peek(lex);
     if (peek.type != TOKEN_THEN)
     {
-        debug_printf("[PARSER] Failed parse 'then' token");
+        debug_printf("[PARSER] Failed parse 'then' token\n");
         token_free(peek);
         return PARSER_UNEXPECTED_TOKEN;
     }
@@ -24,7 +24,7 @@ static enum parser_status sub_parse_then(struct lexer *lex, struct ast *tmp_cond
 
     if (parser_compound_list(lex, &tmp_then) == PARSER_UNEXPECTED_TOKEN)
     {
-        debug_printf("[PARSER] Failed parse 'then' list");
+        debug_printf("[PARSER] Failed parse 'then' list\n");
         ast_free(tmp_then);
         return PARSER_UNEXPECTED_TOKEN;
     }
@@ -51,7 +51,7 @@ static enum parser_status sub_parse_else(struct lexer *lex, struct ast *tmp_cond
         if (parser_else_clause(lex, &tmp_else) == PARSER_UNEXPECTED_TOKEN)
         {
             token_free(peek);
-            debug_printf("[PARSER] Failed parse else_clause");
+            debug_printf("[PARSER] Failed parse else_clause\n");
             ast_free(tmp_else);
             return PARSER_UNEXPECTED_TOKEN;
         }
@@ -77,7 +77,6 @@ enum parser_status parser_rule_if(struct lexer *lex, struct ast **res)
 
         if (parser_compound_list(lex, &tmp_condition) == PARSER_UNEXPECTED_TOKEN)
         {
-            debug_printf("[PARSER] Failed parse if condition - rule_if");
             ast_free(tmp_condition);
             return PARSER_UNEXPECTED_TOKEN;
         }

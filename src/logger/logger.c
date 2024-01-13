@@ -73,8 +73,6 @@ int debug_printf(const char *format, ...)
     va_copy(args_copy, args);
     if (vfprintf(fd, format, args_copy) < 0)
         return false;
-    if (fprintf(fd, "\n") < 0)
-        return false;
     va_end(args);
     va_end(args_copy);
     close_logger(fd);

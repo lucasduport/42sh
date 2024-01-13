@@ -13,7 +13,7 @@ int main(int argc, char **argv)
     }
 
     ast_print(res);
-    puts("");
+    debug_printf("");
 
     execute_ast(res);
 

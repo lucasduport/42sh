@@ -9,7 +9,7 @@ struct list *list_create(char *current)
     struct list *new = calloc(1, sizeof(struct list));
     if (new == NULL)
     {
-        debug_printf("list_create: struct allocation failed\n");
+        debug_printf("[LIST] list_create: struct allocation failed\n");
         return NULL;
     }
 
@@ -35,7 +35,7 @@ char *list_get_n(struct list *l, size_t n)
 
     if (l == NULL)
     {
-        debug_printf("list_get_n: index out of range\n");
+        debug_printf("[LIST] list_get_n: index out of range\n");
         return NULL;
     }
 
@@ -55,14 +55,14 @@ void list_destroy(struct list *l)
 
 void list_print(struct list *l)
 {
-    printf("[ ");
+    debug_printf("[ ");
 
     struct list *tmp = l;
     while (tmp->next != NULL)
     {
-        printf("%s, ", tmp->current);
+        debug_printf("%s, ", tmp->current);
         tmp = tmp->next;
     }
 
-    printf("%s ]", tmp->current);
+    debug_printf("%s ]", tmp->current);
 }

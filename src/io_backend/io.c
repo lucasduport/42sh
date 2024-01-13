@@ -52,7 +52,7 @@ int io_seek(size_t offset)
 {
     if (fseek(stream, offset, SEEK_SET) == -1)
     {
-        fprintf(stderr, "io_reverse: fseek failed <%d>\n", errno);
+        debug_printf("io_reverse: fseek failed <%d>\n", errno);
         return IO_FAILED;
     }
 
@@ -63,7 +63,7 @@ int io_close(void)
 {
     if (stream != stdin && fclose(stream) == -1)
     {
-        fprintf(stderr, "io_close: close stream failed <%d>\n", errno);
+        debug_printf("io_close: close stream failed <%d>\n", errno);
         return IO_FAILED;
     }
 
