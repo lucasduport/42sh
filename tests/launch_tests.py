@@ -42,7 +42,7 @@ class TestShellScript(unittest.TestCase):
         # Calculate expected output and return code using binary
         binary_result = self.run_command(command, input_type)
 
-        expected_result = subprocess.run(f"/bin/bash --posix", shell=True, input=command ,stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        expected_result = subprocess.run(f"/bin/bash --posix -c \"{command}\"", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         if binary_result.stdout != expected_result.stdout or binary_result.stderr != expected_result.stderr or binary_result.returncode != expected_result.returncode:
             print(colored(f"Test failed: {category} - {sub_category} - {input_type}: {command}", 'red'))
             self.failed_tests += 1

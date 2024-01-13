@@ -19,8 +19,8 @@ struct option
  */
 static int parse_option(char *str, struct option *options)
 {
-    int newline = 0;
-    int escape = 0;
+    int newline = -1;
+    int escape = -1;
 
     for (size_t i = 1; str[i] != '\0'; i++)
     {
@@ -38,8 +38,11 @@ static int parse_option(char *str, struct option *options)
             return 0;
     }
 
-    options->newline = newline || options->newline;
-    options->escape = escape || options->escape;
+    if (newline != -1)
+        options->newline = newline;
+    
+    if (escape != -1)
+        options->escape = escape;
     return 1;
 }
 
