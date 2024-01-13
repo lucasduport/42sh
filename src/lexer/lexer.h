@@ -2,12 +2,17 @@
 #define LEXER_H
 
 #include "../utils/string/string.h"
+#include "../io_backend/io.h"
 #include "token.h"
 
 struct lexer
 {
-    int single_quote;
-    int double_quote;
+    struct string *current_word;
+    char current_char;
+    char current_quote;
+
+    int last_is_op; 
+    int is_quoted;
     size_t offset;
 };
 
@@ -17,17 +22,6 @@ struct lexer
  * @return A new lexer or NULL if something failed
  */
 struct lexer *lexer_new(int argc, char *argv[]);
-
-void token_free(struct token token);
-
-/**
- * @brief Creates a new token
- *
- * @param type The type of the token
- * @param str The string of the token
- * @return The new token
- */
-struct token new_token(enum token_type type, struct string *str);
 
 /**
  * @brief Gets the next token without consuming it
