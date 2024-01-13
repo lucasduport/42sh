@@ -23,9 +23,7 @@
 static struct token token_alloc(enum token_type type, struct lexer *lexer)
 {
     struct token token;
-    token.data = malloc(sizeof(char) * lexer->current_word->len);
-    token.data = memcpy(token.data, lexer->current_word->data,
-                        lexer->current_word->len);
+    token.data = strndup(lexer->current_word->data, lexer->current_word->len);
     token.type = type;
 
     string_reset(lexer->current_word);
@@ -43,8 +41,6 @@ static struct token token_alloc(enum token_type type, struct lexer *lexer)
 static struct token token_new(struct lexer *lexer)
 {
     string_append_char(lexer->current_word, '\0');
-
-    debug_printf("'%s'\n", lexer->current_word->data);
 
     char *reserved_words[] = { "if", "then", "elif", "else",
                                "fi", ";",    "\n",   "\0" };
@@ -179,7 +175,7 @@ static void get_char(struct lexer *lexer)
 {
     lexer->current_char = io_getchar();
     lexer->offset++;
-    debug_printf("-'%c'", lexer->current_char);
+    debug_printf("'%c'", lexer->current_char);
 }
 
 /**
@@ -224,8 +220,6 @@ static void skip_comment(struct lexer *lexer)
 static struct token parse_input_for_tok(struct lexer *lexer)
 {
     get_char(lexer);
-
-    debug_printf("'%s'\n", lexer->current_word->data);
 
     // rule 1
     if (lexer->current_char == '\0')
@@ -335,8 +329,10 @@ struct token lexer_peek(struct lexer *lexer)
 {
     struct lexer *copy = lexer_copy(lexer);
     struct token tok = parse_input_for_tok(copy);
-
     lexer_free(copy);
+
+    if (tok.type != TOKEN_EOF)
+        io_seek(lexer->offset);
 
     return tok;
 }

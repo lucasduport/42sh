@@ -47,8 +47,7 @@ void string_destroy(struct string *str)
 struct string *string_dup(struct string *str)
 {
     struct string *dup = calloc(1, sizeof(struct string));
-    dup->data = malloc(sizeof(char) * str->len);
-    dup->data = memcpy(dup->data, str->data, str->len);
+    dup->data = strndup(str->data, str->len);
     dup->len = str->len;
     dup->capacity = str->capacity;
     return dup;
