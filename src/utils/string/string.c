@@ -22,11 +22,12 @@ struct string *string_create(void)
 
 void string_append_char(struct string *str, char c)
 {
-    if (str->len + 1 == str->capacity)
+    if (str->len + 1 >= str->capacity)
     {
         str->capacity *= 2;
-        str->data = realloc(str->data, str->capacity * sizeof(char));
+        str->data = realloc(str->data, str->capacity);
     }
+    
     str->data[str->len] = c;
     str->len++;
 }
@@ -53,8 +54,20 @@ struct string *string_dup(struct string *str)
     return dup;
 }
 
-struct string *string_reset(struct string *str)
+void string_reset(struct string *str)
 {
-    string_destroy(str);
-    return string_create();
+    if (str->capacity == 16)
+    {
+        str->capacity = 16;
+        str->data = realloc(str->data, sizeof(char) * str->capacity);
+    }
+    str->len = 0;
+}
+
+int string_n_cmp(struct string *str1, char *str2, size_t n)
+{
+    if (str1->len != n)
+        return 1;
+    
+    return memcmp(str1->data, str2, n);
 }

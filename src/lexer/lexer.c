@@ -23,11 +23,13 @@
 static struct token token_alloc(enum token_type type, struct lexer *lexer)
 {
     struct token token;
-    token.data = strdup(lexer->current_word->data);
+    token.data = malloc(sizeof(char) * lexer->current_word->len);
+    token.data = memcpy(token.data, lexer->current_word->data,
+                        lexer->current_word->len);
     token.type = type;
 
     string_reset(lexer->current_word);
-
+    
     print_token(token);
     return token;
 }
@@ -42,11 +44,16 @@ static struct token token_new(struct lexer *lexer)
 {
     string_append_char(lexer->current_word, '\0');
 
+    debug_printf("'%s'\n", lexer->current_word->data);
+
     char *reserved_words[] = { "if", "then", "elif", "else",
                                "fi", ";",    "\n",   "\0" };
 
     for (size_t i = 0; i < sizeof(reserved_words) / sizeof(char *); i++)
     {
+        //debug_printf("test '%s' == '%s'\n", reserved_words[i],
+        //             lexer->current_word->data);
+
         if (!strcmp(reserved_words[i], lexer->current_word->data))
         {
             return token_alloc((enum token_type)i, lexer);
@@ -89,10 +96,11 @@ static int is_valid_operator(struct lexer *lexer)
                                    "<<", ">>", "<&", "&>", "<<-", "<>" };
 
     string_append_char(lexer->current_word, lexer->current_char);
+
     for (size_t i = 0; i < sizeof(reserved_operators) / sizeof(char *); i++)
     {
         // FIXME: May be a probleme with the last null char
-        if (strstr(reserved_operators[i], lexer->current_word->data) != NULL)
+        if (!string_n_cmp(lexer->current_word, reserved_operators[i], strlen(reserved_operators[i])))
         {
             string_pop_char(lexer->current_word);
             return 1;
@@ -217,6 +225,8 @@ static struct token parse_input_for_tok(struct lexer *lexer)
 {
     get_char(lexer);
 
+    debug_printf("'%s'\n", lexer->current_word->data);
+
     // rule 1
     if (lexer->current_char == '\0')
     {
@@ -311,13 +321,13 @@ static struct lexer *lexer_copy(struct lexer *lexer)
 {
     struct lexer *copy = calloc(1, sizeof(struct lexer));
     copy->current_word = string_dup(lexer->current_word);
+
     copy->current_char = lexer->current_char;
     copy->current_quote = lexer->current_quote;
 
     copy->is_quoted = lexer->is_quoted;
     copy->last_is_op = lexer->last_is_op;
     copy->offset = lexer->offset;
-
     return copy;
 }
 
@@ -328,17 +338,12 @@ struct token lexer_peek(struct lexer *lexer)
 
     lexer_free(copy);
 
-    io_seek(lexer->offset);
-
-    print_token(tok);
-
     return tok;
 }
 
 struct token lexer_pop(struct lexer *lexer)
 {
     struct token res = parse_input_for_tok(lexer);
-    print_token(res);
     return res;
 }
 

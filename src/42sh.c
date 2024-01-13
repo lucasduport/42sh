@@ -4,7 +4,8 @@
 
 int main(int argc, char **argv)
 {
-    //create_logger("stdout");
+    /*
+    create_logger("stdout");
 
     struct ast *res;
     if (parser(argc, argv, &res) != PARSER_OK)
@@ -17,28 +18,28 @@ int main(int argc, char **argv)
     puts("");
 
     execute_ast(res);
-    
-    /*
+
+    */
+
     create_logger("stdout");
 
     struct lexer *lexer = lexer_new(argc, argv);
 
-    //debug_printf("PEEK");
-    struct token tok = lexer_pop(lexer);
+    debug_printf("PEEK");
+    struct token tok = lexer_peek(lexer);
     while (tok.type != TOKEN_EOF)
     {
-        //debug_printf("POP");
+        debug_printf("POP");
         tok = lexer_pop(lexer);
-        //debug_printf("PEEK");
-        //tok = lexer_peek(lexer);
+        debug_printf("PEEK");
+        tok = lexer_peek(lexer);
 
         token_free(tok);
     }
     //debug_printf("POP");
     //tok = lexer_pop(lexer);
-    */
 
-    ast_free(res);
+    //ast_free(res);
 
     return 0;
 }

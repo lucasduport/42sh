@@ -51,6 +51,8 @@ struct string *string_dup(struct string *str);
  *
  * @param str The string to reset
  */
-struct string *string_reset(struct string *str);
+void string_reset(struct string *str);
+
+int string_n_cmp(struct string *str1, char *str2, size_t n);
 
 #endif /* ! STRING_H */
