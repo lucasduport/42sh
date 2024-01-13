@@ -1,0 +1,13 @@
+- category: builtins
+  sub-category: echo
+  tests:
+    - command: "echo HelloWorld!"
+    - command: "echo -n Hello, World!"
+    - command: "echo -e 'Hello\nWorld'"
+    - command: "echo -E 'Hello\nWorld'"
+    - command: "echo -n -e -E 'Hello\nWorld'"
+    - command: "echo -n"
+    - command: "echo 'This is a multiline\nstring with tabs\tand \\ backslashes'"
+    - command: "echo -e 'This is another\nmultiline string with \\t escaped tabs \\t and \\n escaped newlines \\n'"
+    - command: "echo -E 'This is a multiline\\nstring without interpreting escape characters\\tand \\ backslashes'"
+    - command: "echo -n -e -E 'Mixing options and\\n multiline\\t strings with \\ backslashes\\n'"
