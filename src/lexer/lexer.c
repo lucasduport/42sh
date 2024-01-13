@@ -158,7 +158,7 @@ static void update_quote(struct lexer *lexer)
         lexer->current_quote = lexer->current_char;
     }
 
-    if (lexer->current_char == lexer->current_quote)
+    else if (lexer->current_char == lexer->current_quote)
         lexer->is_quoted = !lexer->is_quoted;
 
     string_append_char(lexer->current_word, lexer->current_char);

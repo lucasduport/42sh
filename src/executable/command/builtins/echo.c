@@ -87,7 +87,7 @@ static void print_str(char *str)
             is_quot = !is_quot;
         
         else if (is_quot)
-            i = print_char_quot(str, i);
+            putchar(str[i]);
         else
         {
             if (str[i] == '\\')
