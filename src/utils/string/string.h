@@ -5,7 +5,7 @@
 
 /**
  * @brief A basic string structure
-*/
+ */
 struct string
 {
     char *data;
@@ -15,24 +15,44 @@ struct string
 
 /**
  * @brief Creates a string
- * 
+ *
  * @return The string
-*/
-struct string *create_string(void);
+ */
+struct string *string_create(void);
 
 /**
  * @brief Appends a character to the string
- * 
- * @param str The string
+ *
+ * @param str The strings
  * @param c The character
-*/
-void append_char(struct string *str, char c);
+ */
+void string_append_char(struct string *str, char c);
+
+/**
+ * @brief Pop the last char to the string
+ *
+ */
+void string_pop_char(struct string *str);
 
 /**
  * @brief Deletes a string
- * 
+ *
  * @param str The string
+ */
+void string_destroy(struct string *str);
+
+/**
+ * @brief duplicate a string
 */
-void delete_string(struct string *str);
+struct string *string_dup(struct string *str);
+
+/**
+ * @brief Reset a string
+ *
+ * @param str The string to reset
+ */
+void string_reset(struct string *str);
+
+int string_n_cmp(struct string *str1, char *str2, size_t n);
 
 #endif /* ! STRING_H */
