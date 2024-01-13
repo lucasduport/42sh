@@ -44,28 +44,26 @@ static int parse_option(char *str, struct option *options)
 }
 
 /**
- * @brief Print special characters '\n' '\t' '\\' litteraly
- *
- * example : '\n' is interpreted as \ and n separated.
- *
- * @param c the char to proint
+ * @brief Print char when there are quots
+ * 
+ * @param str String that we echo
+ * @param i Actual position in the string
+ * 
+ * @return New position in the string
 */
-static void print_special_char_all(char c)
+static int print_char_quot(char *str, int i)
 {
-    if (c == '\n')
+    if (str[i] == '\\')
     {
-        putchar('\\');
-        putchar('n');
+        i++;
+        if (str[i] == 'n')
+            putchar('\n');
+        else if (str[i] == 't')
+            putchar('\t');
     }
-    else if (c == '\t')
-    {
-        putchar('\\');
-        putchar('t');
-    }
-    else if (c == '\\')
-        putchar('\\');
     else
-        putchar(c);
+        putchar(str[i]);
+    return i;
 }
 
 /**
@@ -89,8 +87,7 @@ static void print_str(char *str)
             is_quot = !is_quot;
         
         else if (is_quot)
-            print_special_char_all(str[i]);
-        
+            i = print_char_quot(str, i);
         else
         {
             if (str[i] == '\\')
@@ -124,11 +121,19 @@ static void print_str_escape(char *str)
             is_quot = !is_quot;
         
         else if (is_quot)
-            putchar(str[i]);
+            i = print_char_quot(str, i);
         
         else
         {
-            if (str[i] != '\\')
+            if (str[i] == '\\')
+            {
+                if (str[i + 1] == '\\')
+                {
+                    putchar('\\');
+                    i++;
+                }
+            }
+            else
                 putchar(str[i]);
         }
         i++;

@@ -175,25 +175,7 @@ static void get_char(struct lexer *lexer)
 {
     lexer->current_char = io_getchar();
     lexer->offset++;
-    debug_printf("'%c'", lexer->current_char);
 }
-
-/**
- * @brief Skip all the space char
- *
- * Skip all the space char and set the offset to the last char.
- *
- * @param lexer
-
-static void skip_space(struct lexer *lexer)
-{
-    while (lexer->current_char == ' ' || lexer->current_char == '\t')
-    {
-        get_char(lexer);
-    }
-    io_seek(--lexer->offset);
-}
-*/
 
 /**
  * @brief Skip all the comment char
