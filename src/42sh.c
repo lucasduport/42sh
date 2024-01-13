@@ -4,7 +4,6 @@
 
 int main(int argc, char **argv)
 {
-    /*
     create_logger("stdout");
 
     struct ast *res;
@@ -19,9 +18,7 @@ int main(int argc, char **argv)
 
     execute_ast(res);
 
-    */
-
-    create_logger("stdout");
+    /*create_logger("stdout");
 
     struct lexer *lexer = lexer_new(argc, argv);
 
@@ -37,9 +34,9 @@ int main(int argc, char **argv)
         token_free(tok);
     }
     //debug_printf("POP");
-    //tok = lexer_pop(lexer);
+    //tok = lexer_pop(lexer);*/
 
-    //ast_free(res);
+    ast_free(res);
 
     return 0;
 }

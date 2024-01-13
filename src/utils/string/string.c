@@ -13,8 +13,8 @@
 
 struct string *string_create(void)
 {
-    struct string *str = malloc(sizeof(struct string));
-    str->data = malloc(sizeof(char) * 16);
+    struct string *str = calloc(1, sizeof(struct string));
+    str->data = calloc(16, sizeof(char));
     str->capacity = 16;
     str->len = 0;
     return str;
@@ -47,7 +47,8 @@ void string_destroy(struct string *str)
 struct string *string_dup(struct string *str)
 {
     struct string *dup = calloc(1, sizeof(struct string));
-    dup->data = strndup(str->data, str->len);
+    dup->data = calloc(str->capacity, sizeof(char));
+    dup->data = memcpy(dup->data, str->data, str->len);
     dup->len = str->len;
     dup->capacity = str->capacity;
     return dup;
