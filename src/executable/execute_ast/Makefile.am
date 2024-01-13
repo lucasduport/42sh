@@ -6,6 +6,4 @@ libexecute_a_SOURCES =  \
 
 libexecute_a_CPPFLAGS = -I$(top_srcdir)/src
 
-libexecute_a_CFLAGS = -std=c99 -Werror -Wall -Wextra -Wvla -pedantic
-
 noinst_LIBRARIES = libexecute.a

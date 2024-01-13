@@ -5,5 +5,5 @@ clean:
 	@cd src && $(MAKE) -s clean
 	@cd tests && $(MAKE) -s clean
 
-check:
+check: all
 	@cd tests && $(MAKE) -s check-local
