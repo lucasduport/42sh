@@ -17,7 +17,7 @@ int builtin_echo(struct list *list);
  * @brief true builtin
  * 
  * @param list Linked list (not used)
-  * @return returns 0
+ * @return return 0
 */
 int builtin_true(struct list *list);
 
@@ -25,7 +25,7 @@ int builtin_true(struct list *list);
  * @brief false builtin
  * 
  * @param list Linked list (not used)
-  * @return returns 1
+ * @return return 1
 */
 int builtin_false(struct list *list);
 
