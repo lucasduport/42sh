@@ -1,9 +1,9 @@
+#ifndef LOGGER_H
+#define LOGGER_H
+
 #ifndef _POSIX_C_SOURCE
 #    define _POSIX_C_SOURCE 200809L
 #endif /* !_POSIX_C_SOURCE */
-
-#ifndef LOGGER_H
-#define LOGGER_H
 
 #include <stdarg.h>
 #include <stdbool.h>
