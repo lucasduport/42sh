@@ -38,8 +38,8 @@ static int parse_option(char *str, struct option *options)
             return 0;
     }
 
-    options->newline = newline;
-    options->escape = escape;
+    options->newline = newline || options->newline;
+    options->escape = escape || options->escape;
     return 1;
 }
 
@@ -157,6 +157,8 @@ int builtin_echo(struct list *list)
         else
             print_str(p->current);
         p = p->next;
+        if (p != NULL)
+            putchar(' ');
     }
 
     if (!options->newline)
