@@ -20,21 +20,12 @@ AC_PROG_CC
 CFLAGS="-std=c99 -Werror -Wall -Wextra -Wvla -pedantic"
 
 # Define custom options for different build environments
-AC_ARG_ENABLE([gdb],
-  AS_HELP_STRING([--enable-gdb], [Build with debugging information for GDB]),
-  [enable_gdb=yes],
-  [enable_gdb=no])
+AC_ARG_ENABLE([debug],
+  AS_HELP_STRING([--enable-debug], [Build with debugging information for GDB and fsanitize]),
+  [enable_debug=yes],
+  [enable_debug=no])
 
-AC_ARG_ENABLE([fsanitize],
-  AS_HELP_STRING([--enable-fsanitize], [Build with address sanitizer]),
-  [enable_fsanitize=yes],
-  [enable_fsanitize=no])
-
-if test "x$enable_gdb" = xyes; then
-  CFLAGS="$CFLAGS -g3"
-fi
-
-if test "x$enable_fsanitize" = xyes; then
+if test "x$enable_debug" = xyes; then
   CFLAGS="$CFLAGS -fsanitize=address -g3"
 fi
 
