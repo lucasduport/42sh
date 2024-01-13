@@ -20,7 +20,7 @@ enum token_type
 struct token
 {
     enum token_type type;
-    char* data;
+    char *data;
 };
 
 /**
@@ -30,7 +30,7 @@ void print_token(struct token token);
 
 /**
  * @brief Free the token
-*/
+ */
 void token_free(struct token token);
 
 #endif /* ! TOKEN_H */

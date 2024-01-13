@@ -27,7 +27,7 @@ static struct token token_alloc(enum token_type type, struct lexer *lexer)
     token.type = type;
 
     string_reset(lexer->current_word);
-    
+
     print_token(token);
     return token;
 }
@@ -47,8 +47,8 @@ static struct token token_new(struct lexer *lexer)
 
     for (size_t i = 0; i < sizeof(reserved_words) / sizeof(char *); i++)
     {
-        //debug_printf("test '%s' == '%s'\n", reserved_words[i],
-        //             lexer->current_word->data);
+        // debug_printf("test '%s' == '%s'\n", reserved_words[i],
+        //              lexer->current_word->data);
 
         if (!strcmp(reserved_words[i], lexer->current_word->data))
         {
@@ -96,7 +96,8 @@ static int is_valid_operator(struct lexer *lexer)
     for (size_t i = 0; i < sizeof(reserved_operators) / sizeof(char *); i++)
     {
         // FIXME: May be a probleme with the last null char
-        if (!string_n_cmp(lexer->current_word, reserved_operators[i], strlen(reserved_operators[i])))
+        if (!string_n_cmp(lexer->current_word, reserved_operators[i],
+                          strlen(reserved_operators[i])))
         {
             string_pop_char(lexer->current_word);
             return 1;
@@ -224,11 +225,11 @@ static struct token parse_input_for_tok(struct lexer *lexer)
 
         if (lexer->current_char != ' ' && lexer->current_char != '\t')
             string_append_char(lexer->current_word, lexer->current_char);
-        
+
         return tok;
     }
 
-    // rule 4       
+    // rule 4
     else if (is_quote(lexer))
         update_quote(lexer);
 
@@ -264,7 +265,7 @@ static struct token parse_input_for_tok(struct lexer *lexer)
         if (lexer->current_word->len != 0)
         {
             struct token tok = token_new(lexer);
-            //skip_space(lexer);
+            // skip_space(lexer);
             return tok;
         }
     }

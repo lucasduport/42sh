@@ -28,15 +28,15 @@ void ast_free(struct ast *ast)
     if (ast == NULL)
         return;
 
-    //Free first child of the ast
+    // Free first child of the ast
     ast_free(ast->first_child);
-    
-    //Free argument of the node
+
+    // Free argument of the node
     list_destroy(ast->arg);
 
-    //Free next child of the same parent
+    // Free next child of the same parent
     ast_free(ast->next);
-    
+
     free(ast);
 }
 
@@ -72,7 +72,7 @@ void ast_print(struct ast *ast)
             debug_printf(" }");
         }
     }
-    
+
     else if (ast->type == AST_COMMAND)
     {
         if (ast->arg == NULL)

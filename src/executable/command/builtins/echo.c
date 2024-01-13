@@ -1,8 +1,8 @@
-#include "builtins.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "builtins.h"
 
 struct option
 {
@@ -11,7 +11,7 @@ struct option
 };
 
 /**
- *  @brief Parse an option and check if is valid. 
+ *  @brief Parse an option and check if is valid.
  *
  *  @param str  String containing the option to parse.
  *  @param options Option structure that save set options.
@@ -40,7 +40,7 @@ static int parse_option(char *str, struct option *options)
 
     if (newline != -1)
         options->newline = newline;
-    
+
     if (escape != -1)
         options->escape = escape;
     return 1;
@@ -48,12 +48,12 @@ static int parse_option(char *str, struct option *options)
 
 /**
  * @brief Print char when there are quots
- * 
+ *
  * @param str String that we echo
  * @param i Actual position in the string
- * 
+ *
  * @return New position in the string
-*/
+ */
 static int print_char_quot(char *str, int i)
 {
     if (str[i] == '\\')
@@ -71,12 +71,12 @@ static int print_char_quot(char *str, int i)
 
 /**
  * @brief Print str with no escape option.
- * 
+ *
  * With quote -> exact same output.
- * 
+ *
  * Without quote -> one BS => pass
  *               -> double BS => pass
- * 
+ *
  * @param str String to write
  */
 static void print_str(char *str)
@@ -88,7 +88,7 @@ static void print_str(char *str)
     {
         if (str[i] == '\'')
             is_quot = !is_quot;
-        
+
         else if (is_quot)
             putchar(str[i]);
         else
@@ -122,10 +122,10 @@ static void print_str_escape(char *str)
     {
         if (str[i] == '\'')
             is_quot = !is_quot;
-        
+
         else if (is_quot)
             i = print_char_quot(str, i);
-        
+
         else
         {
             if (str[i] == '\\')
@@ -149,7 +149,7 @@ int builtin_echo(struct list *list)
 
     struct option *options = calloc(1, sizeof(struct option));
 
-    //While there is an option
+    // While there is an option
     while (p != NULL && p->current[0] == '-')
     {
         if (!parse_option(p->current, options))
@@ -171,7 +171,7 @@ int builtin_echo(struct list *list)
 
     if (!options->newline)
         putchar('\n');
-    
+
     free(options);
     return 0;
 }

@@ -1,10 +1,12 @@
 #ifndef LIST_H
 #define LIST_H
 
+#include <stddef.h>
+
 /**
  * @struct struct list
  * @brief Linked list structure.
- * 
+ *
  */
 struct list
 {
@@ -22,7 +24,7 @@ struct list *list_create(char *current);
 
 /**
  * @brief Append a new element at the end of the linked list.
- * 
+ *
  * @param l Linked list to modify.
  * @param current Element to append.
  */
@@ -30,7 +32,7 @@ void list_append(struct list *l, char *current);
 
 /**
  * @brief Get the nth element.
- * 
+ *
  * @param l List to search in.
  * @param n Position of the element (begin at 0).
  * @return The n-ieme element if found, NULL otherwise.

@@ -43,7 +43,7 @@ void string_destroy(struct string *str);
 
 /**
  * @brief duplicate a string
-*/
+ */
 struct string *string_dup(struct string *str);
 
 /**

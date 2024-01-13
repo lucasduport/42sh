@@ -1,8 +1,9 @@
-#include <stdlib.h>
+#include "list.h"
+
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "../../logger/logger.h"
-#include "list.h"
 
 struct list *list_create(char *current)
 {
@@ -18,10 +19,10 @@ struct list *list_create(char *current)
 }
 
 void list_append(struct list *l, char *current)
-{   
+{
     while (l->next != NULL)
         l = l->next;
-    
+
     l->next = list_create(current);
 }
 

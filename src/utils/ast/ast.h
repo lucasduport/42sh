@@ -2,6 +2,7 @@
 #define AST_H
 
 #include <unistd.h>
+
 #include "../../logger/logger.h"
 #include "../list/list.h"
 
@@ -20,27 +21,26 @@ struct ast
     struct ast *first_child; ///< Point to the first child of the node
 };
 
-
 /**
  * @brief Create a new ast with the given type
- * 
+ *
  * new.type -> type given in argument
  * other attributes -> set to NULL
  *
  * @param parameter1 AST_TYPE of the new ast
- * 
+ *
  * @return ast structure initialize with the correct type
  */
 struct ast *ast_new(enum ast_type type);
 
 /**
  * @brief Add a new brother at the current node.
- * 
+ *
  * The new brother is add at the total end of the brother's list.
- * 
+ *
  * @param parameter1 current ast node
  * @param parameter2 brother that we want to add
-*/
+ */
 void ast_add_brother(struct ast *ast, struct ast *new_brother);
 
 /**

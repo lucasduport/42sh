@@ -2,12 +2,12 @@
 #    define _POSIX_C_SOURCE 200809L
 #endif
 
+#include "string.h"
+
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "string.h"
 
 #include "../logger/logger.h"
 
@@ -27,7 +27,7 @@ void string_append_char(struct string *str, char c)
         str->capacity *= 2;
         str->data = realloc(str->data, str->capacity);
     }
-    
+
     str->data[str->len] = c;
     str->len++;
 }
@@ -68,6 +68,6 @@ int string_n_cmp(struct string *str1, char *str2, size_t n)
 {
     if (str1->len != n)
         return 1;
-    
+
     return memcmp(str1->data, str2, n);
 }

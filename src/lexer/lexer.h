@@ -1,8 +1,8 @@
 #ifndef LEXER_H
 #define LEXER_H
 
-#include "../utils/string/string.h"
 #include "../io_backend/io.h"
+#include "../utils/string/string.h"
 #include "token.h"
 
 struct lexer
@@ -11,7 +11,7 @@ struct lexer
     char current_char;
     char current_quote;
 
-    int last_is_op; 
+    int last_is_op;
     int is_quoted;
     size_t offset;
 };
