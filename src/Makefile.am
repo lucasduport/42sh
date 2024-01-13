@@ -1,8 +1,6 @@
-# define the sub directories
-# FIXME : stop generating every binaries
-
 bin_PROGRAMS = 42sh
 
+# Define the sub directories
 SUBDIRS = \
 		  logger \
 		  io_backend \
