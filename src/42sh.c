@@ -4,7 +4,7 @@
 
 int main(int argc, char **argv)
 {
-    //create_logger("stdout");
+    create_logger("stdout");
 
     struct ast *res;
     if (parser(argc, argv, &res) != PARSER_OK)
@@ -13,11 +13,11 @@ int main(int argc, char **argv)
         return 2;
     }
 
-    //ast_print(res);
+    ast_print(res);
 
-    execute_ast(res);
+    int res = execute_ast(res);
 
     ast_free(res);
 
-    return 0;
+    return res;
 }

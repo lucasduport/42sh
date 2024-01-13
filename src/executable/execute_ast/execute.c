@@ -17,10 +17,10 @@ static int execute_if(struct ast *first_child)
     
     //If condition is met
     int res_cond = execute_ast(first_child);
-    if (! res_cond)
-        return execute_ast(first_child->next);
-    else if (res_cond == -1)
+    if (res_cond == -1)
         return -1;
+    else if (! res_cond)
+        return execute_ast(first_child->next);
     
     //If there is no 'else' node
     if (first_child->next->next != NULL)
