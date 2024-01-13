@@ -60,11 +60,8 @@ class TestShellScript(unittest.TestCase):
             if binary_result.returncode != expected_result.returncode:
                 print(colored(f"Expected Return Code: {expected_result.returncode}", 'green'))
                 print(colored(f"Actual Return Code: {binary_result.returncode}", 'yellow'))
-
         print()
         return
-        
-
 
     def create_test_from_case(self, test_case, input_type, verbose=False):
         return lambda: self.run_test(test_case, input_type, verbose=verbose), ()

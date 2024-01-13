@@ -11,7 +11,7 @@ check-io: testsIo
 
 check-local: testsIo
 	./$(check_PROGRAMS)
-	./launch_tests.sh
+	python3 launch_tests.py --verbose tests_files
 
 clean-local:
 	rm -f testsIo
