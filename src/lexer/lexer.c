@@ -265,7 +265,6 @@ static struct token parse_input_for_tok(struct lexer *lexer)
         if (lexer->current_word->len != 0)
         {
             struct token tok = token_new(lexer);
-            // skip_space(lexer);
             return tok;
         }
     }
