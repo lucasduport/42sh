@@ -11,11 +11,25 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define NB_TYPES 8
+
 struct my_logs
 {
-    bool verbose_mode;
-    bool pretty_print;
+    bool types_to_log[NB_TYPES];
     char *filename;
+};
+
+// If you add types, don't forget to update the NB_TYPES above
+enum log_type
+{
+    LOG_LEX = 0,
+    LOG_PARS,
+    LOG_BUILTIN,
+    LOG_IO_BACK,
+    LOG_EXEC,
+    LOG_UTILS,
+    LOG_AST,
+    LOG_MAIN
 };
 
 /**
@@ -28,13 +42,48 @@ struct my_logs
 int create_logger(char *filename);
 
 /**
+ * @brief Enables all log types
+ *
+ * @return true if all log types were enabled
+ * @return false if an error occured
+ */
+int enable_all_logs(void);
+
+/**
+ * @brief Enables a log type
+ *
+ * @param type the log type
+ * @return true if the log type was enabled
+ * @return false if an error occured
+ */
+int enable_log_type(enum log_type type);
+
+/**
+ * @brief Disables all log types
+ *
+ * @return true if all log types were disabled
+ * @return false if an error occured
+ */
+int disable_all_logs(void);
+
+/**
+ * @brief Disables a log type
+ *
+ * @param type the log type
+ * @return true if the log type was disabled
+ * @return false if an error occured
+ */
+int disable_log_type(enum log_type type);
+
+/**
  * @brief Logs a message
  *
+ * @param type the message type
  * @param format the message format
  * @param ... the message arguments
  * @return true if the message was logged
  */
-int debug_printf(const char *format, ...);
+int debug_printf(enum log_type type, const char *format, ...);
 
 /**
  * @brief Destroys the logger

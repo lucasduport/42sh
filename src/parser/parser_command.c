@@ -8,7 +8,7 @@ enum parser_status parser_command(struct lexer *lex, struct ast **res)
     if (peek.type == TOKEN_WORD)
     {
         token_free(peek);
-        debug_printf("[PARSER] token WORD - command\n");
+        debug_printf(LOG_PARS,"[PARSER] token WORD - command\n");
         return parser_simple_command(lex, res);
     }
 
@@ -16,7 +16,7 @@ enum parser_status parser_command(struct lexer *lex, struct ast **res)
     if (peek.type == TOKEN_IF)
     {
         token_free(peek);
-        debug_printf("[PARSER] token IF - command\n");
+        debug_printf(LOG_PARS,"[PARSER] token IF - command\n");
         return parser_shell_command(lex, res);
     }
 

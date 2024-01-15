@@ -47,10 +47,10 @@ void ast_print(struct ast *ast)
 
     if (ast->type == AST_IF)
     {
-        debug_printf("if { ");
+        debug_printf(LOG_AST, "if { ");
         if (ast->first_child == NULL)
         {
-            debug_printf("AST error - 'if' node - no condition\n");
+            debug_printf(LOG_AST, "AST error - 'if' node - no condition\n");
             return;
         }
         ast_print(ast->first_child);
@@ -58,25 +58,25 @@ void ast_print(struct ast *ast)
         struct ast *child = ast->first_child;
         if (child->next == NULL)
         {
-            debug_printf("AST error - 'if' node - no then\n");
+            debug_printf(LOG_AST, "AST error - 'if' node - no then\n");
             return;
         }
-        debug_printf(" } then { ");
+        debug_printf(LOG_AST, " } then { ");
         child = child->next;
         ast_print(child);
 
         if (child->next != NULL)
         {
-            debug_printf(" } else { ");
+            debug_printf(LOG_AST, " } else { ");
             ast_print(child->next);
-            debug_printf(" }");
+            debug_printf(LOG_AST, " }");
         }
     }
 
     else if (ast->type == AST_COMMAND)
     {
         if (ast->arg == NULL)
-            debug_printf("[ empty command ]");
+            debug_printf(LOG_AST, "[ empty command ]");
 
         else
             list_print(ast->arg);
@@ -85,12 +85,12 @@ void ast_print(struct ast *ast)
     else
     {
         struct ast *child = ast->first_child;
-        debug_printf("list { ");
+        debug_printf(LOG_AST, "list { ");
         while (child != NULL)
         {
             ast_print(child);
             child = child->next;
         }
-        debug_printf(" }");
+        debug_printf(LOG_AST, " }");
     }
 }

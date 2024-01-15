@@ -12,7 +12,7 @@ static int execute_if(struct ast *first_child)
 {
     if (first_child == NULL || first_child->next == NULL)
     {
-        debug_printf("[EXECUTE] Missing condition or then for 'if' node\n");
+        debug_printf(LOG_EXEC, "[EXECUTE] Missing condition or then for 'if' node\n");
         return -1;
     }
 
@@ -59,7 +59,7 @@ static int execute_command(struct ast *command)
 {
     if (command->arg == NULL)
     {
-        debug_printf("[EXECUTE] Missing command argument\n");
+        debug_printf(LOG_EXEC, "[EXECUTE] Missing command argument\n");
         return -1;
     }
 

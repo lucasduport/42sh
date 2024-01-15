@@ -71,6 +71,6 @@ enum parser_status parser_element(struct lexer *lex, struct ast **res)
     }
 
     token_free(peek);
-    debug_printf("[PARSER] It's not an element\n");
+    debug_printf(LOG_PARS,"[PARSER] It's not an element\n");
     return PARSER_UNEXPECTED_TOKEN;
 }

@@ -3,16 +3,6 @@
 // Global variable to store the logger object
 static struct my_logs *logger = NULL;
 
-/**
- * @brief Get the logger object
- *
- * @return the logger object
- */
-static struct my_logs *get_logger(void)
-{
-    return logger;
-}
-
 int create_logger(char *filename)
 {
     struct my_logs *l = calloc(1, sizeof(struct my_logs));
@@ -33,7 +23,6 @@ int create_logger(char *filename)
  */
 static FILE *open_logger(void)
 {
-    struct my_logs *logger = get_logger();
     if (logger == NULL)
         return NULL;
     FILE *fd = stdout;
@@ -55,17 +44,54 @@ static FILE *open_logger(void)
  */
 static void close_logger(FILE *fd)
 {
-    struct my_logs *logger = get_logger();
     if (logger == NULL)
         return;
     if (fd != stdout)
         fclose(fd);
 }
 
-int debug_printf(const char *format, ...)
+int enable_log_type(enum log_type type)
+{
+    if (logger == NULL)
+        return false;
+    if (type < 0 || type >= NB_TYPES)
+        return false;
+    logger->types_to_log[type] = true;
+    return true;
+}
+
+int disable_log_type(enum log_type type)
+{
+    if (logger == NULL)
+        return false;
+    if (type < 0 || type >= NB_TYPES)
+        return false;
+    logger->types_to_log[type] = false;
+    return true;
+}
+
+int enable_all_logs(void)
+{
+    if (logger == NULL)
+        return false;
+    for (int i = 0; i < NB_TYPES; i++)
+        logger->types_to_log[i] = true;
+    return true;
+}
+
+int disable_all_logs(void)
+{
+    if (logger == NULL)
+        return false;
+    for (int i = 0; i < NB_TYPES; i++)
+        logger->types_to_log[i] = false;
+    return true;
+}
+
+int debug_printf(enum log_type type, const char *format, ...)
 {
     FILE *fd = open_logger();
-    if (fd == NULL)
+    if (fd == NULL || !logger->types_to_log[type])
         return false;
     va_list args;
     va_list args_copy;
@@ -81,7 +107,6 @@ int debug_printf(const char *format, ...)
 
 int destroy_logger(void)
 {
-    struct my_logs *logger = get_logger();
     if (logger == NULL)
         return true;
     if (logger->filename)

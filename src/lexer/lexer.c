@@ -47,7 +47,7 @@ static struct token token_new(struct lexer *lexer)
 
     for (size_t i = 0; i < sizeof(reserved_words) / sizeof(char *); i++)
     {
-        // debug_printf("test '%s' == '%s'\n", reserved_words[i],
+        // debug_printf(LOG_LEX,"test '%s' == '%s'\n", reserved_words[i],
         //              lexer->current_word->data);
 
         if (!strcmp(reserved_words[i], lexer->current_word->data))

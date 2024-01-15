@@ -4,12 +4,13 @@
 
 int main(int argc, char **argv)
 {
-    // create_logger("stdout");
+    create_logger("stdout");
+    // enable_all_types();
 
     struct ast *res;
     if (parser(argc, argv, &res) != PARSER_OK)
     {
-        debug_printf("42sh: ast creation failed\n");
+        debug_printf(LOG_MAIN, "42sh: ast creation failed\n");
         return 2;
     }
 
@@ -18,6 +19,6 @@ int main(int argc, char **argv)
     int code = execute_ast(res);
 
     ast_free(res);
-
+    destroy_logger();
     return code;
 }
