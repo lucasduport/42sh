@@ -22,7 +22,7 @@ enum parser_status parser_input(struct lexer *lex, struct ast **res)
     // first token = EOF or NEWLINE -> OK
     if (peek.type == TOKEN_EOF || peek.type == TOKEN_NEWLINE)
     {
-        token_free(peek);
+        token_free(lexer_pop(lex));
         return PARSER_OK;
     }
 
@@ -30,11 +30,10 @@ enum parser_status parser_input(struct lexer *lex, struct ast **res)
         goto error;
 
     // parse_list works => there must be an EOF or NEWLINE.
-    token_free(peek);
     peek = lexer_peek(lex);
     if (peek.type == TOKEN_EOF || peek.type == TOKEN_NEWLINE)
     {
-        token_free(peek);
+        token_free(lexer_pop(lex));
         return PARSER_OK;
     }
 
@@ -42,7 +41,6 @@ enum parser_status parser_input(struct lexer *lex, struct ast **res)
     goto error;
 
 error:
-    token_free(peek);
     fprintf(stderr, "parser: parsing error\n");
     ast_free(*res);
     return PARSER_UNEXPECTED_TOKEN;
@@ -65,12 +63,11 @@ enum parser_status parser_element(struct lexer *lex, struct ast **res)
     if (peek.type != TOKEN_SEMICOLONS && peek.type != TOKEN_NEWLINE
         && peek.type != TOKEN_EOF)
     {
-        token_free(lexer_pop(lex));
+        peek = lexer_pop(lex);
         list_append((*res)->arg, peek.data);
         return PARSER_OK;
     }
 
-    token_free(peek);
     debug_printf(LOG_PARS,"[PARSER] It's not an element\n");
     return PARSER_UNEXPECTED_TOKEN;
 }

@@ -48,17 +48,6 @@ char io_getchar(void)
     return c;
 }
 
-int io_seek(size_t offset)
-{
-    if (fseek(stream, offset, SEEK_SET) == -1)
-    {
-        debug_printf(LOG_IO_BACK, "io_reverse: fseek failed <%d>\n", errno);
-        return IO_FAILED;
-    }
-
-    return IO_SUCCESS;
-}
-
 int io_close(void)
 {
     if (stream != stdin && fclose(stream) == -1)
