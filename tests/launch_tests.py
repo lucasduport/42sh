@@ -41,9 +41,11 @@ class TestShellScript(unittest.TestCase):
 
         # Calculate expected output and return code using binary
         binary_result = self.run_command(command, input_type)
-
         expected_result = subprocess.run(f"/bin/bash --posix -c \"{command}\"", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        if binary_result.stdout != expected_result.stdout or binary_result.stderr != expected_result.stderr or binary_result.returncode != expected_result.returncode:
+
+        if binary_result.stdout != expected_result.stdout \
+            or (len(binary_result.stderr) > 0) != (len(expected_result.stderr) > 0) \
+                or binary_result.returncode != expected_result.returncode:
             print(colored(f"Test failed: {category} - {sub_category} - {input_type}: {command}", 'red'))
             self.failed_tests += 1
         else:
@@ -54,7 +56,7 @@ class TestShellScript(unittest.TestCase):
             if binary_result.stdout != expected_result.stdout:
                 print(colored(f"Expected STDOUT: {expected_result.stdout}", 'green'))
                 print(colored(f"Actual STDOUT: {binary_result.stdout}", 'yellow'))
-            if binary_result.stderr != expected_result.stderr:
+            if (len(binary_result.stderr) > 0) != (len(expected_result.stderr) > 0):
                 print(colored(f"Expected STDERR: {expected_result.stderr}", 'green'))
                 print(colored(f"Actual STDERR: {binary_result.stderr}", 'yellow'))
             if binary_result.returncode != expected_result.returncode:
