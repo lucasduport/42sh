@@ -1,6 +1,10 @@
 #include "execute.h"
 
+#include <errno.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 /**
  * @brief Execute if node
@@ -12,7 +16,8 @@ static int execute_if(struct ast *first_child)
 {
     if (first_child == NULL || first_child->next == NULL)
     {
-        debug_printf(LOG_EXEC, "[EXECUTE] Missing condition or then for 'if' node\n");
+        debug_printf(LOG_EXEC,
+                     "[EXECUTE] Missing condition or then for 'if' node\n");
         return -1;
     }
 
@@ -50,6 +55,65 @@ static int execute_list(struct ast *first_child)
 }
 
 /**
+ * @brief Execute commands which are not builtins
+ *
+ * @param arg Chained list of arguments
+ * @return return value from execution of the command
+ */
+static int execvp_wrapper(struct list *arg)
+{
+    int argc = 0;
+    if (arg == NULL)
+    {
+        debug_printf(LOG_EXEC,
+                     "[EXECUTE] execvp_wrapper: argv allocation failed\n");
+        return -1;
+    }
+
+    int pid = fork();
+    if (pid == 0)
+    {
+        // Child process
+        size_t i = 0;
+        // Rebuilds argc and argv
+        char **argv = NULL;
+        while (arg != NULL)
+        {
+            argv = realloc(argv, sizeof(char *) * (argc + 2));
+            if (argv == NULL)
+            {
+                debug_printf(LOG_EXEC,
+                             "[EXECUTE] execvp_wrapper: argv realloc failed\n");
+                return -1;
+            }
+            argc++;
+            argv[i] = arg->current;
+            arg = arg->next;
+            i++;
+        }
+        argv[i] = NULL;
+
+        int retCode = execvp(argv[0], argv);
+        if (retCode == -1 && errno == ENOENT)
+        {
+            fprintf(stderr, "%s: command not found\n", argv[0]);
+            retCode = 127;
+        }
+        free(argv);
+        return retCode;
+    }
+    else
+    {
+        // Parent process
+        int parent_pid;
+        // Wait for child process to finish
+        waitpid(pid, &parent_pid, 0);
+        // Return child process return value
+        return WEXITSTATUS(parent_pid);
+    }
+}
+
+/**
  * @brief Execute command node
  *
  * @param command Node command
@@ -77,8 +141,7 @@ static int execute_command(struct ast *command)
 
     else
     {
-        fprintf(stderr, "unknown command : %s\n", first_arg);
-        return 127;
+        return execvp_wrapper(command->arg);
     }
 }
 
