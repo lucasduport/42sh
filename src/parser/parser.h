@@ -9,21 +9,12 @@ enum parser_status
 {
     PARSER_OK,
     PARSER_UNEXPECTED_TOKEN,
+    PARSER_EOF_VALID,
+    PARSER_EOF_ERROR,
     PARSER_ARG_ERROR
 };
 
 ////// PARSER //////
-/**
- * @brief Initialize lexer and parse imput
- *
- * @param argc argc given in main
- * @param argv argv given in main
- * @return parser_status > PARSER_ARG_ERROR if lexing failed
- *                      > PARSER_UNEXPECTED_TOKEN if parsing failed
- *                      > PARSER_OK otherwhise
- */
-enum parser_status parser(int argc, char *argv[], struct ast **res);
-
 /**
  * @brief Parse global grammar :
  *

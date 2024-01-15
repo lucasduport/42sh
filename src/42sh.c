@@ -4,21 +4,37 @@
 
 int main(int argc, char **argv)
 {
-    create_logger("stdout");
-    // enable_all_types();
+    //create_logger("stdout");
+    //enable_all_logs();
 
-    struct ast *res;
-    if (parser(argc, argv, &res) != PARSER_OK)
+    //Initialise lexer
+    struct lexer *lex = lexer_new(argc, argv);
+    if (lex == NULL)
     {
-        debug_printf(LOG_MAIN, "42sh: ast creation failed\n");
+        debug_printf(LOG_MAIN, "[MAIN] Failed initialize lexer");
         return 2;
     }
 
-    // ast_print(res);
+    //Initialise variable used for parsing
+    struct ast *res;
+    int code = 0;
+    enum parser_status parse_code = parser_input(lex, &res);
+    while (parse_code != PARSER_EOF_VALID && parse_code != PARSER_EOF_ERROR)
+    {
+        if (parse_code == PARSER_OK)
+            code = execute_ast(res);
+        ast_free(res);
+        parse_code = parser_input(lex, &res);
+    }
 
-    int code = execute_ast(res);
+    //If end correctly
+    if (parse_code == PARSER_EOF_VALID)
+    {
+        code = execute_ast(res);
+        ast_free(res);
+    }
 
-    ast_free(res);
-    destroy_logger();
+    lexer_free(lex);
+    //destroy_logger();
     return code;
 }

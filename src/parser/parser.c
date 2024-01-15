@@ -2,50 +2,45 @@
 
 #include <stdio.h>
 
-enum parser_status parser(int argc, char *argv[], struct ast **res)
-{
-    struct lexer *lexer = lexer_new(argc, argv);
-    if (lexer == NULL)
-        return PARSER_ARG_ERROR;
-
-    enum parser_status ret_value = parser_input(lexer, res);
-
-    lexer_free(lexer);
-    return ret_value;
-}
-
 enum parser_status parser_input(struct lexer *lex, struct ast **res)
 {
     struct token peek = lexer_peek(lex);
+    enum token_type peek_type = peek.type;
     *res = NULL;
 
     // first token = EOF or NEWLINE -> OK
-    if (peek.type == TOKEN_EOF || peek.type == TOKEN_NEWLINE)
+    if (peek_type == TOKEN_EOF || peek_type == TOKEN_NEWLINE)
     {
         token_free(peek);
-        return PARSER_OK;
+        token_free(lexer_pop(lex));
+        return (peek_type == TOKEN_EOF) ? PARSER_EOF_VALID : PARSER_OK;
     }
 
+    token_free(peek);
     if (parser_list(lex, res) == PARSER_UNEXPECTED_TOKEN)
         goto error;
 
     // parse_list works => there must be an EOF or NEWLINE.
-    token_free(peek);
     peek = lexer_peek(lex);
-    if (peek.type == TOKEN_EOF || peek.type == TOKEN_NEWLINE)
+    peek_type = peek.type;
+    if (peek_type == TOKEN_EOF || peek_type == TOKEN_NEWLINE)
     {
         token_free(peek);
-        return PARSER_OK;
+        token_free(lexer_pop(lex));
+        return (peek_type == TOKEN_EOF) ? PARSER_EOF_VALID : PARSER_OK;
     }
 
     // If not.
+    token_free(peek);
     goto error;
 
 error:
-    token_free(peek);
+    peek = lexer_peek(lex);
+    peek_type = peek.type;
     fprintf(stderr, "parser: parsing error\n");
+    token_free(peek);
     ast_free(*res);
-    return PARSER_UNEXPECTED_TOKEN;
+    return (peek_type == TOKEN_EOF) ? PARSER_EOF_ERROR : PARSER_UNEXPECTED_TOKEN;
 }
 
 enum parser_status parser_and_or(struct lexer *lex, struct ast **res)
