@@ -1,5 +1,5 @@
-#ifndef IO_BACKEND_H
-#define IO_BACKEND_H
+#ifndef IO_H
+#define IO_H
 
 #define IO_SUCCESS 0
 #define IO_FAILED 1
@@ -21,16 +21,9 @@ int io_abstraction(int argc, char *argv[]);
 char io_getchar(void);
 
 /**
- * @brief Change the current position of the file pointer.
- * @param offset Position to set.
- * @return A character or '\0' if it reads EOF.
- */
-int io_seek(size_t offset);
-
-/**
  * @brief Close used stream.
  * @return IO_SUCCESS if stream is closed successfuly, IO_FAILED otherwise.
  */
 int io_close(void);
 
-#endif /* ! IO_BACKEND_H */
+#endif /* ! IO_H */

@@ -15,11 +15,9 @@ static enum parser_status sub_parse_then(struct lexer *lex,
     if (peek.type != TOKEN_THEN)
     {
         debug_printf(LOG_PARS,"[PARSER] Failed parse 'then' token\n");
-        token_free(peek);
         return PARSER_UNEXPECTED_TOKEN;
     }
 
-    token_free(peek);
     token_free(lexer_pop(lex));
 
     struct ast *tmp_then = NULL;
@@ -55,7 +53,6 @@ static enum parser_status sub_parse_else(struct lexer *lex,
         struct ast *tmp_else = NULL;
         if (parser_else_clause(lex, &tmp_else) == PARSER_UNEXPECTED_TOKEN)
         {
-            token_free(peek);
             debug_printf(LOG_PARS,"[PARSER] Failed parse else_clause\n");
             ast_free(tmp_else);
             return PARSER_UNEXPECTED_TOKEN;
@@ -63,7 +60,6 @@ static enum parser_status sub_parse_else(struct lexer *lex,
 
         ast_add_brother(tmp_condition, tmp_else);
     }
-    token_free(peek);
     return PARSER_OK;
 }
 
@@ -73,7 +69,6 @@ enum parser_status parser_rule_if(struct lexer *lex, struct ast **res)
 
     if (peek.type == TOKEN_IF)
     {
-        token_free(peek);
         token_free(lexer_pop(lex));
         *res = ast_new(AST_IF);
 
@@ -101,12 +96,10 @@ enum parser_status parser_rule_if(struct lexer *lex, struct ast **res)
         peek = lexer_peek(lex);
         if (peek.type == TOKEN_FI)
         {
-            token_free(peek);
             token_free(lexer_pop(lex));
             return PARSER_OK;
         }
     }
-    token_free(peek);
     return PARSER_UNEXPECTED_TOKEN;
 }
 
@@ -115,14 +108,12 @@ enum parser_status parser_else_clause(struct lexer *lex, struct ast **res)
     struct token peek = lexer_peek(lex);
     if (peek.type == TOKEN_ELSE)
     {
-        token_free(peek);
         token_free(lexer_pop(lex));
         return parser_compound_list(lex, res);
     }
 
     else if (peek.type == TOKEN_ELIF)
     {
-        token_free(peek);
         token_free(lexer_pop(lex));
         *res = ast_new(AST_IF);
 
@@ -149,6 +140,5 @@ enum parser_status parser_else_clause(struct lexer *lex, struct ast **res)
         return PARSER_OK;
     }
 
-    token_free(peek);
     return PARSER_UNEXPECTED_TOKEN;
 }
