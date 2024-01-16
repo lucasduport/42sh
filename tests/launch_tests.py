@@ -53,7 +53,8 @@ class TestShellScript(unittest.TestCase):
             print(colored(f"✘ {category} - {sub_category} - {input_type}: {command}", 'red'))
             self.results[category][sub_category]["fail"] += 1
         else:
-            print(colored(f"✔ {category} - {sub_category} - {input_type}: {command}", 'green'))
+            if verbose:
+                print(colored(f"✔ {category} - {sub_category} - {input_type}: {command}", 'green'))
             self.results[category][sub_category]["success"] += 1
 
         if verbose:
@@ -66,7 +67,6 @@ class TestShellScript(unittest.TestCase):
             if binary_result.returncode != expected_result.returncode:
                 print(colored(f"\tExpected (exit code): {expected_result.returncode}", 'green'))
                 print(colored(f"\tActual (exit code): {binary_result.returncode}", 'yellow'))
-        print()
         return
 
     def create_test_from_case(self, test_case, yaml_data, input_type, verbose=False):
@@ -104,7 +104,6 @@ class TestShellScript(unittest.TestCase):
             print()
             category_success += sub_success
             category_fail += sub_fail
-        print()
         print(colored(f"✔: {category_success}", 'green'), colored(f"✘: {category_fail}", 'red'))
         if category_success + category_fail > 0:
             success_percentage = (category_success * 100) / (category_success + category_fail)
