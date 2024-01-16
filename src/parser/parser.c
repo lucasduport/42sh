@@ -41,7 +41,7 @@ enum parser_status parser_and_or(struct lexer *lex, struct ast **res)
     
     struct ast *final_res = *res;
 
-    //Check optional { ('&&' || '||') {'\n'} pipeline }
+    // Check optional { ('&&' || '||') {'\n'} pipeline }
     struct token peek = lexer_peek(lex);
     while (peek.type == TOKEN_AND || peek.type == TOKEN_OR)
     {
@@ -50,6 +50,7 @@ enum parser_status parser_and_or(struct lexer *lex, struct ast **res)
         token_free(lexer_pop(lex));
 
         peek = lexer_peek(lex);
+        // Pop optional newline
         while (peek.type == TOKEN_NEWLINE)
         {
             token_free(lexer_pop(lex));
@@ -61,7 +62,6 @@ enum parser_status parser_and_or(struct lexer *lex, struct ast **res)
             return PARSER_UNEXPECTED_TOKEN;
         }
         
-        //FIXME Ca marche ça ?
         tmp->first_child = final_res;
         ast_add_brother(final_res, *res);
         final_res = tmp;
