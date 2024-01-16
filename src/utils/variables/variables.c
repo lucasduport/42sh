@@ -3,98 +3,91 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Function to add a variable to the list
-void set_variable(struct variable **head, const char *name, int value)
+/**
+ * @brief Add a new variable to the list
+ *
+ * @param head The head of the list
+ * @param name The name of the variable
+ * @param value The value of the variable
+ * @return int 0 on success, -1 on error
+ */
+static int add_variable(struct variable **head, const char *name, char *value)
 {
-    struct variable *new_variable = calloc(sizeof(struct variable));
-    if (new_variable == NULL) {
-        debug_printf(LOG_UTILS, "")
-        exit(EXIT_FAILURE);
+    struct variable *new_variable = calloc(1, sizeof(struct variable));
+    if (new_variable == NULL)
+    {
+        debug_printf(LOG_UTILS,
+                     "[VARIABLES] Error allocating memory for "
+                     "variable [%s=%s]\n",
+                     name, value);
+        return -1;
     }
-
     new_variable->name = strdup(name);
-    new_variable->value = value;
+    new_variable->value = strdup(value);
     new_variable->next = *head;
     *head = new_variable;
 }
 
-// Function to get the value of a variable by its name
-int get_value(const struct variable *head, const char *name) {
+int set_variable(struct variable **head, const char *name, char *value)
+{
+    struct variable *current = *head;
+    while (current != NULL)
+    {
+        if (strcmp(current->name, name) == 0)
+        {
+            free(current->value);
+            current->value = strdup(value);
+            return 0;
+        }
+        current = current->next;
+    }
+
+    // If the variable is not found, add it to the list
+    return add_variable(head, name, value);
+}
+
+char *get_value(const struct variable *head, const char *name)
+{
     const struct variable *current = head;
-    while (current != NULL) {
-        if (strcmp(current->name, name) == 0) {
+    while (current != NULL)
+    {
+        if (strcmp(current->name, name) == 0)
+        {
             return current->value;
         }
         current = current->next;
     }
 
-    // Return a default value if the variable is not found
-    return 0;
+    // Return NULL as a default value if the variable is not found
+    return NULL;
 }
 
-// Function to perform a deep copy of the list of variables
-struct variable *deep_copy(const struct variable *head) {
-    if (head == NULL) {
-        return NULL;
-    }
-
-    // Copy the first variable
-    struct variable *new_head = (struct variable *)malloc(sizeof(struct variable));
-    if (new_head == NULL) {
-        perror("Error allocating memory");
-        exit(EXIT_FAILURE);
-    }
-    new_head->name = strdup(head->name);
-    new_head->value = head->value;
-    new_head->next = NULL;
-
-    // Copy the rest of the list
-    const struct variable *current = head->next;
-    struct variable *new_current = new_head;
-    while (current != NULL) {
-        struct variable *new_variable = (struct variable *)malloc(sizeof(struct variable));
-        if (new_variable == NULL) {
-            perror("Error allocating memory");
-            exit(EXIT_FAILURE);
+struct variable *dup_variables(struct variable *head)
+{
+    struct variable *new_head = NULL;
+    struct variable *current = head;
+    while (current != NULL)
+    {
+        add_variable(&new_head, current->name, current->value);
+        if (new_head == NULL)
+        {
+            debug_printf(LOG_UTILS,
+                         "[VARIABLES] Error duplicating variable [%s=%s]\n",
+                         current->name, current->value);
+            return NULL;
         }
-        new_variable->name = strdup(current->name);
-        new_variable->value = current->value;
-        new_variable->next = NULL;
-
-        new_current->next = new_variable;
-        new_current = new_variable;
-
         current = current->next;
     }
-
     return new_head;
 }
 
-// Function to free the memory used by the list of variables
-void free_variables(struct variable *head) {
-    while (head != NULL) {
+void free_variables(struct variable *head)
+{
+    while (head != NULL)
+    {
         struct variable *temp = head;
         head = head->next;
         free(temp->name);
         free(temp);
     }
-}
-
-// Example usage
-int main() {
-    struct variable *variables = NULL;
-
-    add_variable(&variables, "x", 10);
-    add_variable(&variables, "y", 20);
-
-    printf("Value of x: %d\n", get_value(variables, "x"));
-    printf("Value of y: %d\n", get_value(variables, "y"));
-
-    struct variable *copy = deep_copy(variables);
-
-    // Free the memory used by the lists
-    free_variables(variables);
-    free_variables(copy);
-
-    return 0;
 }

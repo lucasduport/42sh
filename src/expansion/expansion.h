@@ -2,7 +2,8 @@
 #define EXPANSION_H
 
 #include "../utils/list/list.h"
+#include "../environment/environment.h"
 
-void expansion(struct list *list);
+int expansion(struct list *list, struct environment *env);
 
 #endif /* ! EXPANSION_H */

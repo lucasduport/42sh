@@ -12,7 +12,7 @@
  * @param first_child First child of 'if' node -> condition
  * @return value of 'then' execution or 'else' execution or 0 by default
  */
-static int execute_if(struct ast *first_child)
+static int execute_if(struct ast *first_child, struct environment *env)
 {
     if (first_child == NULL || first_child->next == NULL)
     {
@@ -22,15 +22,15 @@ static int execute_if(struct ast *first_child)
     }
 
     // If condition is met
-    int res_cond = execute_ast(first_child);
+    int res_cond = execute_ast(first_child, env);
     if (res_cond == -1)
         return -1;
     else if (!res_cond)
-        return execute_ast(first_child->next);
+        return execute_ast(first_child->next, env);
 
     // If there is no 'else' node
     if (first_child->next->next != NULL)
-        return execute_ast(first_child->next->next);
+        return execute_ast(first_child->next->next, env);
 
     return 0;
 }
@@ -41,14 +41,14 @@ static int execute_if(struct ast *first_child)
  * @param first_child First child of 'list' node
  * @return return value from execution of last command
  */
-static int execute_list(struct ast *first_child)
+static int execute_list(struct ast *first_child, struct environment *env)
 {
     struct ast *tmp = first_child;
     int res = 0;
     // While there is no error on our part
     while (tmp != NULL && res != -1)
     {
-        res = execute_ast(tmp);
+        res = execute_ast(tmp, env);
         tmp = tmp->next;
     }
     return res;
@@ -60,7 +60,7 @@ static int execute_list(struct ast *first_child)
  * @param arg Chained list of arguments
  * @return return value from execution of the command
  */
-static int execvp_wrapper(struct list *arg)
+static int execvp_wrapper(struct list *arg, struct environment *env)
 {
     int argc = 0;
     if (arg == NULL)
@@ -119,11 +119,18 @@ static int execvp_wrapper(struct list *arg)
  * @param command Node command
  * @return return value from execution of the command
  */
-static int execute_command(struct ast *command)
+static int execute_command(struct ast *command, struct environment *env)
 {
     if (command->arg == NULL)
     {
         debug_printf(LOG_EXEC, "[EXECUTE] Missing command argument\n");
+        return -1;
+    }
+
+    if (expansion(command->arg) == -1)
+    {
+        debug_printf(LOG_EXEC, "[EXECUTE] Expansion failed\n");
+        fprintf(stderr, "Expansion failed\n");
         return -1;
     }
 
@@ -142,21 +149,21 @@ static int execute_command(struct ast *command)
     else
     {
         //expansion(command->arg);
-        return execvp_wrapper(command->arg);
+        return execvp_wrapper(command->arg, env);
     }
 }
 
-int execute_ast(struct ast *ast)
+int execute_ast(struct ast *ast,struct environment *env)
 {
     if (ast == NULL)
         return 0;
 
     if (ast->type == AST_IF)
-        return execute_if(ast->first_child);
+        return execute_if(ast->first_child, env);
 
     else if (ast->type == AST_LIST)
-        return execute_list(ast->first_child);
+        return execute_list(ast->first_child, env);
 
     else
-        return execute_command(ast);
+        return execute_command(ast, env);
 }
