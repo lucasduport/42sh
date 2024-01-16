@@ -165,9 +165,66 @@ static int is_subshell(struct lexer *lexer)
         if (sub_shell_char[i] == lexer->current_char)
             return 1;
     }
-
     return 0;
 }
+
+
+/*
+static int test_end_expansion(struct lexer *lexer)
+{
+    if (lexer->current_expansion == '{')
+        return lexer->current_char == '}';
+
+    else if (lexer->current_expansion == '(')
+        return lexer->current_char == ')';
+    
+    else 
+        return lexer->current_char == '`';
+}
+
+static void feed_until_end(struct lexer *lexer)
+{
+    do
+    {
+        lexer->current_char = io_getchar();
+
+        if (lexer->current_char == lexer->current_expansion)
+            lexer->count_expansion++;
+
+        if (test_end_expansion(lexer))
+            lexer->count_expansion--;
+
+        string_append_char(lexer->current_word, lexer->current_char);
+
+    } while (!test_end_expansion(lexer) && lexer->count_expansion != 0);
+}
+
+
+static void feed_expansion(struct lexer *lexer)
+{
+    if (lexer->current_char == '`')
+    {
+        lexer->current_expansion = lexer->current_char;
+        lexer->count_expansion++;
+        feed_until_end(lexer);
+    }
+
+    else if (lexer->current_char == '$')
+    {
+        string_append_char(lexer->current_word, lexer->current_char);
+
+        lexer->current_char = io_getchar();
+    
+        if (lexer->current_char == '{' || lexer->current_char == '(')
+        {
+            string_append_char(lexer->current_word, lexer->current_char);
+            lexer->current_expansion = lexer->current_char;
+            lexer->count_expansion++;
+            feed_until_end(lexer);
+        }
+        // "bonjour $name ! comment vas tu ?"
+    }
+}*/
 
 /**
  * @brief Update the quote state
@@ -246,7 +303,9 @@ static struct token parse_input_for_tok(struct lexer *lexer)
     // rule 5
     else if (!lexer->is_quoted && is_subshell(lexer))
     {
-        // TODO: subshell completion.
+        //debug_printf(LOG_LEX, "EXPANSION!\n");
+        //feed_expansion(lexer);
+        string_append_char(lexer->current_word, lexer->current_char);
     }
 
     // rule 6
