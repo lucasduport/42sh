@@ -141,6 +141,7 @@ static int execute_command(struct ast *command)
 
     else
     {
+        //expansion(command->arg);
         return execvp_wrapper(command->arg);
     }
 }
