@@ -99,30 +99,18 @@ class TestShellScript(unittest.TestCase):
             print(colored(f"\t✔: {sub_success}", 'green'), colored(f"✘: {sub_fail}", 'red'))
             if sub_success + sub_fail > 0:
                 success_percentage = (sub_success * 100) / (sub_success + sub_fail)
-                # Different color depending on success rate
-                if success_percentage >= 90:
-                    p_colour = 'green'
-                elif success_percentage >= 80:
-                    p_colour = 'yellow'
-                else:
-                    p_colour = 'red'
+                p_colour = get_print_colour(success_percentage)
                 print(colored(f"\tRatio: {success_percentage:.2f}%", p_colour))
-            print(colored("\t" + '-' * 20, 'cyan'))
+            print()
             category_success += sub_success
             category_fail += sub_fail
         print()
         print(colored(f"✔: {category_success}", 'green'), colored(f"✘: {category_fail}", 'red'))
         if category_success + category_fail > 0:
             success_percentage = (category_success * 100) / (category_success + category_fail)
-            # Different color depending on success rate
-            if success_percentage >= 90:
-                p_colour = 'green'
-            elif success_percentage >= 80:
-                p_colour = 'yellow'
-            else:
-                p_colour = 'red'
+            p_colour = get_print_colour(success_percentage)
         print(colored(f"Ratio: {success_percentage:.2f}%", p_colour))
-        print(colored('*' * 30, 'cyan'))
+        print()
         self.total_success += category_success
         self.total_fail += category_fail
     
@@ -134,13 +122,15 @@ class TestShellScript(unittest.TestCase):
         print(colored(f"✔: {self.total_success}", 'green'), colored(f"✘: {self.total_fail}", 'red'))
         if self.total_success + self.total_fail > 0:
             success_percentage = (self.total_success * 100) / (self.total_success + self.total_fail)
+            p_colour = get_print_colour(success_percentage)
             # Different color depending on success rate
             if success_percentage >= 90:
-                print(colored(f"Ratio: {success_percentage:.2f}%", 'green'))
-            elif success_percentage >= 80:
-                print(colored(f"Ratio: {success_percentage:.2f}%", 'yellow'))
+                p_colour = 'green'
+            elif success_percentage >= 60:
+                p_colour = 'yellow'
             else:
-                print(colored(f"Ratio: {success_percentage:.2f}%", 'red'))
+                p_colour = 'red'
+        print(colored(f"Ratio: {success_percentage:.2f}%", p_colour))
         print(colored('*' * 39, 'cyan'))
 
 class TestRunner:
@@ -156,6 +146,14 @@ class TestRunner:
             for category_data in test_data:
                 test_shell_script.run_category_tests(category_data, verbose=self.verbose)
         test_shell_script.print_summary()
+
+def get_print_colour(success_percentage):
+    if success_percentage >= 90:
+        return 'green'
+    elif success_percentage >= 60:
+        return 'yellow'
+    else:
+        return 'red'
 
 def load_test_files(directory):
     test_files = [f for f in os.listdir(directory) if f.endswith('.yaml') or f.endswith('.yml')]

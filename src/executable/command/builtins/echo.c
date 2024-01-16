@@ -10,6 +10,7 @@ struct option
     int escape;
 };
 
+// FIXME: /bin/echo -n -e -E 'Mixing options and\n multiline\t strings with \ backslashes\n' is not working
 /**
  *  @brief Parse an option and check if is valid.
  *
