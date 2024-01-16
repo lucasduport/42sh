@@ -20,17 +20,31 @@
  * @param lexer
  * @return The new token
  */
-static struct token token_alloc(enum token_type type, struct lexer *lexer)
+static struct token token_alloc(enum token_type type, enum token_family family,
+                                struct lexer *lexer)
 {
     struct token token;
     token.data = calloc(lexer->current_word->len, sizeof(char));
-    token.data = memcpy(token.data, lexer->current_word->data, lexer->current_word->len);     
+    token.data =
+        memcpy(token.data, lexer->current_word->data, lexer->current_word->len);
     token.type = type;
+    token.family = family;
 
     string_reset(lexer->current_word);
 
     print_token(token);
     return token;
+}
+
+static int check_io_number(struct lexer *lexer)
+{
+    for (int i = 0; i < lexer->current_word->len; i++)
+    {
+        if (!isdigit(lexer->current_word->data[i]))
+            return 0;
+    }
+
+    return lexer->current_char == '<' || lexer->current_char == '>';
 }
 
 /**
@@ -43,21 +57,32 @@ static struct token token_new(struct lexer *lexer)
 {
     string_append_char(lexer->current_word, '\0');
 
-    char *reserved_words[] = { "if", "then", "elif", "else",
-                               "fi", ";",    "\n",   "\0" };
+    char *reserved_words[] = { "if",   "then",  "elif",  "else", "fi", "do",
+                               "done", "while", "until", "for",  "in", "!",
+                               ";",    "\n",    "|",     "&&",   "||", ";;",
+                               "<",    ">",     "<<",    ">>",   "<&", "&>",
+                               "<>",   "<<-",   ">|",    "\0" };
 
+    int family = 0;
     for (size_t i = 0; i < sizeof(reserved_words) / sizeof(char *); i++)
     {
         // debug_printf(LOG_LEX,"test '%s' == '%s'\n", reserved_words[i],
         //              lexer->current_word->data);
 
+        if (i == 12 || i == 18)
+            family++;
+
         if (!strcmp(reserved_words[i], lexer->current_word->data))
         {
-            return token_alloc((enum token_type)i, lexer);
+            return token_alloc((enum token_type)i, (enum token_family)family,
+                               lexer);
         }
     }
 
-    return token_alloc(TOKEN_WORD, lexer);
+    if (check_io_number(lexer))
+        return token_alloc(TOKEN_WORD, TOKEN_FAM_IO_NUMBER, lexer);
+
+    return token_alloc(TOKEN_WORD, TOKEN_FAM_WORD, lexer);
 }
 
 /**
@@ -269,7 +294,7 @@ struct lexer *lexer_new(int argc, char *argv[])
     if (io_abstraction(argc, argv) == IO_FAILED)
         return NULL;
 
-    struct lexer *lexer = calloc(1, sizeof(struct lexer)); 
+    struct lexer *lexer = calloc(1, sizeof(struct lexer));
     lexer->last_token = token_null();
     lexer->current_word = string_create();
     return lexer;
@@ -280,16 +305,16 @@ struct token lexer_peek(struct lexer *lexer)
     if (lexer->last_token.type != TOKEN_NULL)
         return lexer->last_token;
 
-    struct token tok; 
+    struct token tok;
     if (lexer->is_newline)
     {
         lexer->is_newline = 0;
-        tok = (struct token){.type = TOKEN_NEWLINE, .data = NULL};
+        tok = (struct token){ .type = TOKEN_NEWLINE, .data = NULL };
         lexer->last_token = tok;
     }
     else
     {
-        tok = parse_input_for_tok(lexer); 
+        tok = parse_input_for_tok(lexer);
         lexer->last_token = tok;
     }
 
