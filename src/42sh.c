@@ -4,7 +4,7 @@
 
 int main(int argc, char **argv)
 {
-    create_logger("stdout");
+    //create_logger("stdout");
     enable_log_type(LOG_MAIN);
     enable_log_type(LOG_PARS);
     enable_log_type(LOG_AST);
@@ -22,23 +22,18 @@ int main(int argc, char **argv)
     struct ast *res;
     int code = 0;
     enum parser_status parse_code = parser_input(lex, &res);
-    while (parse_code != PARSER_EOF_VALID && parse_code != PARSER_EOF_ERROR)
+    while (parse_code != PARSER_EOF)
     {
-        if (parse_code == PARSER_OK || parse_code == PARSER_EOF_VALID)
+        if (parse_code == PARSER_OK)
         {
             ast_print(res);
             debug_printf(LOG_MAIN, "\n");
             code = execute_ast(res);
             ast_free(res);
         }
+        else
+            code = 2;
         parse_code = parser_input(lex, &res);
-    }
-
-    //If end correctly
-    if (parse_code == PARSER_EOF_VALID)
-    {
-        code = execute_ast(res);
-        ast_free(res);
     }
 
     lexer_free(lex);

@@ -9,8 +9,7 @@ enum parser_status
 {
     PARSER_OK,
     PARSER_UNEXPECTED_TOKEN,
-    PARSER_EOF_VALID,
-    PARSER_EOF_ERROR,
+    PARSER_EOF,
     PARSER_ARG_ERROR
 };
 

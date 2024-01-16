@@ -18,6 +18,7 @@ enum parser_status parser_command(struct lexer *lex, struct ast **res)
         return parser_shell_command(lex, res);
     }
 
+    token_free(lexer_pop(lex));
     return PARSER_UNEXPECTED_TOKEN;
 }
 
@@ -26,7 +27,10 @@ enum parser_status parser_simple_command(struct lexer *lex, struct ast **res)
     struct token peek = lexer_peek(lex);
 
     if (peek.type != TOKEN_WORD)
+    {
+        token_free(lexer_pop(lex));
         return PARSER_UNEXPECTED_TOKEN;
+    }
 
     //Pop previous word
     peek = lexer_pop(lex);

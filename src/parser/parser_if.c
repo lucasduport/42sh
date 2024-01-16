@@ -12,13 +12,15 @@ static enum parser_status sub_parse_then(struct lexer *lex,
                                          struct ast *tmp_condition)
 {
     struct token peek = lexer_peek(lex);
+    
+    //It doesn't matter if it fails or not, we need to pop actual token
+    token_free(lexer_pop(lex));
+    
     if (peek.type != TOKEN_THEN)
     {
         debug_printf(LOG_PARS,"[PARSER] Failed parse 'then' token\n");
         return PARSER_UNEXPECTED_TOKEN;
     }
-
-    token_free(lexer_pop(lex));
 
     struct ast *tmp_then = NULL;
 
@@ -100,6 +102,7 @@ enum parser_status parser_rule_if(struct lexer *lex, struct ast **res)
             return PARSER_OK;
         }
     }
+    token_free(lexer_pop(lex));
     return PARSER_UNEXPECTED_TOKEN;
 }
 
@@ -140,5 +143,6 @@ enum parser_status parser_else_clause(struct lexer *lex, struct ast **res)
         return PARSER_OK;
     }
 
+    token_free(lexer_pop(lex));
     return PARSER_UNEXPECTED_TOKEN;
 }
