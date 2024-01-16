@@ -36,18 +36,12 @@ enum parser_status parser_input(struct lexer *lex, struct ast **res);
 enum parser_status parser_and_or(struct lexer *lex, struct ast **res);
 
 /**
- * @brief Parse pipeline grammar :
- *
- * command
- */
-enum parser_status parser_pipeline(struct lexer *lex, struct ast **res);
-
-/**
  * @brief Parse element grammar :
  *
  * WORD
  */
 enum parser_status parser_element(struct lexer *lex, struct ast **res);
+
 
 ////// PARSER_COMMAND //////
 /**
@@ -68,9 +62,13 @@ enum parser_status parser_simple_command(struct lexer *lex, struct ast **res);
 /**
  * @brief Parse shell command grammar :
  *
- * rule_if
+ *   rule_if
+ * | rule_while
+ * | rule_until
+ * | rule_for
  */
 enum parser_status parser_shell_command(struct lexer *lex, struct ast **res);
+
 
 ////// PARSER_IF //////
 /**
@@ -88,6 +86,7 @@ enum parser_status parser_rule_if(struct lexer *lex, struct ast **res);
  */
 enum parser_status parser_else_clause(struct lexer *lex, struct ast **res);
 
+
 ////// PARSER LIST //////
 /**
  * @brief Parse list grammar :
@@ -102,5 +101,30 @@ enum parser_status parser_list(struct lexer *lex, struct ast **res);
  *  {'\n'} and_or { (';' | '\n') {'\n'} and_or} [';'] {'\n'}
  */
 enum parser_status parser_compound_list(struct lexer *lex, struct ast **res);
+
+
+////// PARSER REDIRECTION //////
+/**
+ * @brief Parse pipeline grammar :
+ *
+ * ['!'] command { '|' {'\n'} command }
+ */
+enum parser_status parser_pipeline(struct lexer *lex, struct ast **res);
+
+
+////// PARSER BOUCLES //////
+/**
+ * @brief Parse while grammar :
+ *
+ * 'while' compund_list 'do' compund_list 'done'
+ */
+enum parser_status parser_rule_while(struct lexer *lex, struct ast **res);
+
+/**
+ * @brief Parse until grammar :
+ *
+ * 'until' compund_list 'do' compund_list 'done'
+ */
+enum parser_status parser_rule_until(struct lexer *lex, struct ast **res);
 
 #endif /* !PARSER_H */

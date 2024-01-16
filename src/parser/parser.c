@@ -39,7 +39,7 @@ enum parser_status parser_and_or(struct lexer *lex, struct ast **res)
     if (parser_pipeline(lex, res) == PARSER_UNEXPECTED_TOKEN)
         return PARSER_UNEXPECTED_TOKEN;
     
-    struct ast *final_res = *res;
+    struct ast *tmp_final = *res;
 
     // Check optional { ('&&' || '||') {'\n'} pipeline }
     struct token peek = lexer_peek(lex);
@@ -56,33 +56,29 @@ enum parser_status parser_and_or(struct lexer *lex, struct ast **res)
             token_free(lexer_pop(lex));
             peek = lexer_peek(lex);
         }
+
         if (parser_pipeline(lex, res) == PARSER_UNEXPECTED_TOKEN)
         {
             ast_free(tmp);
+            ast_free(tmp_final);
             return PARSER_UNEXPECTED_TOKEN;
         }
         
-        tmp->first_child = final_res;
-        ast_add_brother(final_res, *res);
-        final_res = tmp;
+        tmp->first_child = tmp_final;
+        ast_add_brother(tmp_final, *res);
+        tmp_final = tmp;
 
         peek = lexer_peek(lex);
     }
-    *res = final_res;
+    *res = tmp_final;
     return PARSER_OK;
-}
-
-enum parser_status parser_pipeline(struct lexer *lex, struct ast **res)
-{
-    return parser_command(lex, res);
 }
 
 enum parser_status parser_element(struct lexer *lex, struct ast **res)
 {
     struct token peek = lexer_peek(lex);
 
-    if (peek.type != TOKEN_SEMICOLONS && peek.type != TOKEN_NEWLINE 
-        && peek.type != TOKEN_EOF)
+    if (peek.family != TOKEN_FAM_OPERATOR && peek.type != TOKEN_EOF)
     {
         peek = lexer_pop(lex);
         list_append((*res)->arg, peek.data);
