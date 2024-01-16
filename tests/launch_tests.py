@@ -7,13 +7,16 @@ from termcolor import colored
 
 # Constants
 BINARY = "../src/42sh"
-REF = ""
+REF = "/bin/bash --posix"
+
+#FIXME : Add different types of input (file, cmd_arg, stdin)
 
 class TestShellScript(unittest.TestCase):
     def __init__(self):
         super(TestShellScript, self).__init__()
-        self.successful_tests = 0
-        self.failed_tests = 0
+        self.results = {}  # Dictionary to store test results
+        self.total_success = 0
+        self.total_fail = 0
 
     def setUp(self):
         # Set up any common resources or configurations needed for tests
@@ -25,96 +28,120 @@ class TestShellScript(unittest.TestCase):
 
     def run_command(self, command, input_type):
         if input_type == "file":
-            result = subprocess.run(f"{BINARY} < {command}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            result = subprocess.run(f"{BINARY} {command}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             return result
         elif input_type == "cmd_arg":
             result = subprocess.run(f"{BINARY} -c \"{command}\"", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             return result
         elif input_type == "stdin":
-            result = subprocess.run(f"{BINARY}", shell=True, input=command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            result = subprocess.run(f"{BINARY} < {command}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             return result
 
-    def run_test(self, test_case, input_type, verbose=False):
-        category = test_case.get("category", "")
-        sub_category = test_case.get("sub-category", "")
+    def run_test(self, test_case, yaml_data, input_type, verbose=False):
+        category = yaml_data.get("category", "")
+        sub_category = yaml_data.get("sub-category", "")
         command = test_case.get("command", "")
 
-        # Calculate expected output and return code using binary
+        # Run our 42sh binary
         binary_result = self.run_command(command, input_type)
-        expected_result = subprocess.run(f"/bin/bash --posix -c \"{command}\"", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        # Run the reference posix shell
+        expected_result = subprocess.run(f"{REF} -c \"{command}\"", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
         if binary_result.stdout != expected_result.stdout \
             or (len(binary_result.stderr) > 0) != (len(expected_result.stderr) > 0) \
                 or binary_result.returncode != expected_result.returncode:
-            print(colored(f"Test failed: {category} - {sub_category} - {input_type}: {command}", 'red'))
-            self.failed_tests += 1
+            print(colored(f"✘ {category} - {sub_category} - {input_type}: {command}", 'red'))
+            self.results[category][sub_category]["fail"] += 1
         else:
-            print(colored(f"Test passed: {category} - {sub_category} - {input_type}: {command}", 'green'))
-            self.successful_tests += 1
+            print(colored(f"✔ {category} - {sub_category} - {input_type}: {command}", 'green'))
+            self.results[category][sub_category]["success"] += 1
 
         if verbose:
             if binary_result.stdout != expected_result.stdout:
-                print(colored(f"Expected STDOUT: {expected_result.stdout}", 'green'))
-                print(colored(f"Actual STDOUT: {binary_result.stdout}", 'yellow'))
+                print(colored(f"\tExpected (stdout): {expected_result.stdout}", 'green'))
+                print(colored(f"\tActual (stdout): {binary_result.stdout}", 'yellow'))
             if (len(binary_result.stderr) > 0) != (len(expected_result.stderr) > 0):
-                print(colored(f"Expected STDERR: {expected_result.stderr}", 'green'))
-                print(colored(f"Actual STDERR: {binary_result.stderr}", 'yellow'))
+                print(colored(f"\tExpected (stderr): {expected_result.stderr}", 'green'))
+                print(colored(f"\tActual stderr: {binary_result.stderr}", 'yellow'))
             if binary_result.returncode != expected_result.returncode:
-                print(colored(f"Expected Return Code: {expected_result.returncode}", 'green'))
-                print(colored(f"Actual Return Code: {binary_result.returncode}", 'yellow'))
+                print(colored(f"\tExpected (exit code): {expected_result.returncode}", 'green'))
+                print(colored(f"\tActual (exit code): {binary_result.returncode}", 'yellow'))
         print()
         return
 
-    def create_test_from_case(self, test_case, input_type, verbose=False):
-        return lambda: self.run_test(test_case, input_type, verbose=verbose), ()
+    def create_test_from_case(self, test_case, yaml_data, input_type, verbose=False):
+        return lambda: self.run_test(test_case, yaml_data, input_type, verbose=verbose), ()
 
-    def test_from_file(self, file_path, verbose=False):
-        with open(file_path, 'r') as file:
-            test_data = yaml.safe_load(file)
+    def run_category_tests(self, yaml_data, verbose=False):
+        category = yaml_data.get("category", "")
+        sub_category = yaml_data.get("sub-category", "")
+        tests = yaml_data.get("tests", [])
 
-        for category_data in test_data:
-            category = category_data.get("category", "")
-            sub_category = category_data.get("sub-category", "")
-            tests = category_data.get("tests", [])
+        if category not in self.results:
+            self.results[category] = {}
 
-            if verbose:
-                print(colored(f"\nRunning tests for: {category} - {sub_category}\n", 'cyan'))
-
-            for test_case in tests:
-                for input_type in ["file", "cmd_arg", "stdin"]:
-                    test_function, test_args = self.create_test_from_case(test_case, input_type, verbose=verbose)
-                    test_function(*test_args, input_type)
-
-    def run_category_tests(self, category_data, verbose=False):
-        category = category_data.get("category", "")
-        sub_category = category_data.get("sub-category", "")
-        tests = category_data.get("tests", [])
-
-        if verbose:
-            print(colored(f"\nRunning tests for: {category} - {sub_category}\n", 'cyan'))
+        if sub_category not in self.results[category]:
+            self.results[category][sub_category] = {"success": 0, "fail": 0}
 
         for test_case in tests:
             for input_type in ["cmd_arg"]:
-                test_function, test_args = self.create_test_from_case(test_case, input_type, verbose=verbose)
+                test_function, test_args = self.create_test_from_case(test_case, yaml_data, input_type, verbose=verbose)
                 test_function(*test_args)
 
-        print(colored("\n***************************************************", 'blue'))
-        # Print category summary
-        print(colored(f"Category summary: {category} - {sub_category}", 'yellow'))
-        print(f"Total tests: {self.successful_tests + self.failed_tests}")
-        print(f"Success: {self.successful_tests}")
-        print(f"Failures: {self.failed_tests}")
-
-        if self.successful_tests + self.failed_tests > 0:
-            success_percentage = (self.successful_tests * 100) / (self.successful_tests + self.failed_tests)
-            print(f"Category Success Rate: {success_percentage:.2f}%")
-
-        if self.failed_tests == 0:
-            print(colored("All category tests passed!", 'green'))
-        else:
-            print(colored("Some category tests failed.", 'red'))
-
-        print(colored("***************************************************", 'blue'))
+    def print_category_summary(self, category):
+        print(colored(f"******** {category} summary ********", 'cyan'))
+        category_success = 0
+        category_fail = 0
+        for sub_category in self.results[category]:
+            print(colored(f"\t--- {sub_category} summary ---", 'cyan'))
+            sub_success = self.results[category][sub_category]["success"]
+            sub_fail = self.results[category][sub_category]["fail"]
+            print(colored(f"\t✔: {sub_success}", 'green'), colored(f"✘: {sub_fail}", 'red'))
+            if sub_success + sub_fail > 0:
+                success_percentage = (sub_success * 100) / (sub_success + sub_fail)
+                # Different color depending on success rate
+                if success_percentage >= 90:
+                    p_colour = 'green'
+                elif success_percentage >= 80:
+                    p_colour = 'yellow'
+                else:
+                    p_colour = 'red'
+                print(colored(f"\tRatio: {success_percentage:.2f}%", p_colour))
+            print(colored("\t" + '-' * 20, 'cyan'))
+            category_success += sub_success
+            category_fail += sub_fail
+        print()
+        print(colored(f"✔: {category_success}", 'green'), colored(f"✘: {category_fail}", 'red'))
+        if category_success + category_fail > 0:
+            success_percentage = (category_success * 100) / (category_success + category_fail)
+            # Different color depending on success rate
+            if success_percentage >= 90:
+                p_colour = 'green'
+            elif success_percentage >= 80:
+                p_colour = 'yellow'
+            else:
+                p_colour = 'red'
+        print(colored(f"Ratio: {success_percentage:.2f}%", p_colour))
+        print(colored('*' * 30, 'cyan'))
+        self.total_success += category_success
+        self.total_fail += category_fail
+    
+    def print_summary(self):
+        for category in self.results:
+            self.print_category_summary(category)
+        print()
+        print(colored(f"************ Total summary ************", 'cyan'))
+        print(colored(f"✔: {self.total_success}", 'green'), colored(f"✘: {self.total_fail}", 'red'))
+        if self.total_success + self.total_fail > 0:
+            success_percentage = (self.total_success * 100) / (self.total_success + self.total_fail)
+            # Different color depending on success rate
+            if success_percentage >= 90:
+                print(colored(f"Ratio: {success_percentage:.2f}%", 'green'))
+            elif success_percentage >= 80:
+                print(colored(f"Ratio: {success_percentage:.2f}%", 'yellow'))
+            else:
+                print(colored(f"Ratio: {success_percentage:.2f}%", 'red'))
+        print(colored('*' * 39, 'cyan'))
 
 class TestRunner:
     def __init__(self, test_files, verbose=False):
@@ -122,20 +149,20 @@ class TestRunner:
         self.verbose = verbose
 
     def run_tests(self):
+        test_shell_script = TestShellScript()
         for test_file in self.test_files:
             with open(test_file, 'r') as file:
                 test_data = yaml.safe_load(file)
-            
             for category_data in test_data:
-                test_shell_script = TestShellScript()
                 test_shell_script.run_category_tests(category_data, verbose=self.verbose)
+        test_shell_script.print_summary()
 
 def load_test_files(directory):
     test_files = [f for f in os.listdir(directory) if f.endswith('.yaml') or f.endswith('.yml')]
     return [os.path.join(directory, file) for file in test_files]
 
 def main():
-    parser = argparse.ArgumentParser(description='Run shell script tests from YAML files.')
+    parser = argparse.ArgumentParser(description='Run our 42sh tests from YAML files.')
     parser.add_argument('test_files_directory', type=str, help='Directory containing test YAML files')
     parser.add_argument('--verbose', action='store_true', help='Enable verbose mode')
     args = parser.parse_args()

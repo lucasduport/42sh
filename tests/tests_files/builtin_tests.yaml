@@ -20,14 +20,49 @@
     - command: "echo -e 'This is another\nmultiline string with \\t escaped tabs \\t and \\n escaped newlines \\n'"
     - command: "echo -E 'This is a multiline\\nstring without interpreting escape characters\\tand \\ backslashes'"
     - command: "echo -n -e -E 'Mixing options and\\n multiline\\t strings with \\ backslashes\\n'"
+
+- category: builtins
+  sub-category: booleans
+  tests:
     - command: "if echo; then true; else false; fi"
     - command: "if false; then true; else false; fi"
     - command: "if echo; then echo tests; else false; fi"
     - command: "if true; then true; else echo tests; fi"
     - command: "if true; then false; fi"
+
+- category: errors
+  sub-category: command_not_found
+  tests:
+    - command: "not_found"
+    - command: "not_found arg1 arg2"
+    - command: "not_found arg1 arg2 arg3"
+    - command: "not_found arg1 arg2 arg3 arg4"
+    - command: "not_found arg1 arg2 arg3 arg4 arg5"
+    - command: "if not_found; then true; else false; fi"
+    - command: "if true; then ts; else uy; fi"
+    - command: "if true; then echo tests; else not_found; fi"
+    - command: "if false; then echo tests; else not_found; fi"
+
+- category: errors
+  sub-category: syntax_errors
+  tests:
     - command: "if false; thrue; fi"
     - command: "if echo; thelse f; fi"
-    - command: "if echo; then ealse; fi"
+    - command: "if echo; thn ealse; fi"
     - command: "if true; else echo tests; fi"
     - command: "if trn false; fi"
     - command: "if false; then ti"
+
+- category: execvp
+  sub-category: execvp
+  tests:
+    - command: "/bin/ls"
+    - command: "/bin/ls -l"
+    - command: "/bin/ls -l -a"
+    - command: "/bin/ls -l -a -t"
+    - command: "/bin/echo -n Hello World"
+    - command: "/bin/echo -n -e -E 'Hello\nWorld'"
+    - command: "/bin/echo -n -e -E 'Mixing options and\\n multiline\\t strings with \\ backslashes\\n'"
+    - command: "/bin/true"
+    - command: "/bin/false"
+    - command: "if /bin/true; then /bin/true; else /bin/false; fi"
