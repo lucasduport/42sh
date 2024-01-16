@@ -10,7 +10,9 @@ enum ast_type
 {
     AST_IF,
     AST_COMMAND,
-    AST_LIST
+    AST_LIST,
+    AST_AND,
+    AST_OR
 };
 
 struct ast

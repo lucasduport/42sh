@@ -31,7 +31,7 @@ enum parser_status parser_input(struct lexer *lex, struct ast **res);
 /**
  * @brief Parse and and or grammar :
  *
- * pipeline
+ * pipeline { ('&&' | '||'){'\n'} pipeline }
  */
 enum parser_status parser_and_or(struct lexer *lex, struct ast **res);
 

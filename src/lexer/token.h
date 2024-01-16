@@ -14,6 +14,9 @@ enum token_type
     TOKEN_NEWLINE,
     TOKEN_EOF,
 
+    TOKEN_AND,
+    TOKEN_OR,
+
     TOKEN_WORD,
 
     TOKEN_NULL,
