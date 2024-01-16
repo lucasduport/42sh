@@ -246,7 +246,18 @@ static struct token parse_input_for_tok(struct lexer *lexer)
     // rule 5
     else if (!lexer->is_quoted && is_subshell(lexer))
     {
-        // TODO: subshell completion.
+        /*
+            FIXME
+            check if parameter expansion : $ or ${
+                read until space or operator
+                
+            check if command substitution : $( or `
+                if expansion in the initial substitution : recursive call
+
+            check if arithmetic expansion : $(( 
+            
+            FEED       
+        */
     }
 
     // rule 6
@@ -309,7 +320,9 @@ struct token lexer_peek(struct lexer *lexer)
     if (lexer->is_newline)
     {
         lexer->is_newline = 0;
-        tok = (struct token){ .type = TOKEN_NEWLINE, .data = NULL };
+        tok = (struct token){ .type = TOKEN_NEWLINE,
+                              .family = TOKEN_FAM_OPERATOR,
+                              .data = NULL };
         lexer->last_token = tok;
     }
     else

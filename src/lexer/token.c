@@ -44,6 +44,7 @@ struct token token_null()
 {
     struct token tok;
     tok.type = TOKEN_NULL;
+    tok.family = TOKEN_FAM_WORD;
     return tok;
 }
 
