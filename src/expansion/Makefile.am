@@ -6,4 +6,6 @@ libexpansion_a_SOURCES =  \
 
 libexpansion_a_CPPFLAGS = -I$(top_srcdir)/src
 
+libexpansion_a_CFLAGS = -std=c99 -Werror -Wall -Wextra -Wvla -pedantic
+
 noinst_LIBRARIES = libexpansion.a

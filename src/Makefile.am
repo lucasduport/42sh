@@ -15,6 +15,8 @@ SUBDIRS = \
 # Common flags for all targets
 AM_CPPFLAGS = -I%D%
 
+42sh_CFLAGS = -std=c99 -Werror -Wall -Wextra -Wvla -pedantic
+
 42sh_LDFLAGS = -Wl,--start-group
 
 42sh_LDADD =  \
