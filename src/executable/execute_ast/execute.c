@@ -7,54 +7,6 @@
 #include <unistd.h>
 
 /**
- * @brief Execute if node
- *
- * @param first_child First child of 'if' node -> condition
- * @return value of 'then' execution or 'else' execution or 0 by default
- */
-static int execute_if(struct ast *first_child, struct environment *env)
-{
-    if (first_child == NULL || first_child->next == NULL)
-    {
-        debug_printf(LOG_EXEC,
-                     "[EXECUTE] Missing condition or then for 'if' node\n");
-        return -1;
-    }
-
-    // If condition is met
-    int res_cond = execute_ast(first_child, env);
-    if (res_cond == -1)
-        return -1;
-    else if (!res_cond)
-        return execute_ast(first_child->next, env);
-
-    // If there is no 'else' node
-    if (first_child->next->next != NULL)
-        return execute_ast(first_child->next->next, env);
-
-    return 0;
-}
-
-/**
- * @brief Execute list node
- *
- * @param first_child First child of 'list' node
- * @return return value from execution of last command
- */
-static int execute_list(struct ast *first_child, struct environment *env)
-{
-    struct ast *tmp = first_child;
-    int res = 0;
-    // While there is no error on our part
-    while (tmp != NULL && res != -1)
-    {
-        res = execute_ast(tmp, env);
-        tmp = tmp->next;
-    }
-    return res;
-}
-
-/**
  * @brief Execute commands which are not builtins
  *
  * @param arg Chained list of arguments
@@ -62,6 +14,10 @@ static int execute_list(struct ast *first_child, struct environment *env)
  */
 static int execvp_wrapper(struct list *arg, struct environment *env)
 {
+    // Because unused variable
+    if (env != NULL)
+        *env = *env;
+
     int argc = 0;
     if (arg == NULL)
     {
@@ -111,6 +67,103 @@ static int execvp_wrapper(struct list *arg, struct environment *env)
         // Return child process return value
         return WEXITSTATUS(parent_pid);
     }
+}
+
+/**
+ * @brief Execute if node
+ *
+ * @param first_child First child of 'if' node -> condition
+ * @return value of 'then' execution or 'else' execution or 0 by default
+ */
+static int execute_if(struct ast *first_child, struct environment *env)
+{
+    if (first_child == NULL || first_child->next == NULL)
+    {
+        debug_printf(LOG_EXEC,
+                     "[EXECUTE] Missing condition or then for 'if' node\n");
+        return -1;
+    }
+
+    // If condition is met
+    int res_cond = execute_ast(first_child, env);
+    if (res_cond == -1)
+        return -1;
+    else if (!res_cond)
+        return execute_ast(first_child->next, env);
+
+    // If there is no 'else' node
+    if (first_child->next->next != NULL)
+        return execute_ast(first_child->next->next, env);
+
+    return 0;
+}
+
+/**
+ * @brief Execute list node
+ *
+ * @param first_child First child of 'list' node
+ * @return return value from execution of last command
+ */
+static int execute_list(struct ast *first_child, struct environment *env)
+{
+    struct ast *tmp = first_child;
+    int res = 0;
+    // While there is no error on our part
+    while (tmp != NULL && res != -1)
+    {
+        res = execute_ast(tmp, env);
+        tmp = tmp->next;
+    }
+    return res;
+}
+
+/**
+ * @brief Execute while node
+ *
+ * @param first_child First child of 'while' node -> condition
+ * @return return value from execution of last command, 0 if nothing is execute
+ */
+static int execute_while(struct ast *first_child, struct environment *env)
+{
+    debug_printf(LOG_EXEC, "[EXECUTE] In execute while\n");
+    if (first_child == NULL || first_child->next == NULL)
+    {
+        debug_printf(LOG_EXEC,
+                     "[EXECUTE] Missing condition or do for 'while' node\n");
+        return -1;
+    }
+
+    int ret_code = 0;
+    while (!execute_ast(first_child, env))
+    {
+        debug_printf(LOG_EXEC, "[EXEC] In while loop\n");
+        ret_code = execute_ast(first_child->next, env);
+    }
+    
+    return ret_code;
+}
+
+/**
+ * @brief Execute until node
+ *
+ * @param first_child First child of 'until' node -> condition
+ * @return return value from execution of last command, 0 if nothing is execute
+ */
+static int execute_until(struct ast *first_child, struct environment *env)
+{
+    debug_printf(LOG_EXEC, "[EXECUTE] In execute until\n");
+    if (first_child == NULL || first_child->next == NULL)
+    {
+        debug_printf(LOG_EXEC,
+                     "[EXECUTE] Missing condition or do for 'until' node\n");
+        return -1;
+    }
+
+    int ret_code = 0;
+    while (execute_ast(first_child, env))
+        ret_code = execute_ast(first_child->next, env);
+    
+    return ret_code;
 }
 
 /**
@@ -164,6 +217,15 @@ int execute_ast(struct ast *ast,struct environment *env)
     else if (ast->type == AST_LIST)
         return execute_list(ast->first_child, env);
 
+    else if (ast->type == AST_WHILE)
+        return execute_while(ast->first_child, env);
+
+    else if (ast->type == AST_UNTIL)
+        return execute_until(ast->first_child, env);
+    
+    else if (ast->type == AST_NEG)
+        return !execute_ast(ast->first_child, env);
+        
     else
         return execute_command(ast, env);
 }

@@ -4,14 +4,15 @@
 
 int main(int argc, char **argv)
 {
-    create_logger("stdout");
+    //create_logger("stdout");
     //enable_log_type(LOG_MAIN);
     //enable_log_type(LOG_LEX);
-    enable_log_type(LOG_PARS);
+    //enable_log_type(LOG_PARS);
     //enable_log_type(LOG_AST);
     //enable_log_type(LOG_UTILS);
+    //enable_log_type(LOG_EXEC);
 
-    /*
+    
     //Initialise lexer
     struct lexer *lex = lexer_new(argc, argv);
     if (lex == NULL)
@@ -29,8 +30,8 @@ int main(int argc, char **argv)
         if (parse_code == PARSER_OK)
         {
             ast_print(res);
-            debug_printf(LOG_MAIN, "\n");
-            code = execute_ast(res);
+            debug_printf(LOG_AST, "\n");
+            code = execute_ast(res, NULL);
             ast_free(res);
         }
         else
@@ -40,22 +41,6 @@ int main(int argc, char **argv)
 
     lexer_free(lex);
     //destroy_logger();
-    return code;*/
-
-    struct lexer *lex = lexer_new(argc, argv);
-    if (lex == NULL)
-    {
-        debug_printf(LOG_MAIN, "[MAIN] Failed initialize lexer\n");
-        return 2;
-    }
-    
-    struct token tok = lexer_pop(lex);
-    while (tok.type != TOKEN_EOF)
-    {
-        tok = lexer_pop(lex);
-
-        token_free(tok);
-    }
-
-    return 0;
+    return code;
 }
+

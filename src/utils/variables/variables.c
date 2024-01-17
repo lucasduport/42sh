@@ -26,6 +26,7 @@ static int add_variable(struct variable **head, const char *name, char *value)
     new_variable->value = strdup(value);
     new_variable->next = *head;
     *head = new_variable;
+    return 0;
 }
 
 int set_variable(struct variable **head, const char *name, char *value)

@@ -6,7 +6,6 @@
 #include "../../utils/list/list.h"
 #include "../command/builtins/builtins.h"
 #include "../environment/environment.h"
-#include "../../expansion/expansion.h"
 
 /** ERROR VALUE
  *  0    if successfull

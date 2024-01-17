@@ -40,6 +40,7 @@ AC_CONFIG_FILES([
                     src/utils/Makefile
                     src/executable/command/Makefile
                     src/executable/execute_ast/Makefile
+                    src/executable/environment/Makefile
                     tests/Makefile
                 ])
 AC_OUTPUT
