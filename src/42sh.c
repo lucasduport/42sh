@@ -41,6 +41,4 @@ int main(int argc, char **argv)
     lexer_free(lex);
     //destroy_logger();
     return code;
-
-    return 0;
 }
