@@ -109,6 +109,20 @@ void ast_print(struct ast *ast)
         debug_printf(LOG_AST, " }");
     }
 
+    else if (ast->type == AST_PIPE)
+    {
+        if (ast->first_child == NULL || ast->first_child->next == NULL)
+        {
+            debug_printf(LOG_AST, "AST error - 'and' or 'or' node - missing command\n");
+            return;
+        }
+        debug_printf(LOG_AST, "{ ");
+        ast_print(ast->first_child);
+        debug_printf(LOG_AST, " } | { ");
+        ast_print(ast->first_child->next);
+        debug_printf(LOG_AST, " }");
+    }
+
     else if (ast->type == AST_COMMAND)
     {
         if (ast->arg == NULL)

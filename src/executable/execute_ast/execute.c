@@ -267,7 +267,10 @@ int execute_ast(struct ast *ast,struct environment *env)
     
     else if (ast->type == AST_AND || ast->type == AST_OR)
         return execute_and_or(ast, env);
-    
+
+    else if (ast->type == AST_PIPE)
+        return execute_pipe(ast, env);
+         
     else
         return execute_command(ast, env);
 }

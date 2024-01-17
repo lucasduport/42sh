@@ -22,4 +22,12 @@
  */
 int execute_ast(struct ast *ast, struct environment *env);
 
+/**
+ * @brief Execute general ast
+ *
+ * @param ast AST that we want to execute
+ * @return value of the execution
+ */
+int execute_pipe(struct ast *ast, struct environment *env);
+
 #endif /* ! EXECUTE_H */
