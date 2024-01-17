@@ -46,8 +46,15 @@ static void remove_at_n(char **str, size_t n)
     *str = new_str;
 }
 
-
-static int expand_backlash(struct environment *env, char **str, size_t *index)
+/**
+ * @brief Backslash acts as an escape character except when followed by a \n
+ *
+ * @param env Environment
+ * @param str String to expand
+ * @param index Index of the variable
+ * @return int 0 if success, -1 otherwise
+ */
+static int escape_backlash(struct environment *env, char **str, size_t *index)
 {
     (void)env;
     remove_at_n(str, *index);
@@ -58,8 +65,33 @@ static int expand_backlash(struct environment *env, char **str, size_t *index)
     }
     return 0;
 }
+
 /**
- * @brief Expand single quotes: does not expand anything
+ * @brief Backslash acts as an escape character except when followed by special
+ * characters (", ", $, `, \, or newline) as described in the SCL.
+ *
+ * @param env Environment
+ * @param str String to expand
+ * @param index Index of the variable
+ * @return int 0 if success, -1 otherwise
+ */
+static int escape_backlash_double_quote(struct environment *env, char **str,
+                                        size_t *index)
+{
+    (void)env;
+    if ((*str)[*index + 1] == '$' || (*str)[*index + 1] == '`'
+        || (*str)[*index + 1] == '\"' || (*str)[*index + 1] == '\\'
+        || (*str)[*index + 1] == '\n')
+    {
+        remove_at_n(str, *index);
+        *index = *index - 1;
+    }
+    return 0;
+}
+
+/**
+ * @brief Expand single quotes: everything is taken literally except single
+ * quotes
  *
  * @param str String to expand
  * @param env Environment
@@ -82,24 +114,115 @@ static int expand_single_quotes(struct environment *env, char **str,
     return -1;
 }
 
-static int expand_double_quotes(struct environment *env, char **str,
-                                size_t *index)
+/**
+ * @brief Expands a backquoted command as described in the SCL
+ * 
+ * @param env Environment
+ * @param str String to expand
+ * @param index Index of the variable
+ * @return int 0 if success, -1 otherwise
+ */
+static int expand_backquote(struct environment *env, char **str, size_t *index)
 {
     // TODO: implement
     (void)env;
-    (void)insert_at_n;
+    (void)str;
+    (void)(insert_at_n);
+    (void)index;
+    return 0;
+}
+
+/**
+ * @brief Expands a variable as described in the SCL
+ * 
+ * @param env Environment
+ * @param str String to expand
+ * @param index Index of the variable
+ * @return int 0 if success, -1 otherwise
+ */
+static int expand_variable(struct environment *env, char **str, size_t *index)
+{
+    // TODO: implement
+    (void)env;
     (void)str;
     (void)index;
     return 0;
 }
 
-static int expand_dollar(struct environment *env, char **str, size_t *index)
+/**
+ * @brief Expands a brace expansion as described in the SCL
+ * 
+ * @param env Environment
+ * @param str String to expand
+ * @param index Index of the variable
+ * @return int 0 if success, -1 otherwise
+ */
+static int expand_brace(struct environment *env, char **str, size_t *index)
 {
     // TODO: implement
     (void)env;
     (void)str;
     (void)index;
     return 0;
+}
+
+/**
+ * @brief Redirect $ expansion to the right function
+ *
+ * @param env Environment
+ * @param str String to expand
+ * @param index Index of the variable
+ * @return int 0 if success, -1 otherwise
+ */
+static int expand_dollar(struct environment *env, char **str, size_t *index)
+{
+    if ((*str)[*index + 1] == '(')
+        return expand_backquote(env, str, index);
+    else if ((*str)[*index + 1] == '{')
+        return expand_brace(env, str, index);
+    else
+        return expand_variable(env, str, index);
+}
+
+/**
+ * @brief Expands double quotes as described in the SCL
+ *
+ * @param env Environment
+ * @param str String to expand
+ * @param index Index of the variable
+ * @return int 0 if success, -1 otherwise
+ */
+static int expand_double_quotes(struct environment *env, char **str,
+                                size_t *index)
+{
+    for (size_t i = *index + 1; (*str)[i] != '\0'; i++)
+    {
+        if ((*str)[i] == '\"')
+        {
+            remove_at_n(str, *index);
+            remove_at_n(str, i - 1);
+            *index = i - 1;
+            return 0;
+        }
+        else if ((*str)[i] == '$')
+        {
+            if (expand_dollar(env, str, &i) == -1)
+                return -1;
+        }
+        else if ((*str)[i] == '\\')
+        {
+            if (escape_backlash_double_quote(env, str, &i) == -1)
+                return -1;
+        }
+        else if ((*str)[i] == '`')
+        {
+            if (expand_backquote(env, str, &i) == -1)
+                return -1;
+        }
+        else
+            i++;
+    }
+    return -1;
 }
 
 /**
@@ -125,7 +248,7 @@ int expansion(struct list *arguments, struct environment *env)
             else if (current[i] == '$')
                 ret = expand_dollar(env, &current, &i);
             else if (current[i] == '\\')
-                ret = expand_backlash(env, &current, &i);
+                ret = escape_backlash(env, &current, &i);
             else
                 i++;
             if (ret == -1)
