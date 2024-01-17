@@ -3,6 +3,7 @@
 *.o
 *.gc*
 *.a
+*.txt
 autom4te.cache
 aclocal.m4
 ar-lib
