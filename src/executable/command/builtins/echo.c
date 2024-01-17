@@ -10,7 +10,6 @@ struct option
     int escape;
 };
 
-// FIXME: /bin/echo -n -e -E 'Mixing options and\n multiline\t strings with \ backslashes\n' is not working
 /**
  *  @brief Parse an option and check if is valid.
  *
@@ -48,68 +47,6 @@ static int parse_option(char *str, struct option *options)
 }
 
 /**
- * @brief Print char when there are quots
- *
- * @param str String that we echo
- * @param i Actual position in the string
- *
- * @return New position in the string
- */
-static int print_char_quot(char *str, int i)
-{
-    if (str[i] == '\\')
-    {
-        i++;
-        if (str[i] == 'n')
-            putchar('\n');
-        else if (str[i] == 't')
-            putchar('\t');
-    }
-    else
-        putchar(str[i]);
-    return i;
-}
-
-/**
- * @brief Print str with no escape option.
- *
- * With quote -> exact same output.
- *
- * Without quote -> one BS => pass
- *               -> double BS => pass
- *
- * @param str String to write
- */
-static void print_str(char *str)
-{
-    size_t i = 0;
-    int is_quot = 0;
-
-    while (str[i] != '\0')
-    {
-        if (str[i] == '\'')
-            is_quot = !is_quot;
-
-        else if (is_quot)
-            putchar(str[i]);
-        else
-        {
-            if (str[i] == '\\')
-            {
-                if (str[i + 1] == '\\')
-                {
-                    putchar('\\');
-                    i++;
-                }
-            }
-            else
-                putchar(str[i]);
-        }
-        i++;
-    }
-}
-
-/**
  * @brief Print str with escape option
  *
  * @param str String to write
@@ -117,30 +54,24 @@ static void print_str(char *str)
 static void print_str_escape(char *str)
 {
     size_t i = 0;
-    int is_quot = 0;
 
     while (str[i] != '\0')
     {
-        if (str[i] == '\'')
-            is_quot = !is_quot;
-
-        else if (is_quot)
-            i = print_char_quot(str, i);
-
+        if (str[i] == '\\' && str[i + 1] == 'n')
+        {
+            putchar('\n');
+            i+=2;
+        }
+        else if (str[i] == '\\' && str[i + 1] == 't')
+        {
+            putchar('\t');
+            i+=2;
+        }
         else
         {
-            if (str[i] == '\\')
-            {
-                if (str[i + 1] == '\\')
-                {
-                    putchar('\\');
-                    i++;
-                }
-            }
-            else
-                putchar(str[i]);
-        }
+            putchar(str[i]);
         i++;
+        }
     }
 }
 
@@ -162,7 +93,7 @@ int builtin_echo(struct list *list)
     while (p != NULL)
     {
         if (options->escape)
-            print_str_escape(p->current);
+            printf("%s", p->current);
         else
             print_str(p->current);
         p = p->next;

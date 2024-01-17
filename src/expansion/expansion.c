@@ -1,68 +1,6 @@
 #include "expansion.h"
 
-/**
- * @brief Try every expansions on the arguments
- *
- * @param arguments Arguments to expand
- * @param env Environment
- */
-int expansion(struct list *arguments, struct environment *env)
-{
-    struct list *arg = arguments;
-    while (arg != NULL)
-    {
-        char *current = arg->current;
-        while (current != '\0')
-        {
-            char *next = NULL;
-
-            if (current == '\'')
-                next = expand_single_quotes(&current, env);
-            else if (current == '\"')
-                next = expand_double_quotes(&current, env);
-            else if (current == '$')
-                next = expand_dollar(&current, env);
-
-            // Check if an error occured
-            if (next == NULL)
-                return -1;
-            current = next;
-        }
-    }
-    return 0;
-}
-
-/**
- * @brief Expand single quotes: does not expand anything
- *
- * @param str String to expand
- * @param env Environment
- * @return char * index of the character after the last quote, NULL if no
- */
-static char *expand_single_quotes(char **str, struct environment *env)
-{
-    char *first_quote = *str;
-    for (int i = 1; (*str)[i] != '\0'; i++)
-    {
-        if ((*str)[i] == '\'')
-        {
-            remove_at_n(str, first_quote);
-            remove_at_n(str, i - 1);
-            return *str + i - 1;
-        }
-    }
-    return NULL;
-}
-
-static int expand_double_quotes(char **str, struct environment *env)
-{
-    // TODO: implement
-}
-
-static int expand_dollar(char **str, struct environment *env)
-{
-    // TODO: implement
-}
+#include <stddef.h>
 
 /**
  * @brief Expand a variable
@@ -71,7 +9,7 @@ static int expand_dollar(char **str, struct environment *env)
  * @param to_insert String to insert
  * @param n Index where to insert
  */
-static void insert_at_n(char **str, char *to_insert, int n)
+static void insert_at_n(char **str, char *to_insert, size_t n)
 {
     char *new_str = calloc(strlen(*str) + strlen(to_insert) + 1, sizeof(char));
     if (new_str == NULL)
@@ -88,15 +26,14 @@ static void insert_at_n(char **str, char *to_insert, int n)
 }
 
 /**
- * @brief Remove a character at a given index. The string is reallocated.
- *
+ * @brief Remove the nth character from a string
  *
  * @param str String to remove from
- * @param n Index to remove
+ * @param int Index of the character to remove
  */
-static void remove_at_n(char **str, int n)
+static void remove_at_n(char **str, size_t n)
 {
-    char *new_str = calloc(strlen(*str) + 1, sizeof(char));
+    char *new_str = calloc(strlen(*str), sizeof(char));
     if (new_str == NULL)
     {
         debug_printf(LOG_EXP,
@@ -107,4 +44,100 @@ static void remove_at_n(char **str, int n)
     strcat(new_str, *str + n + 1);
     free(*str);
     *str = new_str;
+}
+
+
+static int expand_backlash(struct environment *env, char **str, size_t *index)
+{
+    (void)env;
+    remove_at_n(str, *index);
+    if ((*str)[*index] == '\n')
+    {
+        remove_at_n(str, *index);
+        *index = *index - 1;
+    }
+    return 0;
+}
+/**
+ * @brief Expand single quotes: does not expand anything
+ *
+ * @param str String to expand
+ * @param env Environment
+ * @return int index of the character after the last quote, NULL if no
+ */
+static int expand_single_quotes(struct environment *env, char **str,
+                                size_t *index)
+{
+    (void)env;
+    for (size_t i = *index + 1; (*str)[i] != '\0'; i++)
+    {
+        if ((*str)[i] == '\'')
+        {
+            remove_at_n(str, *index);
+            remove_at_n(str, i - 1);
+            *index = i - 1;
+            return 0;
+        }
+    }
+    return -1;
+}
+
+static int expand_double_quotes(struct environment *env, char **str,
+                                size_t *index)
+{
+    // TODO: implement
+    (void)env;
+    (void)insert_at_n;
+    (void)str;
+    (void)index;
+    return 0;
+}
+
+static int expand_dollar(struct environment *env, char **str, size_t *index)
+{
+    // TODO: implement
+    (void)env;
+    (void)str;
+    (void)index;
+    return 0;
+}
+
+/**
+ * @brief Try every expansions on the arguments
+ *
+ * @param arguments Arguments to expand
+ * @param env Environment
+ */
+int expansion(struct list *arguments, struct environment *env)
+{
+    struct list *arg = arguments;
+    while (arg != NULL)
+    {
+        char *current = arg->current;
+        size_t i = 0;
+        while (current[i] != '\0')
+        {
+            int ret = 0;
+            if (current[i] == '\'')
+                ret = expand_single_quotes(env, &current, &i);
+            else if (current[i] == '\"')
+                ret = expand_double_quotes(env, &current, &i);
+            else if (current[i] == '$')
+                ret = expand_dollar(env, &current, &i);
+            else if (current[i] == '\\')
+                ret = expand_backlash(env, &current, &i);
+            else
+                i++;
+            if (ret == -1)
+            {
+                debug_printf(LOG_EXP,
+                             "[EXPANSION] expansion: failed to expand %s\n",
+                             current);
+                return -1;
+            }
+        }
+        arg->current = current;
+        arg = arg->next;
+    }
+    return 0;
 }

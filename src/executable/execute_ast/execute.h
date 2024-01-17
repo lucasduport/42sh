@@ -1,6 +1,7 @@
 #ifndef EXECUTE_H
 #define EXECUTE_H
 
+#include "../../expansion/expansion.h"
 #include "../../logger/logger.h"
 #include "../../utils/ast/ast.h"
 #include "../../utils/list/list.h"
