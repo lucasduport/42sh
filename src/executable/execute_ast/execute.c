@@ -139,7 +139,7 @@ static int execute_while(struct ast *first_child, struct environment *env)
         debug_printf(LOG_EXEC, "[EXEC] In while loop\n");
         ret_code = execute_ast(first_child->next, env);
     }
-    
+
     return ret_code;
 }
 
@@ -162,7 +162,7 @@ static int execute_until(struct ast *first_child, struct environment *env)
     int ret_code = 0;
     while (execute_ast(first_child, env))
         ret_code = execute_ast(first_child->next, env);
-    
+
     return ret_code;
 }
 
@@ -202,7 +202,28 @@ static int execute_command(struct ast *command, struct environment *env)
         return execvp_wrapper(command->arg, env);
 }
 
-int execute_ast(struct ast *ast,struct environment *env)
+static int execute_assignment(struct ast *command, struct environment *env)
+{
+    if (command->arg == NULL)
+    {
+        debug_printf(LOG_EXEC, "[EXECUTE] Missing command argument\n");
+        return -1;
+    }
+
+    char delim[] = "=";
+    char *variable_name = strtok(command->arg->current, delim);
+    char *variable_value = strtok(NULL, delim);
+
+    if (set_variable(&env->variables, variable_name, variable_value) == -1)
+    {
+        debug_printf(LOG_EXEC, "[EXECUTE] Set variable failed\n");
+        fprintf(stderr, "Assignment failed\n");
+        return -1;
+    }
+    return 0;
+}
+
+int execute_ast(struct ast *ast, struct environment *env)
 {
     if (ast == NULL)
         return 0;
@@ -218,10 +239,13 @@ int execute_ast(struct ast *ast,struct environment *env)
 
     else if (ast->type == AST_UNTIL)
         return execute_until(ast->first_child, env);
-    
+
     else if (ast->type == AST_NEG)
         return !execute_ast(ast->first_child, env);
-        
+
+    else if (ast->type == AST_ASSIGNMENT)
+        return execute_assignment(ast->first_child, env);
+
     else
         return execute_command(ast, env);
 }

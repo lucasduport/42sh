@@ -5,10 +5,6 @@
 
 struct environment
 {
-    int fd_in;
-    int fd_out;
-    int fd_err;
-
     struct variable *variables;
 };
 
