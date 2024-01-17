@@ -1,6 +1,7 @@
 .*
 !.gitignore
 *.o
+*.gc*
 *.a
 autom4te.cache
 aclocal.m4

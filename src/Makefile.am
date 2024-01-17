@@ -7,12 +7,15 @@ SUBDIRS = \
 		  utils \
 		  lexer \
 		  parser \
+		  expansion \
 		  executable/execute_ast \
 		  executable/command \
 		  executable/environment
 
 # Common flags for all targets
 AM_CPPFLAGS = -I%D%
+
+42sh_CFLAGS = -std=c99 -Werror -Wall -Wextra -Wvla -pedantic
 
 42sh_LDFLAGS = -Wl,--start-group
 
@@ -23,7 +26,10 @@ AM_CPPFLAGS = -I%D%
 	parser/libparser.a \
 	utils/libutils.a \
 	executable/command/libcommand.a \
-	executable/execute_ast/libexecute.a
+	executable/execute_ast/libexecute.a \
+	executable/environment/libenvironment.a \
+	expansion/libexpansion.a
+	
 
 42sh_SOURCES = 42sh.c
 

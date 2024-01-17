@@ -6,4 +6,6 @@ liblogger_a_SOURCES =  \
 
 liblogger_a_CPPFLAGS = -I$(top_srcdir)/src
 
+liblogger_a_CFLAGS = -std=c99 -Werror -Wall -Wextra -Wvla -pedantic
+
 noinst_LIBRARIES = liblogger.a

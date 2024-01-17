@@ -180,12 +180,12 @@ static int execute_command(struct ast *command, struct environment *env)
         return -1;
     }
 
-    /*if (expansion(command->arg) == -1)
+    if (expansion(command->arg, env) == -1)
     {
         debug_printf(LOG_EXEC, "[EXECUTE] Expansion failed\n");
         fprintf(stderr, "Expansion failed\n");
         return -1;
-    }*/
+    }
 
     // First arg contains the command
     char *first_arg = list_get_n(command->arg, 0);
@@ -198,12 +198,8 @@ static int execute_command(struct ast *command, struct environment *env)
 
     else if (strcmp(first_arg, "false") == 0)
         return builtin_false(command->arg);
-
     else
-    {
-        //expansion(command->arg);
         return execvp_wrapper(command->arg, env);
-    }
 }
 
 int execute_ast(struct ast *ast,struct environment *env)
