@@ -26,16 +26,24 @@ class TestShellScript(unittest.TestCase):
         # Clean up after each test
         pass
 
-    def run_command(self, command, input_type):
+    def run_command(self, binary, command, input_type):
+        # Create a temporary file to store the command
+        temp_file_path = ".tmp_tst"
+        with open(temp_file_path, 'w') as temp_file:
+            temp_file.write(command)
+        
         if input_type == "file":
-            result = subprocess.run(f"{BINARY} {command}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            result = subprocess.run(f"{binary} {temp_file_path}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             return result
         elif input_type == "cmd_arg":
-            result = subprocess.run(f"{BINARY} -c \"{command}\"", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            result = subprocess.run(f"{binary} -c \"{command}\"", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             return result
         elif input_type == "stdin":
-            result = subprocess.run(f"{BINARY} < {command}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            result = subprocess.run(f"{binary} < {temp_file_path}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             return result
+
+        # Delete the temporary file after execution
+        os.remove(temp_file_path)
 
     def run_test(self, test_case, yaml_data, input_type, verbose=False):
         category = yaml_data.get("category", "")
@@ -43,9 +51,9 @@ class TestShellScript(unittest.TestCase):
         command = test_case.get("command", "")
 
         # Run our 42sh binary
-        binary_result = self.run_command(command, input_type)
+        binary_result = self.run_command(BINARY, command, input_type)
         # Run the reference posix shell
-        expected_result = subprocess.run(f"{REF} -c \"{command}\"", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        expected_result = self.run_command(REF, command, input_type)
 
         if binary_result.stdout != expected_result.stdout \
             or (len(binary_result.stderr) > 0) != (len(expected_result.stderr) > 0) \
@@ -84,7 +92,7 @@ class TestShellScript(unittest.TestCase):
             self.results[category][sub_category] = {"success": 0, "fail": 0}
 
         for test_case in tests:
-            for input_type in ["cmd_arg"]:
+            for input_type in ["cmd_arg", "file", "stdin"]:
                 test_function, test_args = self.create_test_from_case(test_case, yaml_data, input_type, verbose=verbose)
                 test_function(*test_args)
 
