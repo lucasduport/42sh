@@ -7,9 +7,7 @@ from termcolor import colored
 
 # Constants
 BINARY = "../src/42sh"
-REF = "/bin/bash --posix"
-
-#FIXME : Add different types of input (file, cmd_arg, stdin)
+REF = "/usr/bin/env bash --posix"
 
 class TestShellScript(unittest.TestCase):
     def __init__(self):
