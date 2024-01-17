@@ -42,7 +42,6 @@ enum parser_status parser_and_or(struct lexer *lex, struct ast **res);
  */
 enum parser_status parser_element(struct lexer *lex, struct ast **res);
 
-
 ////// PARSER_COMMAND //////
 /**
  * @brief Parse command grammar :
@@ -69,7 +68,6 @@ enum parser_status parser_simple_command(struct lexer *lex, struct ast **res);
  */
 enum parser_status parser_shell_command(struct lexer *lex, struct ast **res);
 
-
 ////// PARSER_IF //////
 /**
  * @brief Parse if grammar :
@@ -86,7 +84,6 @@ enum parser_status parser_rule_if(struct lexer *lex, struct ast **res);
  */
 enum parser_status parser_else_clause(struct lexer *lex, struct ast **res);
 
-
 ////// PARSER LIST //////
 /**
  * @brief Parse list grammar :
@@ -102,7 +99,6 @@ enum parser_status parser_list(struct lexer *lex, struct ast **res);
  */
 enum parser_status parser_compound_list(struct lexer *lex, struct ast **res);
 
-
 ////// PARSER REDIRECTION //////
 /**
  * @brief Parse pipeline grammar :
@@ -110,7 +106,6 @@ enum parser_status parser_compound_list(struct lexer *lex, struct ast **res);
  * ['!'] command { '|' {'\n'} command }
  */
 enum parser_status parser_pipeline(struct lexer *lex, struct ast **res);
-
 
 ////// PARSER BOUCLES //////
 /**

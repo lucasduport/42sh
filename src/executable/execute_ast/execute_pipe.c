@@ -1,10 +1,10 @@
-#include "execute.h"
-
 #include <err.h>
 #include <stddef.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+
+#include "execute.h"
 
 /**
  * @brief Exec each part of pipe
@@ -12,10 +12,11 @@
  * @param left 1 if it's left part of pipe 0 otherwise
  * @param fds_pipe Array that contain file descriptors of pipe
  * @param env Current environement
- * 
+ *
  * @return Return code of ast's execution
-*/
-static int exec_fork(struct ast *ast, int is_left, int fds_pipe[2], struct environment *env)
+ */
+static int exec_fork(struct ast *ast, int is_left, int fds_pipe[2],
+                     struct environment *env)
 {
     pid_t p = fork();
     if (p == -1)
@@ -26,14 +27,13 @@ static int exec_fork(struct ast *ast, int is_left, int fds_pipe[2], struct envir
         int fd_to_replace = (is_left ? STDOUT_FILENO : STDIN_FILENO);
         int good_fd = (is_left ? fds_pipe[1] : fds_pipe[0]);
 
-        debug_printf(LOG_EXEC, "[EXEC] fdreplace = %d | good_fd = %d\n", fd_to_replace, good_fd);
         if (dup2(good_fd, fd_to_replace) == -1)
             errx(1, "dup2 failed");
 
-        close(is_left ? fds_pipe[0] : fds_pipe[1]);
+        close(fds_pipe[0]);
+        close(fds_pipe[1]);
 
-        int code = execute_ast(ast, env);
-        exit(code);
+        return execute_ast(ast, env);
     }
 
     return p;

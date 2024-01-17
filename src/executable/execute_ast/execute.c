@@ -139,7 +139,7 @@ static int execute_while(struct ast *first_child, struct environment *env)
         debug_printf(LOG_EXEC, "[EXEC] In while loop\n");
         ret_code = execute_ast(first_child->next, env);
     }
-    
+
     return ret_code;
 }
 
@@ -162,7 +162,7 @@ static int execute_until(struct ast *first_child, struct environment *env)
     int ret_code = 0;
     while (execute_ast(first_child, env))
         ret_code = execute_ast(first_child->next, env);
-    
+
     return ret_code;
 }
 
@@ -219,12 +219,12 @@ static int execute_command(struct ast *command, struct environment *env)
         return -1;
     }
 
-    /*if (expansion(command->arg) == -1)
+    if (expansion(command->arg, env) == -1)
     {
         debug_printf(LOG_EXEC, "[EXECUTE] Expansion failed\n");
         fprintf(stderr, "Expansion failed\n");
         return -1;
-    }*/
+    }
 
     // First arg contains the command
     char *first_arg = list_get_n(command->arg, 0);
@@ -237,15 +237,11 @@ static int execute_command(struct ast *command, struct environment *env)
 
     else if (strcmp(first_arg, "false") == 0)
         return builtin_false(command->arg);
-
     else
-    {
-        //expansion(command->arg);
         return execvp_wrapper(command->arg, env);
-    }
 }
 
-int execute_ast(struct ast *ast,struct environment *env)
+int execute_ast(struct ast *ast, struct environment *env)
 {
     if (ast == NULL)
         return 0;
@@ -261,16 +257,9 @@ int execute_ast(struct ast *ast,struct environment *env)
 
     else if (ast->type == AST_UNTIL)
         return execute_until(ast->first_child, env);
-    
+
     else if (ast->type == AST_NEG)
         return !execute_ast(ast->first_child, env);
-    
-    else if (ast->type == AST_AND || ast->type == AST_OR)
-        return execute_and_or(ast, env);
-
-    else if (ast->type == AST_PIPE)
-        return execute_pipe(ast, env);
-         
     else
         return execute_command(ast, env);
 }

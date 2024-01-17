@@ -75,7 +75,8 @@ void ast_print(struct ast *ast)
 
     else if (ast->type == AST_WHILE || ast->type == AST_UNTIL)
     {
-        debug_printf(LOG_AST, "%s { ", (ast->type == AST_WHILE) ? "while" : "until");
+        debug_printf(LOG_AST, "%s { ",
+                     (ast->type == AST_WHILE) ? "while" : "until");
         if (ast->first_child == NULL)
         {
             debug_printf(LOG_AST, "AST error - 'while' or 'until' node - no condition\n");

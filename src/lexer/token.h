@@ -53,8 +53,8 @@ enum token_family
     TOKEN_FAM_OPERATOR,
     TOKEN_FAM_REDIR,
     TOKEN_FAM_IO_NUMBER,
+    TOKEN_FAM_ASSIGNMENT_W,
     TOKEN_FAM_WORD,
-    //TOKEN_FAM_ASSIGNMENT_W,
 };
 
 struct token
@@ -70,9 +70,9 @@ struct token
 void print_token(struct token token);
 
 /**
- * @brief Return a NULL token 
+ * @brief Return a NULL token
  */
-struct token token_null();
+struct token token_null(void);
 
 /**
  * @brief Free the token

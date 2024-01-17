@@ -10,7 +10,8 @@ struct list *list_create(char *current)
     struct list *new = calloc(1, sizeof(struct list));
     if (new == NULL)
     {
-        debug_printf(LOG_UTILS, "[LIST] list_create: struct allocation failed\n");
+        debug_printf(LOG_UTILS,
+                     "[LIST] list_create: struct allocation failed\n");
         return NULL;
     }
 

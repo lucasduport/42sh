@@ -6,10 +6,12 @@ libparser_a_SOURCES =  \
   parser_if.c \
   parser_list.c \
   parser_redir.c \
-  parser_boucle.c \
+  parser_loop.c \
   parser.h
 
 libparser_a_CPPFLAGS = -I$(top_srcdir)/src
+
+libparser_a_CFLAGS = -std=c99 -Werror -Wall -Wextra -Wvla -pedantic
 
 libparser_a_LIBADD = $(top_builddir)/src/lexer/liblexer.a
 

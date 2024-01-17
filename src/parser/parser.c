@@ -38,7 +38,7 @@ enum parser_status parser_and_or(struct lexer *lex, struct ast **res)
 {
     if (parser_pipeline(lex, res) == PARSER_UNEXPECTED_TOKEN)
         return PARSER_UNEXPECTED_TOKEN;
-    
+
     struct ast *tmp_final = *res;
 
     // Check optional { ('&&' || '||') {'\n'} pipeline }
@@ -64,7 +64,7 @@ enum parser_status parser_and_or(struct lexer *lex, struct ast **res)
             ast_free(tmp_final);
             return PARSER_UNEXPECTED_TOKEN;
         }
-        
+
         tmp->first_child = tmp_final;
         ast_add_brother(tmp_final, *res);
         tmp_final = tmp;
