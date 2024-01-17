@@ -411,7 +411,7 @@ struct token lexer_peek(struct lexer *lexer)
     else
     {
         tok = parse_input_for_tok(lexer);
-        lexer->last_token = tok;
+        lexer->last_token = tok;    
     }
 
     return tok;
