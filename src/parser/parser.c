@@ -4,68 +4,87 @@
 
 enum parser_status parser_input(struct lexer *lex, struct ast **res)
 {
-    struct token peek = lexer_peek(lex);
-    enum token_type peek_type = peek.type;
+    enum token_type peek_type = (lexer_peek(lex)).type;
     *res = NULL;
 
-    // first token = EOF or NEWLINE -> OK
+    // first token = EOF or NEWLINE -> EOF or OK
     if (peek_type == TOKEN_EOF || peek_type == TOKEN_NEWLINE)
     {
-        token_free(peek);
         token_free(lexer_pop(lex));
-        return (peek_type == TOKEN_EOF) ? PARSER_EOF_VALID : PARSER_OK;
+        return (peek_type == TOKEN_EOF) ? PARSER_EOF : PARSER_OK;
     }
 
-    token_free(peek);
     if (parser_list(lex, res) == PARSER_UNEXPECTED_TOKEN)
         goto error;
 
     // parse_list works => there must be an EOF or NEWLINE.
-    peek = lexer_peek(lex);
-    peek_type = peek.type;
+    peek_type = (lexer_peek(lex)).type;
     if (peek_type == TOKEN_EOF || peek_type == TOKEN_NEWLINE)
     {
-        token_free(peek);
         token_free(lexer_pop(lex));
-        return (peek_type == TOKEN_EOF) ? PARSER_EOF_VALID : PARSER_OK;
+        return PARSER_OK;
     }
 
     // If not.
-    token_free(peek);
     goto error;
 
 error:
-    peek = lexer_peek(lex);
-    peek_type = peek.type;
     fprintf(stderr, "parser: parsing error\n");
-    token_free(peek);
     ast_free(*res);
-    return (peek_type == TOKEN_EOF) ? PARSER_EOF_ERROR : PARSER_UNEXPECTED_TOKEN;
+    return PARSER_UNEXPECTED_TOKEN;
 }
 
 enum parser_status parser_and_or(struct lexer *lex, struct ast **res)
 {
-    return parser_pipeline(lex, res);
-}
+    if (parser_pipeline(lex, res) == PARSER_UNEXPECTED_TOKEN)
+        return PARSER_UNEXPECTED_TOKEN;
+    
+    struct ast *tmp_final = *res;
 
-enum parser_status parser_pipeline(struct lexer *lex, struct ast **res)
-{
-    return parser_command(lex, res);
+    // Check optional { ('&&' || '||') {'\n'} pipeline }
+    struct token peek = lexer_peek(lex);
+    while (peek.type == TOKEN_AND || peek.type == TOKEN_OR)
+    {
+        // Create 'and' or 'or' AST for after
+        struct ast *tmp = ast_new((peek.type == TOKEN_AND) ? AST_AND : AST_OR);
+        token_free(lexer_pop(lex));
+
+        peek = lexer_peek(lex);
+        // Pop optional newline
+        while (peek.type == TOKEN_NEWLINE)
+        {
+            token_free(lexer_pop(lex));
+            peek = lexer_peek(lex);
+        }
+
+        if (parser_pipeline(lex, res) == PARSER_UNEXPECTED_TOKEN)
+        {
+            ast_free(tmp);
+            ast_free(tmp_final);
+            return PARSER_UNEXPECTED_TOKEN;
+        }
+        
+        tmp->first_child = tmp_final;
+        ast_add_brother(tmp_final, *res);
+        tmp_final = tmp;
+
+        peek = lexer_peek(lex);
+    }
+    *res = tmp_final;
+    return PARSER_OK;
 }
 
 enum parser_status parser_element(struct lexer *lex, struct ast **res)
 {
     struct token peek = lexer_peek(lex);
 
-    if (peek.type != TOKEN_SEMICOLONS && peek.type != TOKEN_NEWLINE
-        && peek.type != TOKEN_EOF)
+    if (peek.family != TOKEN_FAM_OPERATOR && peek.type != TOKEN_EOF)
     {
-        token_free(lexer_pop(lex));
+        peek = lexer_pop(lex);
         list_append((*res)->arg, peek.data);
+        debug_printf(LOG_PARS, "[PARSER] Return element = %s\n", peek.data);
         return PARSER_OK;
     }
 
-    token_free(peek);
-    debug_printf(LOG_PARS,"[PARSER] It's not an element\n");
     return PARSER_UNEXPECTED_TOKEN;
 }

@@ -1,10 +1,12 @@
 #ifndef EXECUTE_H
 #define EXECUTE_H
 
+#include "../../expansion/expansion.h"
 #include "../../logger/logger.h"
 #include "../../utils/ast/ast.h"
 #include "../../utils/list/list.h"
 #include "../command/builtins/builtins.h"
+#include "../environment/environment.h"
 
 /** ERROR VALUE
  *  0    if successfull
@@ -19,6 +21,6 @@
  * @param ast AST that we want to execute
  * @return value of the execution
  */
-int execute_ast(struct ast *ast);
+int execute_ast(struct ast *ast, struct environment *env);
 
 #endif /* ! EXECUTE_H */

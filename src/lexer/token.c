@@ -40,7 +40,15 @@ void print_token(struct token token)
     }
 }
 
+struct token token_null()
+{
+    struct token tok;
+    tok.type = TOKEN_NULL;
+    return tok;
+}
+
 void token_free(struct token token)
 {
-    free(token.data);
+    if (token.data != NULL)
+        free(token.data);
 }

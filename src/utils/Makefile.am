@@ -6,7 +6,9 @@ libutils_a_SOURCES =  \
     list/list.c \
     list/list.h \
     string/string.c \
-    string/string.h
+    string/string.h \
+    variables/variables.c \
+    variables/variables.h
 
 libutils_a_CPPFLAGS = -I$(top_srcdir)/src
 

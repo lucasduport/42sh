@@ -1,6 +1,6 @@
 #ifndef _POSIX_C_SOURCE
 #    define _POSIX_C_SOURCE 200809L
-#endif
+#endif /* ! _POSIX_C_SOURCE */
 
 #include "lexer.h"
 
@@ -20,16 +20,31 @@
  * @param lexer
  * @return The new token
  */
-static struct token token_alloc(enum token_type type, struct lexer *lexer)
+static struct token token_alloc(enum token_type type, enum token_family family,
+                                struct lexer *lexer)
 {
     struct token token;
-    token.data = strndup(lexer->current_word->data, lexer->current_word->len);
+    token.data = calloc(lexer->current_word->len, sizeof(char));
+    token.data =
+        memcpy(token.data, lexer->current_word->data, lexer->current_word->len);
     token.type = type;
+    token.family = family;
 
     string_reset(lexer->current_word);
 
     print_token(token);
     return token;
+}
+
+static int check_io_number(struct lexer *lexer)
+{
+    for (size_t i = 0; i < lexer->current_word->len; i++)
+    {
+        if (!isdigit(lexer->current_word->data[i]))
+            return 0;
+    }
+
+    return lexer->current_char == '<' || lexer->current_char == '>';
 }
 
 /**
@@ -42,21 +57,32 @@ static struct token token_new(struct lexer *lexer)
 {
     string_append_char(lexer->current_word, '\0');
 
-    char *reserved_words[] = { "if", "then", "elif", "else",
-                               "fi", ";",    "\n",   "\0" };
+    char *reserved_words[] = { "if",   "then",  "elif",  "else", "fi", "do",
+                               "done", "while", "until", "for",  "in", "!",
+                               ";",    "\n",    "|",     "&&",   "||", ";;",
+                               "<",    ">",     "<<",    ">>",   "<&", "&>",
+                               "<>",   "<<-",   ">|",    "\0" };
 
+    int family = 0;
     for (size_t i = 0; i < sizeof(reserved_words) / sizeof(char *); i++)
     {
         // debug_printf(LOG_LEX,"test '%s' == '%s'\n", reserved_words[i],
         //              lexer->current_word->data);
 
+        if (i == 12 || i == 18)
+            family++;
+
         if (!strcmp(reserved_words[i], lexer->current_word->data))
         {
-            return token_alloc((enum token_type)i, lexer);
+            return token_alloc((enum token_type)i, (enum token_family)family,
+                               lexer);
         }
     }
 
-    return token_alloc(TOKEN_WORD, lexer);
+    if (check_io_number(lexer))
+        return token_alloc(TOKEN_WORD, TOKEN_FAM_IO_NUMBER, lexer);
+
+    return token_alloc(TOKEN_WORD, TOKEN_FAM_WORD, lexer);
 }
 
 /**
@@ -139,9 +165,66 @@ static int is_subshell(struct lexer *lexer)
         if (sub_shell_char[i] == lexer->current_char)
             return 1;
     }
-
     return 0;
 }
+
+
+/*
+static int test_end_expansion(struct lexer *lexer)
+{
+    if (lexer->current_expansion == '{')
+        return lexer->current_char == '}';
+
+    else if (lexer->current_expansion == '(')
+        return lexer->current_char == ')';
+    
+    else 
+        return lexer->current_char == '`';
+}
+
+static void feed_until_end(struct lexer *lexer)
+{
+    do
+    {
+        lexer->current_char = io_getchar();
+
+        if (lexer->current_char == lexer->current_expansion)
+            lexer->count_expansion++;
+
+        if (test_end_expansion(lexer))
+            lexer->count_expansion--;
+
+        string_append_char(lexer->current_word, lexer->current_char);
+
+    } while (!test_end_expansion(lexer) && lexer->count_expansion != 0);
+}
+
+
+static void feed_expansion(struct lexer *lexer)
+{
+    if (lexer->current_char == '`')
+    {
+        lexer->current_expansion = lexer->current_char;
+        lexer->count_expansion++;
+        feed_until_end(lexer);
+    }
+
+    else if (lexer->current_char == '$')
+    {
+        string_append_char(lexer->current_word, lexer->current_char);
+
+        lexer->current_char = io_getchar();
+    
+        if (lexer->current_char == '{' || lexer->current_char == '(')
+        {
+            string_append_char(lexer->current_word, lexer->current_char);
+            lexer->current_expansion = lexer->current_char;
+            lexer->count_expansion++;
+            feed_until_end(lexer);
+        }
+        // "bonjour $name ! comment vas tu ?"
+    }
+}*/
 
 /**
  * @brief Update the quote state
@@ -166,19 +249,6 @@ static void update_quote(struct lexer *lexer)
 }
 
 /**
- * @brief Get the next char
- *
- * Set the current char to the next char and increment the offset.
- *
- * @param lexer
- */
-static void get_char(struct lexer *lexer)
-{
-    lexer->current_char = io_getchar();
-    lexer->offset++;
-}
-
-/**
  * @brief Skip all the comment char
  *
  * Skip all the comment char and set the offset to the last char.
@@ -187,11 +257,8 @@ static void get_char(struct lexer *lexer)
  */
 static void skip_comment(struct lexer *lexer)
 {
-    while (lexer->current_char == '\n')
-    {
-        get_char(lexer);
-    }
-    io_seek(--lexer->offset);
+    while (lexer->current_char != '\n')
+        lexer->current_char = io_getchar();
 }
 
 /**
@@ -202,7 +269,7 @@ static void skip_comment(struct lexer *lexer)
  */
 static struct token parse_input_for_tok(struct lexer *lexer)
 {
-    get_char(lexer);
+    lexer->current_char = io_getchar();
 
     // rule 1
     if (lexer->current_char == '\0')
@@ -236,7 +303,9 @@ static struct token parse_input_for_tok(struct lexer *lexer)
     // rule 5
     else if (!lexer->is_quoted && is_subshell(lexer))
     {
-        // TODO: subshell completion.
+        //debug_printf(LOG_LEX, "EXPANSION!\n");
+        //feed_expansion(lexer);
+        string_append_char(lexer->current_word, lexer->current_char);
     }
 
     // rule 6
@@ -248,6 +317,10 @@ static struct token parse_input_for_tok(struct lexer *lexer)
         {
             struct token tok = token_new(lexer);
             string_append_char(lexer->current_word, lexer->current_char);
+
+            if (lexer->current_char == '\n')
+                lexer->is_newline = 1;
+
             return tok;
         }
 
@@ -255,25 +328,17 @@ static struct token parse_input_for_tok(struct lexer *lexer)
     }
 
     // rule 7
-    // FIXME: May be a problem with the '\n'
-    else if (!lexer->is_quoted && lexer->current_char == '\n')
-        return token_new(lexer);
-
-    // rule 8
-    else if (!lexer->is_quoted && lexer->current_char == ' ')
+    else if (!lexer->is_quoted && isblank(lexer->current_char))
     {
         if (lexer->current_word->len != 0)
-        {
-            struct token tok = token_new(lexer);
-            return tok;
-        }
+            return token_new(lexer);
     }
 
-    // rule 9
+    // rule 8
     else if (lexer->current_word->len != 0)
         string_append_char(lexer->current_word, lexer->current_char);
 
-    // rule 10
+    // rule 9
     else if (lexer->current_char == '#')
         skip_comment(lexer);
 
@@ -289,40 +354,42 @@ struct lexer *lexer_new(int argc, char *argv[])
         return NULL;
 
     struct lexer *lexer = calloc(1, sizeof(struct lexer));
+    lexer->last_token = token_null();
     lexer->current_word = string_create();
     return lexer;
 }
 
-static struct lexer *lexer_copy(struct lexer *lexer)
-{
-    struct lexer *copy = calloc(1, sizeof(struct lexer));
-    copy->current_word = string_dup(lexer->current_word);
-
-    copy->current_char = lexer->current_char;
-    copy->current_quote = lexer->current_quote;
-
-    copy->is_quoted = lexer->is_quoted;
-    copy->last_is_op = lexer->last_is_op;
-    copy->offset = lexer->offset;
-    return copy;
-}
-
 struct token lexer_peek(struct lexer *lexer)
 {
-    struct lexer *copy = lexer_copy(lexer);
-    struct token tok = parse_input_for_tok(copy);
-    lexer_free(copy);
+    if (lexer->last_token.type != TOKEN_NULL)
+        return lexer->last_token;
 
-    if (tok.type != TOKEN_EOF)
-        io_seek(lexer->offset);
+    struct token tok;
+    if (lexer->is_newline)
+    {
+        lexer->is_newline = 0;
+        tok = (struct token){ .type = TOKEN_NEWLINE, .data = NULL };
+        lexer->last_token = tok;
+    }
+    else
+    {
+        tok = parse_input_for_tok(lexer);
+        lexer->last_token = tok;
+    }
 
     return tok;
 }
 
 struct token lexer_pop(struct lexer *lexer)
 {
-    struct token res = parse_input_for_tok(lexer);
-    return res;
+    if (lexer->last_token.type != TOKEN_NULL)
+    {
+        struct token tok = lexer->last_token;
+        lexer->last_token = token_null();
+        return tok;
+    }
+
+    return parse_input_for_tok(lexer);
 }
 
 void lexer_free(struct lexer *lexer)

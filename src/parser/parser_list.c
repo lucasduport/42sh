@@ -9,7 +9,6 @@ enum parser_status parser_list(struct lexer *lex, struct ast **res)
 
     while (peek.type == TOKEN_SEMICOLONS)
     {
-        token_free(peek);
         token_free(lexer_pop(lex));
         peek = lexer_peek(lex);
 
@@ -20,8 +19,6 @@ enum parser_status parser_list(struct lexer *lex, struct ast **res)
             *res = ast_new(AST_LIST);
             (*res)->first_child = tmp;
 
-            token_free(peek);
-
             return PARSER_OK;
         }
 
@@ -30,21 +27,18 @@ enum parser_status parser_list(struct lexer *lex, struct ast **res)
         if (parser_and_or(lex, &tmp_ast) == PARSER_UNEXPECTED_TOKEN)
         {
             ast_free(tmp_ast);
-            token_free(peek);
             return PARSER_UNEXPECTED_TOKEN;
         }
 
         // If and_or works, add command retrieving
         ast_add_brother(*res, tmp_ast);
-        token_free(peek);
         peek = lexer_peek(lex);
     }
     struct ast *tmp = *res;
     *res = ast_new(AST_LIST);
     (*res)->first_child = tmp;
 
-    token_free(peek);
-
+    debug_printf(LOG_PARS, "[PARSER] Quit list\n");
     return PARSER_OK;
 }
 
@@ -53,12 +47,11 @@ enum parser_status parser_compound_list(struct lexer *lex, struct ast **res)
     struct token peek = lexer_peek(lex);
     while (peek.type == TOKEN_NEWLINE)
     {
-        token_free(peek);
         token_free(lexer_pop(lex));
         peek = lexer_peek(lex);
     }
-    token_free(peek);
 
+    debug_printf(LOG_PARS, "[PARSER] Try parse first and_or - compund list\n");
     if (parser_and_or(lex, res) == PARSER_UNEXPECTED_TOKEN)
         return PARSER_UNEXPECTED_TOKEN;
 
@@ -66,29 +59,27 @@ enum parser_status parser_compound_list(struct lexer *lex, struct ast **res)
 
     while (peek.type == TOKEN_SEMICOLONS || peek.type == TOKEN_NEWLINE)
     {
-        token_free(peek);
         token_free(lexer_pop(lex));
         peek = lexer_peek(lex);
 
         // Skip '\n'
         while (peek.type == TOKEN_NEWLINE)
         {
-            token_free(peek);
             token_free(lexer_pop(lex));
             peek = lexer_peek(lex);
         }
 
+        debug_printf(LOG_PARS, "[PARSER] peek = %s\n", peek.data);
         if (peek.type == TOKEN_ELSE || peek.type == TOKEN_ELIF
-            || peek.type == TOKEN_THEN || peek.type == TOKEN_FI)
+            || peek.type == TOKEN_THEN || peek.type == TOKEN_FI
+            || peek.type == TOKEN_DONE || peek.type == TOKEN_DO)
         {
+            debug_printf(LOG_PARS, "[PARSER] Here !\n");
             struct ast *tmp = *res;
             *res = ast_new(AST_LIST);
             (*res)->first_child = tmp;
-            token_free(peek);
             return PARSER_OK;
         }
-
-        token_free(peek);
 
         struct ast *tmp_ast = NULL;
         // Else we need to parse 'and_or'
@@ -107,6 +98,5 @@ enum parser_status parser_compound_list(struct lexer *lex, struct ast **res)
     *res = ast_new(AST_LIST);
     (*res)->first_child = tmp;
 
-    token_free(peek);
     return PARSER_OK;
 }

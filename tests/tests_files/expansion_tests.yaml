@@ -1,0 +1,16 @@
+- category: expansion
+  sub-category: single_quote
+  tests:
+    - command: "echo 'Hello World'"
+    - command: "echo 'Hello World' 'Hello World'"
+    - command: "echo 'e\n''e\n'aa'b'"
+    - command: "/bin/echo \\ 'e\\n''e\\n'aa'b'"
+    - command: "/bin/echo 'e\\n''e\\n'aa'b'"
+    - command: "'ls'"
+    - command: "'echo' 'Hello World'"
+
+- category: expansion
+  sub-category: backslash
+  tests:
+    - command: "\\echo"
+    - command: "\\ls"

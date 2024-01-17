@@ -5,13 +5,19 @@
 int main(int argc, char **argv)
 {
     //create_logger("stdout");
-    //enable_all_logs();
+    //enable_log_type(LOG_MAIN);
+    //enable_log_type(LOG_LEX);
+    //enable_log_type(LOG_PARS);
+    //enable_log_type(LOG_AST);
+    //enable_log_type(LOG_UTILS);
+    //enable_log_type(LOG_EXEC);
 
+    
     //Initialise lexer
     struct lexer *lex = lexer_new(argc, argv);
     if (lex == NULL)
     {
-        debug_printf(LOG_MAIN, "[MAIN] Failed initialize lexer");
+        debug_printf(LOG_MAIN, "[MAIN] Failed initialize lexer\n");
         return 2;
     }
 
@@ -19,22 +25,22 @@ int main(int argc, char **argv)
     struct ast *res;
     int code = 0;
     enum parser_status parse_code = parser_input(lex, &res);
-    while (parse_code != PARSER_EOF_VALID && parse_code != PARSER_EOF_ERROR)
+    while (parse_code != PARSER_EOF)
     {
         if (parse_code == PARSER_OK)
-            code = execute_ast(res);
-        ast_free(res);
+        {
+            ast_print(res);
+            debug_printf(LOG_AST, "\n");
+            code = execute_ast(res, NULL);
+            ast_free(res);
+        }
+        else
+            code = 2;
         parse_code = parser_input(lex, &res);
-    }
-
-    //If end correctly
-    if (parse_code == PARSER_EOF_VALID)
-    {
-        code = execute_ast(res);
-        ast_free(res);
     }
 
     lexer_free(lex);
     //destroy_logger();
     return code;
 }
+
