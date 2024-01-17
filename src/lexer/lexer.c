@@ -50,11 +50,12 @@ static int check_io_number(struct lexer *lexer)
 static int check_assignment(struct lexer *lexer)
 {
     size_t len = lexer->current_word->len;
-    if (lexer->current_word->data[0] == '=' || lexer->current_word->data[len-1] == '=')
+    if (lexer->current_word->data[0] == '='
+        || lexer->current_word->data[len - 1] == '=')
         return 0;
 
     int contains_equal = 0;
-    for (size_t i = 0; lexer->current_word->len; i++)
+    for (size_t i = 0; i < lexer->current_word->len; i++)
     {
         if (lexer->current_word->data[i] == '=')
             contains_equal++;
@@ -97,7 +98,7 @@ static struct token token_new(struct lexer *lexer)
 
     if (check_io_number(lexer))
         return token_alloc(TOKEN_WORD, TOKEN_FAM_IO_NUMBER, lexer);
-    
+
     if (check_assignment(lexer))
         return token_alloc(TOKEN_WORD, TOKEN_FAM_ASSIGNMENT_W, lexer);
 
@@ -187,7 +188,6 @@ static int is_subshell(struct lexer *lexer)
     return 0;
 }
 
-
 /*
 static int test_end_expansion(struct lexer *lexer)
 {
@@ -196,8 +196,8 @@ static int test_end_expansion(struct lexer *lexer)
 
     else if (lexer->current_expansion == '(')
         return lexer->current_char == ')';
-    
-    else 
+
+    else
         return lexer->current_char == '`';
 }
 
@@ -233,7 +233,7 @@ static void feed_expansion(struct lexer *lexer)
         string_append_char(lexer->current_word, lexer->current_char);
 
         lexer->current_char = io_getchar();
-    
+
         if (lexer->current_char == '{' || lexer->current_char == '(')
         {
             string_append_char(lexer->current_word, lexer->current_char);
@@ -273,7 +273,7 @@ static void update_quote(struct lexer *lexer)
         }
 
         else if (lexer->current_char == lexer->current_quote)
-        {   
+        {
             debug_printf(LOG_LEX, "quit quote mode\n");
             lexer->is_quoted = !lexer->is_quoted;
         }
@@ -338,8 +338,8 @@ static struct token parse_input_for_tok(struct lexer *lexer)
     // rule 5
     else if (!lexer->is_quoted && is_subshell(lexer))
     {
-        //debug_printf(LOG_LEX, "EXPANSION!\n");
-        //feed_expansion(lexer);
+        // debug_printf(LOG_LEX, "EXPANSION!\n");
+        // feed_expansion(lexer);
         string_append_char(lexer->current_word, lexer->current_char);
     }
 
