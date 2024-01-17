@@ -78,7 +78,7 @@ void ast_print(struct ast *ast)
         debug_printf(LOG_AST, "%s { ", (ast->type == AST_WHILE) ? "while" : "until");
         if (ast->first_child == NULL)
         {
-            debug_printf(LOG_AST, "AST error - 'while' node - no condition\n");
+            debug_printf(LOG_AST, "AST error - 'while' or 'until' node - no condition\n");
             return;
         }
         ast_print(ast->first_child);
@@ -93,6 +93,20 @@ void ast_print(struct ast *ast)
         child = child->next;
         ast_print(child);
         debug_printf(LOG_AST, " } done");
+    }
+
+    else if (ast->type == AST_AND || ast->type == AST_OR)
+    {
+        if (ast->first_child == NULL || ast->first_child->next == NULL)
+        {
+            debug_printf(LOG_AST, "AST error - 'and' or 'or' node - missing command\n");
+            return;
+        }
+        debug_printf(LOG_AST, "{ ");
+        ast_print(ast->first_child);
+        debug_printf(LOG_AST, " } %s { ", (ast->type == AST_AND) ? "&&" : "||");
+        ast_print(ast->first_child->next);
+        debug_printf(LOG_AST, " }");
     }
 
     else if (ast->type == AST_COMMAND)

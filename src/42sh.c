@@ -43,4 +43,3 @@ int main(int argc, char **argv)
     //destroy_logger();
     return code;
 }
-

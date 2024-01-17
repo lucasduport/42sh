@@ -167,6 +167,45 @@ static int execute_until(struct ast *first_child, struct environment *env)
 }
 
 /**
+ * @brief Execute 'and' or 'or' node
+ *
+ * @param ast Current ast
+ * @return return value from execution
+ */
+static int execute_and_or(struct ast *ast, struct environment *env)
+{
+    if (ast->first_child == NULL || ast->first_child->next == NULL)
+    {
+        debug_printf(LOG_EXEC,
+                     "[EXECUTE] Missing one commande for '%s' node\n", (ast->type == AST_AND) ? "and" : "or");
+        return -1;
+    }
+    
+    if (ast->type == AST_AND)
+    {
+        int code_left = execute_ast(ast->first_child, env);
+
+        //Failed with error or success but with return code 1
+        if (code_left != 0)
+            return code_left;
+        
+        int code_right = execute_ast(ast->first_child->next, env);
+        return code_right;
+    }
+    else
+    {
+        int code_left = execute_ast(ast->first_child, env);
+
+        //Failed with error or success but with return code 1
+        if (code_left == 0 || code_left == -1)
+            return code_left;
+        
+        int code_right = execute_ast(ast->first_child->next, env);
+        return code_right;
+    }
+}
+
+/**
  * @brief Execute command node
  *
  * @param command Node command
@@ -225,7 +264,10 @@ int execute_ast(struct ast *ast,struct environment *env)
     
     else if (ast->type == AST_NEG)
         return !execute_ast(ast->first_child, env);
-        
+    
+    else if (ast->type == AST_AND || ast->type == AST_OR)
+        return execute_and_or(ast, env);
+    
     else
         return execute_command(ast, env);
 }

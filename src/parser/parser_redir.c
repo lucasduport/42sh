@@ -54,6 +54,7 @@ enum parser_status parser_pipeline(struct lexer *lex, struct ast **res)
         peek = lexer_peek(lex);
     }
 
+    debug_printf(LOG_PARS, "[PARSER] Quit parser pipeline\n");
     *res = tmp_final;
     return PARSER_OK;
 }
