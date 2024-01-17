@@ -73,7 +73,7 @@ struct token
 void print_token(struct token token);
 
 /**
- * @brief Return a NULL token 
+ * @brief Return a NULL token
  */
 struct token token_null();
 

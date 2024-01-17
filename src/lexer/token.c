@@ -4,38 +4,38 @@
 
 void print_token(struct token token)
 {
-    debug_printf(LOG_LEX,"[TOKEN] Data: %s\n", token.data);
+    debug_printf(LOG_LEX, "[TOKEN] Data: %s\n", token.data);
     switch (token.type)
     {
     case TOKEN_IF:
-        debug_printf(LOG_LEX,"[TOKEN] Type: TOKEN_IF\n");
+        debug_printf(LOG_LEX, "[TOKEN] Type: TOKEN_IF\n");
         break;
     case TOKEN_THEN:
-        debug_printf(LOG_LEX,"[TOKEN] Type: TOKEN_THEN\n");
+        debug_printf(LOG_LEX, "[TOKEN] Type: TOKEN_THEN\n");
         break;
     case TOKEN_ELIF:
-        debug_printf(LOG_LEX,"[TOKEN] Type: TOKEN_ELIF\n");
+        debug_printf(LOG_LEX, "[TOKEN] Type: TOKEN_ELIF\n");
         break;
     case TOKEN_ELSE:
-        debug_printf(LOG_LEX,"[TOKEN] Type: TOKEN_ELSE\n");
+        debug_printf(LOG_LEX, "[TOKEN] Type: TOKEN_ELSE\n");
         break;
     case TOKEN_FI:
-        debug_printf(LOG_LEX,"[TOKEN] Type: TOKEN_FI\n");
+        debug_printf(LOG_LEX, "[TOKEN] Type: TOKEN_FI\n");
         break;
     case TOKEN_SEMICOLONS:
-        debug_printf(LOG_LEX,"[TOKEN] Type: TOKEN_SEMICOLONS\n");
+        debug_printf(LOG_LEX, "[TOKEN] Type: TOKEN_SEMICOLONS\n");
         break;
     case TOKEN_NEWLINE:
-        debug_printf(LOG_LEX,"[TOKEN] Type: TOKEN_NEWLINE\n");
+        debug_printf(LOG_LEX, "[TOKEN] Type: TOKEN_NEWLINE\n");
         break;
     case TOKEN_WORD:
-        debug_printf(LOG_LEX,"[TOKEN] Type: TOKEN_WORD\n");
+        debug_printf(LOG_LEX, "[TOKEN] Type: TOKEN_WORD\n");
         break;
     case TOKEN_EOF:
-        debug_printf(LOG_LEX,"[TOKEN] Type: TOKEN_EOF\n");
+        debug_printf(LOG_LEX, "[TOKEN] Type: TOKEN_EOF\n");
         break;
     default:
-        debug_printf(LOG_LEX,"[TOKEN] Type: TOKEN_UNKNOWN\n");
+        debug_printf(LOG_LEX, "[TOKEN] Type: TOKEN_UNKNOWN\n");
         break;
     }
 }

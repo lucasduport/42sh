@@ -18,7 +18,6 @@ struct lexer
     int last_is_op;
     int is_quoted;
     int is_newline;
-
 };
 
 /**
