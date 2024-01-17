@@ -28,7 +28,7 @@ int main(int argc, char **argv)
     {
         if (parse_code == PARSER_OK)
         {
-            //ast_print(res);
+            ast_print(res);
             debug_printf(LOG_AST, "\n");
             code = execute_ast(res, NULL);
             ast_free(res);

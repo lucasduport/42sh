@@ -1,10 +1,10 @@
+#include "execute.h"
+
 #include <err.h>
 #include <stddef.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-
-#include "execute.h"
 
 /**
  * @brief Exec each part of pipe
@@ -12,11 +12,10 @@
  * @param left 1 if it's left part of pipe 0 otherwise
  * @param fds_pipe Array that contain file descriptors of pipe
  * @param env Current environement
- *
+ * 
  * @return Return code of ast's execution
- */
-static int exec_fork(struct ast *ast, int is_left, int fds_pipe[2],
-                     struct environment *env)
+*/
+static int exec_fork(struct ast *ast, int is_left, int fds_pipe[2], struct environment *env)
 {
     pid_t p = fork();
     if (p == -1)
@@ -30,10 +29,10 @@ static int exec_fork(struct ast *ast, int is_left, int fds_pipe[2],
         if (dup2(good_fd, fd_to_replace) == -1)
             errx(1, "dup2 failed");
 
-        close(fds_pipe[0]);
-        close(fds_pipe[1]);
+        close(is_left ? fds_pipe[0] : fds_pipe[1]);
 
-        return execute_ast(ast, env);
+        int code = execute_ast(ast, env);
+        exit(code);
     }
 
     return p;
@@ -44,7 +43,7 @@ int execute_pipe(struct ast *ast, struct environment *env)
     if (ast->first_child == NULL || ast->first_child->next == NULL)
     {
         debug_printf(LOG_EXEC,
-                        "[EXECUTE] Missing left or right node for 'pipe' node\n");
+                     "[EXECUTE] Missing left or right node for 'pipe' node\n");
         return -1;
     }
 

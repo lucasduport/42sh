@@ -23,6 +23,19 @@ void ast_add_brother(struct ast *ast, struct ast *new_brother)
     p->next = new_brother;
 }
 
+void ast_add_child_to_child(struct ast **ast, struct ast *new_child)
+{
+    if (*ast == NULL)
+        *ast = new_child;
+    else
+    {
+        struct ast *p = *ast;
+        while (p->first_child != NULL)
+            p = p->first_child;
+        p->first_child = new_child;
+    }
+}
+
 void ast_free(struct ast *ast)
 {
     if (ast != NULL)
@@ -122,6 +135,14 @@ void ast_print(struct ast *ast)
         debug_printf(LOG_AST, " } | { ");
         ast_print(ast->first_child->next);
         debug_printf(LOG_AST, " }");
+    }
+
+    else if (ast->type == AST_REDIR)
+    {
+        debug_printf(LOG_AST, "R[ ");
+        list_print(ast->arg);
+        debug_printf(LOG_AST, " ]");
+        ast_print(ast->first_child);
     }
 
     else if (ast->type == AST_COMMAND)
