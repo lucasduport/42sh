@@ -26,7 +26,6 @@ static int exec_fork(struct ast *ast, int is_left, int fds_pipe[2], struct envir
         int fd_to_replace = (is_left ? STDOUT_FILENO : STDIN_FILENO);
         int good_fd = (is_left ? fds_pipe[1] : fds_pipe[0]);
 
-        debug_printf(LOG_EXEC, "[EXEC] fdreplace = %d | good_fd = %d\n", fd_to_replace, good_fd);
         if (dup2(good_fd, fd_to_replace) == -1)
             errx(1, "dup2 failed");
 
@@ -44,7 +43,7 @@ int execute_pipe(struct ast *ast, struct environment *env)
     if (ast->first_child == NULL || ast->first_child->next == NULL)
     {
         debug_printf(LOG_EXEC,
-                        "[EXECUTE] Missing left or right node for 'pipe' node\n");
+                     "[EXECUTE] Missing left or right node for 'pipe' node\n");
         return -1;
     }
 

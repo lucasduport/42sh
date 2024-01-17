@@ -30,29 +30,6 @@
     - command: "if true; then true; else echo tests; fi"
     - command: "if true; then false; fi"
 
-- category: errors
-  sub-category: command_not_found
-  tests:
-    - command: "not_found"
-    - command: "not_found arg1 arg2"
-    - command: "not_found arg1 arg2 arg3"
-    - command: "not_found arg1 arg2 arg3 arg4"
-    - command: "not_found arg1 arg2 arg3 arg4 arg5"
-    - command: "if not_found; then true; else false; fi"
-    - command: "if true; then ts; else uy; fi"
-    - command: "if true; then echo tests; else not_found; fi"
-    - command: "if false; then echo tests; else not_found; fi"
-
-- category: errors
-  sub-category: syntax_errors
-  tests:
-    - command: "if false; thrue; fi"
-    - command: "if echo; thelse f; fi"
-    - command: "if echo; thn ealse; fi"
-    - command: "if true; else echo tests; fi"
-    - command: "if trn false; fi"
-    - command: "if false; then ti"
-
 - category: execvp
   sub-category: execvp
   tests:

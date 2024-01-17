@@ -9,7 +9,8 @@ enum parser_status parser_command(struct lexer *lex, struct ast **res)
         return parser_simple_command(lex, res);
 
     // Firsts of shell_command
-    if (peek.type == TOKEN_IF || peek.type == TOKEN_WHILE || peek.type == TOKEN_UNTIL || peek.type == TOKEN_FOR)
+    if (peek.type == TOKEN_IF || peek.type == TOKEN_WHILE
+        || peek.type == TOKEN_UNTIL || peek.type == TOKEN_FOR)
     {
         debug_printf(LOG_PARS,"[PARSER] Shell command - command\n");
 
@@ -117,13 +118,13 @@ enum parser_status parser_shell_command(struct lexer *lex, struct ast **res)
 
     if (peek.type == TOKEN_WHILE)
         return parser_rule_while(lex, res);
-    
+
     if (peek.type == TOKEN_UNTIL)
         return parser_rule_until(lex, res);
-    
+
     /*if (peek.type == TOKEN_FOR)
         return parser_rule_for(lex, res);*/
-    
+
     token_free(lexer_pop(lex));
     return PARSER_UNEXPECTED_TOKEN;
 }

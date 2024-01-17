@@ -8,14 +8,15 @@ enum parser_status parser_pipeline(struct lexer *lex, struct ast **res)
     struct ast *tmp_final = NULL;
     if (peek.type == TOKEN_NEG)
     {
-        tmp_final= ast_new(AST_NEG);
+        tmp_final = ast_new(AST_NEG);
         token_free(lexer_pop(lex));
         peek = lexer_peek(lex);
     }
 
     if (parser_command(lex, res) == PARSER_UNEXPECTED_TOKEN)
     {
-        debug_printf(LOG_PARS, "[PARSER] Failed parse first command - pipeline\n");
+        debug_printf(LOG_PARS,
+                     "[PARSER] Failed parse first command - pipeline\n");
         ast_free(tmp_final);
         return PARSER_UNEXPECTED_TOKEN;
     }
@@ -23,7 +24,7 @@ enum parser_status parser_pipeline(struct lexer *lex, struct ast **res)
         tmp_final->first_child = *res;
     else
         tmp_final = *res;
-    
+
     // Parse optional { '|' {'\n'} command }
     peek = lexer_peek(lex);
     while (peek.type == TOKEN_PIPE)
