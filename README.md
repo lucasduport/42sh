@@ -1,6 +1,6 @@
 # 42sh
 
-Recode a posix bash shell
+Implement an equivalent of /usr/bin/env bash --posix
 
 ## Prerequisites
 
@@ -10,18 +10,30 @@ Make sure you have the following tools installed on your system:
 - Automake
 - Make
 
+If you are on PIE, you have to configure a venv
+```bash
+  python3 -m venv .venv
+  export .venv/bin/activate
+  which python # It should print the new path of your python interpreter
+```
+
+You can now install required libraries:
+```bash
+  pip3 install termcolor pyyaml
+```
+
 ## Run Locally
 
 Clone the project
 
 ```bash
-  git clone link-to-project
+  git clone xavier.login@git.forge.epita.fr:p/epita-ing-assistants-acu/42sh-2026/epita-ing-assistants-acu-42sh-2026-lyon-21.git
 ```
 
 Go to the project directory
 
 ```bash
-  cd 42sh
+  cd epita-ing-assistants-acu-42sh-2026-lyon-21
 ```
 
 Configure autotools
@@ -33,16 +45,13 @@ Configure autotools
 Generate Makefiles
 
 ```bash
-  ./configure [--enable-gdb|--enable-fsanitize]
+  ./configure [--enable-debug | --enable-coverage]
 ```
 
 Make and run !
 
 ```bash
-  make
-  src/42sh -c <input string>
-    or src/42sh < <bash file>
-    or src/42 sh 
+  make && src/42sh [-c "<input string>" | <shell script>]
 ```
 ## Running Tests
 
@@ -99,4 +108,3 @@ Logger:
 - [Corentin Belloni](corentin.belloni@epita.fr)
 - [Flavien Geoffray](flavien.geoffray@epita.fr)
 - [Lucas Duport](lucas.duport@epita.fr)
-

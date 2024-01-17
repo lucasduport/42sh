@@ -35,7 +35,8 @@ int io_abstraction(int argc, char *argv[])
     return IO_SUCCESS;
 
 error:
-    debug_printf(LOG_IO_BACK, "io_abstraction: open stream failed <%d>\n", errno);
+    debug_printf(LOG_IO_BACK, "io_abstraction: open stream failed <%d>\n",
+                 errno);
     return IO_FAILED;
 }
 
@@ -52,7 +53,8 @@ int io_close(void)
 {
     if (stream != stdin && fclose(stream) == -1)
     {
-        debug_printf(LOG_IO_BACK, "io_close: close stream failed <%d>\n", errno);
+        debug_printf(LOG_IO_BACK, "io_close: close stream failed <%d>\n",
+                     errno);
         return IO_FAILED;
     }
 
