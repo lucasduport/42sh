@@ -1,0 +1,32 @@
+- category: ast_execution
+  sub-category: classique
+  tests:
+    - command: "echo coucou"
+    - command: "ls"
+
+- category: ast_evaluation
+  sub-category: not
+  tests:
+    - command: "! true"
+    - command: "! false"
+    - command: "! echo coucou"
+
+- category: ast_evaluation
+  sub-category: and_or
+  tests:
+    - command: "echo coucou && echo aaaaa"
+    - command: "echo coucou || echo aaaaa"
+    - command: "true && echo coucou"
+    - command: "false && echo coucou"
+    - command: "true || echo coucou"
+    - command: "false || echo coucou"
+    - command: "true && echo coucou || echo aaaaa"
+    - command: "true || echo coucou && echo aaaaa"
+    - command: "! false && echo coucou"
+
+- category: ast_evaluation
+  sub-category: while_until
+  tests:
+    - command: "while false; do echo coucou; done"
+    - command: "until true; do echo coucou; done"
+    - command: "while ! echo coucou; do echo ahhhh; done"
