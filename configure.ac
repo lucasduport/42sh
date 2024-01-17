@@ -16,17 +16,24 @@ AC_PROG_RANLIB
 # Check if a compiler is available for c
 AC_PROG_CC
 
-# CFLAGS for compilation
-CFLAGS="-std=c99 -Werror -Wall -Wextra -Wvla -pedantic"
-
 # Define custom options for different build environments
 AC_ARG_ENABLE([debug],
   AS_HELP_STRING([--enable-debug], [Build with debugging information for GDB and fsanitize]),
   [enable_debug=yes],
   [enable_debug=no])
 
+AC_ARG_ENABLE([coverage],
+  AS_HELP_STRING([--enable-coverage], [Build to test coverage]),
+  [enable_cov=yes],
+  [enable_cov=no])
+
 if test "x$enable_debug" = xyes; then
-  CFLAGS="$CFLAGS -fsanitize=address -g3"
+  CFLAGS="-fsanitize=address -g3"
+fi
+
+if test "x$enable_cov" = xyes; then
+  CFLAGS="-fPIC -fprofile-arcs -ftest-coverage"
+  LFAGS="-lgcov"
 fi
 
 # List Makefile in subdirectories
@@ -37,9 +44,11 @@ AC_CONFIG_FILES([
                     src/logger/Makefile
                     src/io_backend/Makefile
                     src/parser/Makefile
+                    src/expansion/Makefile
                     src/utils/Makefile
                     src/executable/command/Makefile
                     src/executable/execute_ast/Makefile
+                    src/executable/environment/Makefile
                     tests/Makefile
                 ])
 AC_OUTPUT

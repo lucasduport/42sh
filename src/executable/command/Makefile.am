@@ -7,4 +7,6 @@ libcommand_a_SOURCES =  \
 
 libcommand_a_CPPFLAGS = -I$(top_srcdir)/src
 
+libcommand_a_CFLAGS = -std=c99 -Werror -Wall -Wextra -Wvla -pedantic
+
 noinst_LIBRARIES = libcommand.a

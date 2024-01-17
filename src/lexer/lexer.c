@@ -38,13 +38,30 @@ static struct token token_alloc(enum token_type type, enum token_family family,
 
 static int check_io_number(struct lexer *lexer)
 {
-    for (size_t i = 0; i < lexer->current_word->len; i++)
+    for (size_t i = 0; lexer->current_word->data[i] != '\0'; i++)
     {
         if (!isdigit(lexer->current_word->data[i]))
             return 0;
     }
 
     return lexer->current_char == '<' || lexer->current_char == '>';
+}
+
+static int check_assignment(struct lexer *lexer)
+{
+    size_t len = lexer->current_word->len;
+    if (lexer->current_word->data[0] == '='
+        || lexer->current_word->data[len - 1] == '=')
+        return 0;
+
+    int contains_equal = 0;
+    for (size_t i = 0; i < lexer->current_word->len; i++)
+    {
+        if (lexer->current_word->data[i] == '=')
+            contains_equal++;
+    }
+
+    return contains_equal == 1;
 }
 
 /**
@@ -81,6 +98,9 @@ static struct token token_new(struct lexer *lexer)
 
     if (check_io_number(lexer))
         return token_alloc(TOKEN_WORD, TOKEN_FAM_IO_NUMBER, lexer);
+
+    if (check_assignment(lexer))
+        return token_alloc(TOKEN_WORD, TOKEN_FAM_ASSIGNMENT_W, lexer);
 
     return token_alloc(TOKEN_WORD, TOKEN_FAM_WORD, lexer);
 }
@@ -165,9 +185,65 @@ static int is_subshell(struct lexer *lexer)
         if (sub_shell_char[i] == lexer->current_char)
             return 1;
     }
-
     return 0;
 }
+
+/*
+static int test_end_expansion(struct lexer *lexer)
+{
+    if (lexer->current_expansion == '{')
+        return lexer->current_char == '}';
+
+    else if (lexer->current_expansion == '(')
+        return lexer->current_char == ')';
+
+    else
+        return lexer->current_char == '`';
+}
+
+static void feed_until_end(struct lexer *lexer)
+{
+    do
+    {
+        lexer->current_char = io_getchar();
+
+        if (lexer->current_char == lexer->current_expansion)
+            lexer->count_expansion++;
+
+        if (test_end_expansion(lexer))
+            lexer->count_expansion--;
+
+        string_append_char(lexer->current_word, lexer->current_char);
+
+    } while (!test_end_expansion(lexer) && lexer->count_expansion != 0);
+}
+
+
+static void feed_expansion(struct lexer *lexer)
+{
+    if (lexer->current_char == '`')
+    {
+        lexer->current_expansion = lexer->current_char;
+        lexer->count_expansion++;
+        feed_until_end(lexer);
+    }
+
+    else if (lexer->current_char == '$')
+    {
+        string_append_char(lexer->current_word, lexer->current_char);
+
+        lexer->current_char = io_getchar();
+
+        if (lexer->current_char == '{' || lexer->current_char == '(')
+        {
+            string_append_char(lexer->current_word, lexer->current_char);
+            lexer->current_expansion = lexer->current_char;
+            lexer->count_expansion++;
+            feed_until_end(lexer);
+        }
+        // "bonjour $name ! comment vas tu ?"
+    }
+}*/
 
 /**
  * @brief Update the quote state
@@ -179,16 +255,31 @@ static int is_subshell(struct lexer *lexer)
  */
 static void update_quote(struct lexer *lexer)
 {
-    if (lexer->is_quoted == 0)
+    debug_printf(LOG_LEX, "update_quote\n");
+    if (lexer->current_char == '\\')
     {
-        lexer->is_quoted = !lexer->is_quoted;
-        lexer->current_quote = lexer->current_char;
+        string_append_char(lexer->current_word, lexer->current_char);
+        lexer->current_char = io_getchar();
+        debug_printf(LOG_LEX, "current_char: %c\n", lexer->current_char);
+        string_append_char(lexer->current_word, lexer->current_char);
     }
+    else
+    {
+        if (lexer->is_quoted == 0)
+        {
+            debug_printf(LOG_LEX, "enter quote mode\n");
+            lexer->is_quoted = !lexer->is_quoted;
+            lexer->current_quote = lexer->current_char;
+        }
 
-    else if (lexer->current_char == lexer->current_quote)
-        lexer->is_quoted = !lexer->is_quoted;
+        else if (lexer->current_char == lexer->current_quote)
+        {
+            debug_printf(LOG_LEX, "quit quote mode\n");
+            lexer->is_quoted = !lexer->is_quoted;
+        }
 
-    string_append_char(lexer->current_word, lexer->current_char);
+        string_append_char(lexer->current_word, lexer->current_char);
+    }
 }
 
 /**
@@ -213,6 +304,7 @@ static void skip_comment(struct lexer *lexer)
 static struct token parse_input_for_tok(struct lexer *lexer)
 {
     lexer->current_char = io_getchar();
+    debug_printf(LOG_LEX, "%c\n", lexer->current_char);
 
     // rule 1
     if (lexer->current_char == '\0')
@@ -246,7 +338,9 @@ static struct token parse_input_for_tok(struct lexer *lexer)
     // rule 5
     else if (!lexer->is_quoted && is_subshell(lexer))
     {
-        // TODO: subshell completion.
+        // debug_printf(LOG_LEX, "EXPANSION!\n");
+        // feed_expansion(lexer);
+        string_append_char(lexer->current_word, lexer->current_char);
     }
 
     // rule 6
@@ -309,7 +403,9 @@ struct token lexer_peek(struct lexer *lexer)
     if (lexer->is_newline)
     {
         lexer->is_newline = 0;
-        tok = (struct token){ .type = TOKEN_NEWLINE, .data = NULL };
+        tok = (struct token){ .type = TOKEN_NEWLINE,
+                              .family = TOKEN_FAM_OPERATOR,
+                              .data = NULL };
         lexer->last_token = tok;
     }
     else
