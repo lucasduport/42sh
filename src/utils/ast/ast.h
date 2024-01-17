@@ -9,8 +9,14 @@
 enum ast_type
 {
     AST_IF,
+    AST_WHILE,
+    AST_UNTIL,
     AST_COMMAND,
-    AST_LIST
+    AST_LIST,
+    AST_AND,
+    AST_OR,
+    AST_NEG,
+    AST_PIPE
 };
 
 struct ast

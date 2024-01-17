@@ -8,7 +8,8 @@ SUBDIRS = \
 		  lexer \
 		  parser \
 		  executable/execute_ast \
-		  executable/command
+		  executable/command \
+		  executable/environment
 
 # Common flags for all targets
 AM_CPPFLAGS = -I%D%

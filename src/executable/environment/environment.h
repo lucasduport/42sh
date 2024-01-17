@@ -9,7 +9,7 @@ struct environment
     int fd_out;
     int fd_err;
 
-    struct variables *variables;
+    struct variable *variables;
 };
 
 /**
