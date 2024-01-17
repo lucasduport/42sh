@@ -93,9 +93,9 @@ int builtin_echo(struct list *list)
     while (p != NULL)
     {
         if (options->escape)
-            printf("%s", p->current);
+            print_str_escape(p->current);
         else
-            print_str(p->current);
+            printf("%s", p->current);
         p = p->next;
         if (p != NULL)
             putchar(' ');
