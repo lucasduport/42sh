@@ -10,6 +10,18 @@ Make sure you have the following tools installed on your system:
 - Automake
 - Make
 
+If you are on PIE, you have to configure a venv
+```bash
+  python3 -m venv .venv
+  export .venv/bin/activate
+  which python # It should print the new path of your python interpreter
+```
+
+You can now install required libraries:
+```bash
+  pip3 install termcolor pyyaml
+```
+
 ## Run Locally
 
 Clone the project
