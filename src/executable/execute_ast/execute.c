@@ -1,6 +1,7 @@
 #include "execute.h"
 
 #include <errno.h>
+#include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -229,16 +230,20 @@ static int execute_command(struct ast *command, struct environment *env)
     // First arg contains the command
     char *first_arg = list_get_n(command->arg, 0);
 
+    int code = 0;
     if (strcmp(first_arg, "echo") == 0)
-        return builtin_echo(command->arg);
+        code = builtin_echo(command->arg);
 
     else if (strcmp(first_arg, "true") == 0)
-        return builtin_true(command->arg);
+        code = builtin_true(command->arg);
 
     else if (strcmp(first_arg, "false") == 0)
-        return builtin_false(command->arg);
+        code = builtin_false(command->arg);
     else
-        return execvp_wrapper(command->arg, env);
+        code = execvp_wrapper(command->arg, env);
+    fflush(stdout);
+    fflush(stderr);
+    return code;
 }
 
 int execute_ast(struct ast *ast, struct environment *env)
@@ -266,6 +271,9 @@ int execute_ast(struct ast *ast, struct environment *env)
 
     else if (ast->type == AST_PIPE)
         return execute_pipe(ast, env);
+    
+    else if (ast->type == AST_REDIR)
+        return execute_redir(ast, env);
          
     else
         return execute_command(ast, env);

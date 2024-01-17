@@ -31,4 +31,18 @@ int execute_ast(struct ast *ast, struct environment *env);
  */
 int execute_pipe(struct ast *ast, struct environment *env);
 
+struct redirection
+{
+    int word_fd;
+    int io_number;
+};
+
+/**
+ * @brief Execute redirection for redirection.
+ * 
+ * @param ast AST that we want to execute
+ * @return value of the execution
+*/
+int execute_redir(struct ast *ast, struct environment *env);
+
 #endif /* ! EXECUTE_H */

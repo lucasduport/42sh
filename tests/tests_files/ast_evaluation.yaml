@@ -5,11 +5,18 @@
     - command: "ls"
 
 - category: ast_evaluation
+  sub-category: list
+  tests:
+    - command: "echo coucou; echo ahhhh; echo bbbbb"
+    - command: "echo coucou; ! echo ahhh"
+
+- category: ast_evaluation
   sub-category: not
   tests:
     - command: "! true"
     - command: "! false"
     - command: "! echo coucou"
+    - command: "! ls"
 
 - category: ast_evaluation
   sub-category: and_or
@@ -30,3 +37,4 @@
     - command: "while false; do echo coucou; done"
     - command: "until true; do echo coucou; done"
     - command: "while ! echo coucou; do echo ahhhh; done"
+

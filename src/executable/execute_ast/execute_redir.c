@@ -1,5 +1,4 @@
-#include "redir.h"
-#include "../../logger/logger.h"
+#include "execute.h"
 
 #include <fcntl.h>
 #include <stdio.h>
@@ -53,12 +52,18 @@ static struct redirection open_file(char *operator, char *filename)
     return redir;
 }
 
-int redir(char *filename, char *io_number, char *operator)
+int execute_redir(struct ast *ast, struct environment *env)
 {       
+    if (ast->arg == NULL)
+        return -1;
+
+    char *operator = ast->arg->current;
+    char *filename = ast->arg->next->current;
+
     struct redirection redir = open_file(operator, filename);
 
-    if (io_number != NULL)
-        redir.io_number = atoi(io_number);
+    if (ast->arg->next->next != NULL)
+        redir.io_number = atoi(ast->arg->next->next->current);
 
     int save_fd = dup(redir.io_number);
     if (save_fd == -1)
@@ -74,11 +79,11 @@ int redir(char *filename, char *io_number, char *operator)
         return -1;
     }
 
-    dup2(save_fd, redir.io_number);
+    int code = execute_ast(ast->first_child, env);
 
+    dup2(save_fd, redir.io_number);
     close(save_fd);
     close(redir.word_fd);
-    printf("AND COME BACK\n");
-
-    return 0;
+ 
+    return code;
 }
