@@ -30,10 +30,10 @@ static int exec_fork(struct ast *ast, int is_left, int fds_pipe[2], struct envir
         if (dup2(good_fd, fd_to_replace) == -1)
             errx(1, "dup2 failed");
 
-        close(fds_pipe[0]);
-        close(fds_pipe[1]);
+        close(is_left ? fds_pipe[0] : fds_pipe[1]);
 
-        execute_ast(ast, env);
+        int code = execute_ast(ast, env);
+        exit(code);
     }
 
     return p;
