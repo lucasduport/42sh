@@ -20,10 +20,13 @@ struct list *list_create(char *current)
 
 void list_append(struct list *l, char *current)
 {
-    while (l->next != NULL)
-        l = l->next;
+    if (l != NULL)
+    {
+        while (l->next != NULL)
+            l = l->next;
 
-    l->next = list_create(current);
+        l->next = list_create(current);
+    }
 }
 
 char *list_get_n(struct list *l, size_t n)

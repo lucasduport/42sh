@@ -82,6 +82,9 @@ enum parser_status parser_element(struct lexer *lex, struct ast **res)
 
     if (peek.family != TOKEN_FAM_OPERATOR && peek.type != TOKEN_EOF)
     {
+        if (peek.family == TOKEN_FAM_IO_NUMBER || peek.family == TOKEN_FAM_REDIR)
+            return parser_redirection(lex, res);
+        
         peek = lexer_pop(lex);
         list_append((*res)->arg, peek.data);
         debug_printf(LOG_PARS, "[PARSER] Return element = %s\n", peek.data);
