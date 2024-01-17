@@ -8,7 +8,8 @@ SUBDIRS = \
 		  lexer \
 		  parser \
 		  executable/execute_ast \
-		  executable/command
+		  executable/command \
+		  executable/redirection
 
 # Common flags for all targets
 AM_CPPFLAGS = -I%D%
@@ -22,7 +23,8 @@ AM_CPPFLAGS = -I%D%
 	parser/libparser.a \
 	utils/libutils.a \
 	executable/command/libcommand.a \
-	executable/execute_ast/libexecute.a
+	executable/execute_ast/libexecute.a \
+	executable/redirection/libredir.a
 
 42sh_SOURCES = 42sh.c
 
