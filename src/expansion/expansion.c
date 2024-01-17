@@ -3,6 +3,17 @@
 #include <stddef.h>
 
 /**
+ * @brief Check if a character is a valid character for a variable name
+ *
+ * @param c Character to check
+ * @return int 1 if valid, 0 otherwise
+ */
+static int is_valid_char(char c)
+{
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_'
+        || (c >= '0' && c <= '9');
+}
+/**
  * @brief Expand a variable
  *
  * @param str String to expand
@@ -116,7 +127,7 @@ static int expand_single_quotes(struct environment *env, char **str,
 
 /**
  * @brief Expands a backquoted command as described in the SCL
- * 
+ *
  * @param env Environment
  * @param str String to expand
  * @param index Index of the variable
@@ -134,7 +145,7 @@ static int expand_backquote(struct environment *env, char **str, size_t *index)
 
 /**
  * @brief Expands a variable as described in the SCL
- * 
+ *
  * @param env Environment
  * @param str String to expand
  * @param index Index of the variable
@@ -142,16 +153,31 @@ static int expand_backquote(struct environment *env, char **str, size_t *index)
  */
 static int expand_variable(struct environment *env, char **str, size_t *index)
 {
-    // TODO: implement
+    // *index is at $
     (void)env;
-    (void)str;
-    (void)index;
+    char *var_name = NULL;
+    for (size_t i = *index + 1; (*str)[i] != '\0'; i++)
+    {
+        if (!is_valid_char((*str)[i]))
+            break;
+        else
+        {
+            var_name = realloc(var_name, i - *index + 2);
+            var_name[i - *index - 1] = (*str)[i];
+        }
+    }
+    // FIXME: var_name is not null terminated
+    /*var_name[strlen(var_name)] = '\0';
+    char* var_value = get_variable(env, var_name);
+    insert_at_n(str, var_value, *index);
+    *index = *index + strlen(var_value);
+    free(var_name);*/
     return 0;
 }
 
 /**
  * @brief Expands a brace expansion as described in the SCL
- * 
+ *
  * @param env Environment
  * @param str String to expand
  * @param index Index of the variable
@@ -159,11 +185,24 @@ static int expand_variable(struct environment *env, char **str, size_t *index)
  */
 static int expand_brace(struct environment *env, char **str, size_t *index)
 {
-    // TODO: implement
-    (void)env;
-    (void)str;
-    (void)index;
-    return 0;
+    // Skip the $,now at {
+    *index = *index + 1;
+
+    expand_variable(env, str, index);
+    size_t first_brace = *index;
+    if ((*str)[*index] == '}')
+    {
+        remove_at_n(str, first_brace);
+        remove_at_n(str, *index - 1);
+        *index = *index - 1;
+        return 0;
+    }
+    else
+    {
+        debug_printf(LOG_EXP,
+                     "[EXPANSION] expand_brace: failed to match } %s\n", *str);
+        return -1;
+    }
 }
 
 /**
