@@ -126,21 +126,17 @@ static int expand_single_quotes(struct environment *env, char **str,
 }
 
 /**
- * @brief Expands a backquoted command as described in the SCL
+ * @brief Expands a command substitution as described in the SCL
  *
  * @param env Environment
  * @param str String to expand
  * @param index Index of the variable
  * @return int 0 if success, -1 otherwise
  */
-static int expand_backquote(struct environment *env, char **str, size_t *index)
+static int expand_cmd_substitution(struct environment *env, char **str,
+                                   size_t *index)
 {
-    // TODO: implement
-    (void)env;
-    (void)str;
-    (void)(insert_at_n);
-    (void)index;
-    return 0;
+    // TODO: implement command substitution step 3
 }
 
 /**
@@ -153,10 +149,11 @@ static int expand_backquote(struct environment *env, char **str, size_t *index)
  */
 static int expand_variable(struct environment *env, char **str, size_t *index)
 {
-    // *index is at $
+    // *index is at $ or at {
     (void)env;
     char *var_name = NULL;
-    for (size_t i = *index + 1; (*str)[i] != '\0'; i++)
+    size_t delim_index = *index;
+    for (size_t i = *index + 1; (*str)[i] != '\0';)
     {
         if (!is_valid_char((*str)[i]))
             break;
@@ -164,14 +161,22 @@ static int expand_variable(struct environment *env, char **str, size_t *index)
         {
             var_name = realloc(var_name, i - *index + 2);
             var_name[i - *index - 1] = (*str)[i];
+            // Remove the character from the string
+            // Acts as a shift, or as an incrementation of i
+            remove_at_n(str, i);
         }
     }
-    // FIXME: var_name is not null terminated
-    /*var_name[strlen(var_name)] = '\0';
-    char* var_value = get_variable(env, var_name);
-    insert_at_n(str, var_value, *index);
+
+    var_name[strlen(var_name)] = '\0';
+    char *var_value = get_variable(env, var_name);
+    free(var_name);
+
+    // Insert the value of the variable in the string
+    insert_at_n(str, var_value, delim_index);
     *index = *index + strlen(var_value);
-    free(var_name);*/
+
+    // Remove the first delimiter ($ or {)
+    remove_at_n(str, delim_index);
     return 0;
 }
 
@@ -186,15 +191,19 @@ static int expand_variable(struct environment *env, char **str, size_t *index)
 static int expand_brace(struct environment *env, char **str, size_t *index)
 {
     // Skip the $,now at {
+    size_t dollar = *index;
+
     *index = *index + 1;
 
     expand_variable(env, str, index);
-    size_t first_brace = *index;
+
     if ((*str)[*index] == '}')
     {
-        remove_at_n(str, first_brace);
-        remove_at_n(str, *index - 1);
-        *index = *index - 1;
+        // removes $ char
+        remove_at_n(str, dollar);
+        // { char is remove in expand_variable
+        // removes } char
+        remove_at_n(str, *index);
         return 0;
     }
     else
@@ -216,7 +225,7 @@ static int expand_brace(struct environment *env, char **str, size_t *index)
 static int expand_dollar(struct environment *env, char **str, size_t *index)
 {
     if ((*str)[*index + 1] == '(')
-        return expand_backquote(env, str, index);
+        return expand_cmd_substitution(env, str, index);
     else if ((*str)[*index + 1] == '{')
         return expand_brace(env, str, index);
     else
@@ -255,7 +264,7 @@ static int expand_double_quotes(struct environment *env, char **str,
         }
         else if ((*str)[i] == '`')
         {
-            if (expand_backquote(env, str, &i) == -1)
+            if (expand_cmd_substitution(env, str, &i) == -1)
                 return -1;
         }
         else
