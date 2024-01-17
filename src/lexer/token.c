@@ -25,7 +25,7 @@ void print_token(struct token token)
         token_fam[token.family], token_type[token.type], token.data); 
 }
 
-struct token token_null()
+struct token token_null(void)
 {
     struct token tok;
     tok.type = TOKEN_NULL;

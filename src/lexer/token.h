@@ -75,7 +75,7 @@ void print_token(struct token token);
 /**
  * @brief Return a NULL token 
  */
-struct token token_null();
+struct token token_null(void);
 
 /**
  * @brief Free the token
