@@ -47,6 +47,22 @@ static int check_io_number(struct lexer *lexer)
     return lexer->current_char == '<' || lexer->current_char == '>';
 }
 
+static int check_assignment(struct lexer *lexer)
+{
+    size_t len = lexer->current_word->len;
+    if (lexer->current_word->data[0] == '=' || lexer->current_word->data[len-1] == '=')
+        return 0;
+
+    int contains_equal = 0;
+    for (size_t i = 0; lexer->current_word->len; i++)
+    {
+        if (lexer->current_word->data[i] == '=')
+            contains_equal++;
+    }
+
+    return contains_equal == 1;
+}
+
 /**
  * @brief check if the word is a reserved word
  *
@@ -81,6 +97,9 @@ static struct token token_new(struct lexer *lexer)
 
     if (check_io_number(lexer))
         return token_alloc(TOKEN_WORD, TOKEN_FAM_IO_NUMBER, lexer);
+    
+    if (check_assignment(lexer))
+        return token_alloc(TOKEN_WORD, TOKEN_FAM_ASSIGNMENT_W, lexer);
 
     return token_alloc(TOKEN_WORD, TOKEN_FAM_WORD, lexer);
 }
