@@ -56,8 +56,8 @@ enum token_family
     TOKEN_FAM_OPERATOR,
     TOKEN_FAM_REDIR,
     TOKEN_FAM_IO_NUMBER,
+    TOKEN_FAM_ASSIGNMENT_W,
     TOKEN_FAM_WORD,
-    //TOKEN_FAM_ASSIGNMENT_W,
 };
 
 struct token
