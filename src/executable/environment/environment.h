@@ -23,4 +23,13 @@ struct environment *environment_new(void);
  */
 struct environment *dup_environment(struct environment *env);
 
+
+/**
+ * @brief Check if name is the name of environment variable
+ * 
+ * @param name The variable name
+*/
+struct environment *check_env_variable(const char *name);
+
+
 #endif /* ! ENVIRONMENT_H */
