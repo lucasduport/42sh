@@ -1,0 +1,13 @@
+- category: scripts
+  sub-category: basic
+  tests:
+    - command: |
+        echo -e 'This is another
+        multiline string with \t escaped tabs \t and \n escaped newlines \n'
+        caca
+        boudin
+        if true; then
+          echo "true"
+        else
+          echo "false"
+        fi

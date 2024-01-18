@@ -20,6 +20,13 @@
     - command: "echo -e 'This is another\nmultiline string with \\t escaped tabs \\t and \\n escaped newlines \\n'"
     - command: "echo -E 'This is a multiline\\nstring without interpreting escape characters\\tand \\ backslashes'"
     - command: "echo -n -e -E 'Mixing options and\\n multiline\\t strings with \\ backslashes\\n'"
+    - command: "echo \"Hey\n\\t\\\t hola''\"'ketal'\\ "
+    - command: echo \"Hey\n\\t\\\t hol\\a''\\\"'ketal'\\\\""
+    - command: \\\\\\\\\\\\\\\\\
+    - command: echo -e 'This is another\nmultines \\n'
+    - command: echo -E 'This is ting escape characters\\tand \\ backslashes'"
+    - command: echo -n -e -E 'Mixing options aes\\n'"
+    - command: echo -e 'This is another\nt and \\n escaped newlines
 
 - category: builtins
   sub-category: booleans

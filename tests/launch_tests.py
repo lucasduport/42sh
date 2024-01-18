@@ -9,6 +9,8 @@ from termcolor import colored
 BINARY = "../src/42sh"
 REF = "/usr/bin/env bash --posix"
 
+# FIXME: Test with \n ending file
+
 class TestShellScript(unittest.TestCase):
     def __init__(self):
         super(TestShellScript, self).__init__()
