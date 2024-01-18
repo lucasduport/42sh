@@ -9,7 +9,6 @@ SUBDIRS = \
 		  parser \
 		  expansion \
 		  executable/execute_ast \
-		  executable/command \
 		  executable/environment
 
 # Common flags for all targets
@@ -19,7 +18,6 @@ AM_CFLAGS = -std=c99 -Werror -Wall -Wextra -Wvla -pedantic
 
 42sh_LDADD = \
 	executable/execute_ast/libexecute.a \
-	executable/command/libcommand.a \
 	parser/libparser.a \
 	lexer/liblexer.a \
 	logger/liblogger.a \

@@ -5,6 +5,7 @@
 #define IO_FAILED 1
 
 #include <stddef.h>
+#include "../logger/logger.h"
 
 /**
  * @brief Transform all inputs to a unique stream.

@@ -6,8 +6,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../logger/logger.h"
-
 FILE *stream = NULL;
 
 int io_abstraction(int argc, char *argv[])
@@ -19,7 +17,7 @@ int io_abstraction(int argc, char *argv[])
         stream = stdin;
     // String case.
     else if (!strcmp(argv[1], "-c"))
-    {
+    { 
         stream = fmemopen(argv[2], strlen(argv[2]), "r");
         if (stream == NULL)
             goto error;

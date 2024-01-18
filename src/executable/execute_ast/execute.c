@@ -7,114 +7,46 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-/**
- * @brief Execute commands which are not builtins
- *
- * @param arg Chained list of arguments
- * @return return value from execution of the command
- */
-static int execvp_wrapper(struct list *arg, struct environment *env)
+exec_ast_node executes[] = 
 {
-    // Because unused variable
-    if (env != NULL)
-        *env = *env;
+    [AST_IF] = execute_if, [AST_LIST] = execute_list, [AST_WHILE] = execute_while, [AST_UNTIL] = execute_until,
+    [AST_AND] = execute_and, [AST_OR] = execute_or, [AST_PIPE] = execute_pipe, [AST_REDIR] = execute_redir,
+    [AST_COMMAND] = execute_command, [AST_NEG] = execute_neg, [AST_ASSIGNMENT] = execute_assignment
+};
 
-    int argc = 0;
-    if (arg == NULL)
-    {
-        debug_printf(LOG_EXEC,
-                     "[EXECUTE] execvp_wrapper: argv allocation failed\n");
-        return -1;
-    }
-
-    int pid = fork();
-    if (pid == 0)
-    {
-        // Child process
-        size_t i = 0;
-        // Rebuilds argc and argv
-        char **argv = NULL;
-        while (arg != NULL)
-        {
-            argv = realloc(argv, sizeof(char *) * (argc + 2));
-            if (argv == NULL)
-            {
-                debug_printf(LOG_EXEC,
-                             "[EXECUTE] execvp_wrapper: argv realloc failed\n");
-                return -1;
-            }
-            argc++;
-            argv[i] = arg->current;
-            arg = arg->next;
-            i++;
-        }
-        argv[i] = NULL;
-
-        int retCode = execvp(argv[0], argv);
-        if (retCode == -1 && errno == ENOENT)
-        {
-            fprintf(stderr, "%s: command not found\n", argv[0]);
-            retCode = 127;
-        }
-        free(argv);
-        return retCode;
-    }
-    else
-    {
-        // Parent process
-        int parent_pid;
-        // Wait for child process to finish
-        waitpid(pid, &parent_pid, 0);
-        // Return child process return value
-        return WEXITSTATUS(parent_pid);
-    }
-}
-
-/**
- * @brief Execute if node
- *
- * @param first_child First child of 'if' node -> condition
- * @return value of 'then' execution or 'else' execution or 0 by default
- */
-static int execute_if(struct ast *first_child, struct environment *env)
+int execute_assignment(struct ast *ast, struct environment *env)
 {
-    if (first_child == NULL || first_child->next == NULL)
+    if (ast->arg == NULL)
     {
-        debug_printf(LOG_EXEC,
-                     "[EXECUTE] Missing condition or then for 'if' node\n");
+        debug_printf(LOG_EXEC, "[EXECUTE] Missing command argument\n");
         return -1;
     }
 
-    // If condition is met
-    int res_cond = execute_ast(first_child, env);
-    if (res_cond == -1)
+    char delim[] = "=";
+    char *variable_name = strtok(ast->arg->current, delim);
+    char *variable_value = strtok(NULL, delim);
+
+    if (set_variable(&env->variables, variable_name, variable_value) == -1)
+    {
+        debug_printf(LOG_EXEC, "[EXECUTE] Set variable failed\n");
+        fprintf(stderr, "Assignment failed\n");
         return -1;
-    else if (!res_cond)
-        return execute_ast(first_child->next, env);
-
-    // If there is no 'else' node
-    if (first_child->next->next != NULL)
-        return execute_ast(first_child->next->next, env);
-
+    }
     return 0;
 }
 
-/**
- * @brief Execute list node
- *
- * @param first_child First child of 'list' node
- * @return return value from execution of last command
- */
-static int execute_list(struct ast *first_child, struct environment *env)
+int execute_list(struct ast *ast, struct environment *env)
 {
-    struct ast *tmp = first_child;
+    struct ast *tmp = ast->first_child;
     int res = 0;
+    
     // While there is no error on our part
     while (tmp != NULL && res != -1)
     {
         res = execute_ast(tmp, env);
         tmp = tmp->next;
     }
+
     return res;
 }
 
@@ -252,30 +184,5 @@ int execute_ast(struct ast *ast, struct environment *env)
     if (ast == NULL)
         return 0;
 
-    if (ast->type == AST_IF)
-        return execute_if(ast->first_child, env);
-
-    else if (ast->type == AST_LIST)
-        return execute_list(ast->first_child, env);
-
-    else if (ast->type == AST_WHILE)
-        return execute_while(ast->first_child, env);
-
-    else if (ast->type == AST_UNTIL)
-        return execute_until(ast->first_child, env);
-
-    else if (ast->type == AST_NEG)
-        return !execute_ast(ast->first_child, env);
-    
-    else if (ast->type == AST_AND || ast->type == AST_OR)
-        return execute_and_or(ast, env);
-
-    else if (ast->type == AST_PIPE)
-        return execute_pipe(ast, env);
-    
-    else if (ast->type == AST_REDIR)
-        return execute_redir(ast, env);
-         
-    else
-        return execute_command(ast, env);
+    return executes[ast->type](ast, env);
 }
