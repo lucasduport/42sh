@@ -109,6 +109,15 @@ void ast_print(struct ast *ast)
         debug_printf(LOG_AST, " } done");
     }
 
+    else if (ast->type == AST_FOR)
+    {
+        debug_printf(LOG_AST, "for { ");
+        list_print(ast->arg);
+        debug_printf(LOG_AST, " } do { ");
+        ast_print(ast->first_child);
+        debug_printf(LOG_AST, " } done");
+    }
+
     else if (ast->type == AST_AND || ast->type == AST_OR)
     {
         if (ast->first_child == NULL || ast->first_child->next == NULL)

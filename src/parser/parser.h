@@ -44,6 +44,12 @@ enum parser_status parser_and_or(struct lexer *lex, struct ast **res);
 enum parser_status parser_element(struct lexer *lex, struct ast **res);
 
 /**
+ * @file parser.c
+ * @brief Skip optional newline
+ */
+void skip_newline(struct lexer *lex);
+
+/**
  * @file parser_command.c
  * @brief Parse command grammar :
  *
@@ -144,5 +150,13 @@ enum parser_status parser_rule_while(struct lexer *lex, struct ast **res);
  * 'until' compund_list 'do' compund_list 'done'
  */
 enum parser_status parser_rule_until(struct lexer *lex, struct ast **res);
+
+/**
+ * @file parser_loop.c
+ * @brief Parse for grammar :
+ *
+ * 'for' WORD ([';'] | [ {'\n'} 'in' {WORD} (';' | '\n') ] ) {'\n'} 'do' compund_list 'done'
+ */
+enum parser_status parser_rule_for(struct lexer *lex, struct ast **res);
 
 #endif /* !PARSER_H */

@@ -122,8 +122,8 @@ enum parser_status parser_shell_command(struct lexer *lex, struct ast **res)
     if (peek.type == TOKEN_UNTIL)
         return parser_rule_until(lex, res);
 
-    /*if (peek.type == TOKEN_FOR)
-        return parser_rule_for(lex, res);*/
+    if (peek.type == TOKEN_FOR)
+        return parser_rule_for(lex, res);
 
     token_free(lexer_pop(lex));
     return PARSER_UNEXPECTED_TOKEN;

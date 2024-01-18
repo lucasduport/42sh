@@ -34,12 +34,9 @@ enum parser_status parser_pipeline(struct lexer *lex, struct ast **res)
         peek = lexer_peek(lex);
 
         // Skip optional newline
-        while (peek.type == TOKEN_NEWLINE)
-        {
-            token_free(lexer_pop(lex));
-            peek = lexer_peek(lex);
-        }
+        skip_newline(lex);
 
+        peek = lexer_peek(lex);
         if (parser_command(lex, res) == PARSER_UNEXPECTED_TOKEN)
         {
             ast_free(tmp_pipe);

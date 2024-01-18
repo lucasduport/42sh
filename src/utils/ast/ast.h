@@ -11,6 +11,7 @@ enum ast_type
     AST_IF,
     AST_WHILE,
     AST_UNTIL,
+    AST_FOR,
     AST_COMMAND,
     AST_LIST,
     AST_AND,
