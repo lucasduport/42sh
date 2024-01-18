@@ -78,7 +78,7 @@ int execute_command(struct ast *command, struct environment *env)
     {
         debug_printf(LOG_EXEC, "[EXECUTE] Expansion failed\n");
         fprintf(stderr, "Expansion failed\n");
-        return -1;
+        return 2;
     }
 
     // First arg contains the command
