@@ -17,16 +17,16 @@ AM_CPPFLAGS = -I%D%
 
 AM_CFLAGS = -std=c99 -Werror -Wall -Wextra -Wvla -pedantic
 
-42sh_LDADD =  \
-	executable/environment/libenvironment.a \
+42sh_LDADD = \
 	executable/execute_ast/libexecute.a \
 	executable/command/libcommand.a \
 	parser/libparser.a \
 	lexer/liblexer.a \
 	logger/liblogger.a \
-	utils/libutils.a \
 	io_backend/libio_backend.a \
-	expansion/libexpansion.a
+	executable/environment/libenvironment.a \
+	expansion/libexpansion.a \
+	utils/libutils.a
 
 42sh_SOURCES = 42sh.c
 
