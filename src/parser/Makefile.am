@@ -6,7 +6,7 @@ libparser_a_SOURCES =  \
   parser_if.c \
   parser_list.c \
   parser_redir.c \
-  parser_boucle.c \
+  parser_loop.c \
   parser.h
 
 libparser_a_CPPFLAGS = -I$(top_srcdir)/src

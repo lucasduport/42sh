@@ -2,7 +2,14 @@ lib_LIBRARIES = libexecute.a
 
 libexecute_a_SOURCES =  \
 	execute.c \
-    execute.h
+    execute_redir.c \
+    execute_loop.c \
+    execute_condition.c \
+    execute_command.c \
+    execute.h \
+    builtins/echo.c \
+    builtins/bool.c \
+    builtins/builtins.h
 
 libexecute_a_CPPFLAGS = -I$(top_srcdir)/src
 

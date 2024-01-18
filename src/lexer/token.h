@@ -42,9 +42,6 @@ enum token_type
     // ---------------------------------
     TOKEN_EOF,
 
-    TOKEN_AND,
-    TOKEN_OR,
-
     TOKEN_WORD,
 
     TOKEN_NULL,
@@ -73,9 +70,9 @@ struct token
 void print_token(struct token token);
 
 /**
- * @brief Return a NULL token 
+ * @brief Return a NULL token
  */
-struct token token_null();
+struct token token_null(void);
 
 /**
  * @brief Free the token

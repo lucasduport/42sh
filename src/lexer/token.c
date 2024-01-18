@@ -4,43 +4,24 @@
 
 void print_token(struct token token)
 {
-    debug_printf(LOG_LEX,"[TOKEN] Data: %s\n", token.data);
-    switch (token.type)
-    {
-    case TOKEN_IF:
-        debug_printf(LOG_LEX,"[TOKEN] Type: TOKEN_IF\n");
-        break;
-    case TOKEN_THEN:
-        debug_printf(LOG_LEX,"[TOKEN] Type: TOKEN_THEN\n");
-        break;
-    case TOKEN_ELIF:
-        debug_printf(LOG_LEX,"[TOKEN] Type: TOKEN_ELIF\n");
-        break;
-    case TOKEN_ELSE:
-        debug_printf(LOG_LEX,"[TOKEN] Type: TOKEN_ELSE\n");
-        break;
-    case TOKEN_FI:
-        debug_printf(LOG_LEX,"[TOKEN] Type: TOKEN_FI\n");
-        break;
-    case TOKEN_SEMICOLONS:
-        debug_printf(LOG_LEX,"[TOKEN] Type: TOKEN_SEMICOLONS\n");
-        break;
-    case TOKEN_NEWLINE:
-        debug_printf(LOG_LEX,"[TOKEN] Type: TOKEN_NEWLINE\n");
-        break;
-    case TOKEN_WORD:
-        debug_printf(LOG_LEX,"[TOKEN] Type: TOKEN_WORD\n");
-        break;
-    case TOKEN_EOF:
-        debug_printf(LOG_LEX,"[TOKEN] Type: TOKEN_EOF\n");
-        break;
-    default:
-        debug_printf(LOG_LEX,"[TOKEN] Type: TOKEN_UNKNOWN\n");
-        break;
-    }
+    char *token_fam[] = { "RESERVED",  "OPERATOR",     "REDIR",
+                          "IO_NUMBER", "ASSIGNMENT_W", "WORD" };
+
+    char *token_type[] = { "IF",         "THEN",      "ELIF",    "ELSE",
+                           "FI",         "DO",        "DONE",    "WHILE",
+                           "UNTIL",      "FOR",       "IN",      "NEG",
+                           "SEMICOLONS", "NEWLINE",   "PIPE",    "AND_IF",
+                           "OR_IF",      "DSEMI",     "LESS",    "GREAT",
+                           "DLESS",      "DGREAT",    "LESSAND", "GREATAND",
+                           "LESSGREAT",  "DLESSDASH", "CLOBBER", "EOF",
+                           "AND",        "OR",        "WORD",    "NULL" };
+
+    debug_printf(LOG_LEX,
+                 "[TOKEN] Family: TOKEN_FAM_%s | Type: TOKEN_%s | Data: %s\n",
+                 token_fam[token.family], token_type[token.type], token.data);
 }
 
-struct token token_null()
+struct token token_null(void)
 {
     struct token tok;
     tok.type = TOKEN_NULL;

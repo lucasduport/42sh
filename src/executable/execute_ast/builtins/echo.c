@@ -60,17 +60,17 @@ static void print_str_escape(char *str)
         if (str[i] == '\\' && str[i + 1] == 'n')
         {
             putchar('\n');
-            i+=2;
+            i += 2;
         }
         else if (str[i] == '\\' && str[i + 1] == 't')
         {
             putchar('\t');
-            i+=2;
+            i += 2;
         }
         else
         {
             putchar(str[i]);
-        i++;
+            i++;
         }
     }
 }

@@ -116,7 +116,7 @@ static int expand_single_quotes(struct environment *env, char **str,
 
 /**
  * @brief Expands a backquoted command as described in the SCL
- * 
+ *
  * @param env Environment
  * @param str String to expand
  * @param index Index of the variable
@@ -134,7 +134,7 @@ static int expand_backquote(struct environment *env, char **str, size_t *index)
 
 /**
  * @brief Expands a variable as described in the SCL
- * 
+ *
  * @param env Environment
  * @param str String to expand
  * @param index Index of the variable
@@ -151,7 +151,7 @@ static int expand_variable(struct environment *env, char **str, size_t *index)
 
 /**
  * @brief Expands a brace expansion as described in the SCL
- * 
+ *
  * @param env Environment
  * @param str String to expand
  * @param index Index of the variable

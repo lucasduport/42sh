@@ -1,0 +1,24 @@
+- category: redirection
+  sub-category: classique
+  tests:
+    - command: "echo coucou > t.txt; cat t.txt"
+    - command: "ehzfrelbghrsekj 2> t.txt"
+    - command: "cat < t.txt"
+    - command: "echo coucou <> test.txt; cat test.txt"
+    - command: "echo coucou 1<> test.txt; cat test.txt"
+    - command: "rm test.txt; echo coucou >> test.txt; cat test.txt"
+
+- category: redirection
+  sub-category: many
+  tests:
+    - command: "echo coucou > t.txt > a.txt; cat t.txt; cat t.txt"
+    - command: "echo coucou > t.txt 2> err.txt; cat t.txt"
+    - command: "vdjkfgbdk > t.txt 2> err.txt; cat t.txt"
+
+- category: redirection
+  sub-category: hard
+  tests:
+    - command: "echo > test.txt coucou; cat test.txt"
+    - command: "rm test.txt; echo > test.txt >> test.txt coucou; cat test.txt"
+    - command: "fbhfre > test.txt > coco.txt coucou; cat test.txt; cat coco.txt"
+    - command: "fbhfre > test.txt 2> coco.txt coucou; cat test.txt"

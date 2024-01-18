@@ -4,13 +4,13 @@
 
 int main(int argc, char **argv)
 {
-    create_logger("stdout");
-    // enable_log_type(LOG_IO_BACK);
+    // create_logger("stdout");
+    enable_log_type(LOG_IO_BACK);
     enable_log_type(LOG_LEX);
-    // enable_log_type(LOG_PARS);
-    // enable_log_type(LOG_AST);
-    // enable_log_type(LOG_UTILS);
-    // enable_log_type(LOG_EXEC);
+    enable_log_type(LOG_PARS);
+    enable_log_type(LOG_AST);
+    enable_log_type(LOG_UTILS);
+    enable_log_type(LOG_EXEC);
 
     // Initialise lexer
     struct lexer *lex = lexer_new(argc, argv);
@@ -29,7 +29,8 @@ int main(int argc, char **argv)
 
     // Initialise variable used for parsing
     struct ast *res;
-    int code = 0;
+    int code = 0;        
+
     enum parser_status parse_code = parser_input(lex, &res);
     while (parse_code != PARSER_EOF)
     {
@@ -46,6 +47,6 @@ int main(int argc, char **argv)
     }
 
     lexer_free(lex);
-    // destroy_logger();
+    destroy_logger();
     return code;
 }

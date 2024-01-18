@@ -1,19 +1,21 @@
 - category: ast_execution
   sub-category: classique
   tests:
+    - command: ""
     - command: "echo coucou"
     - command: "ls"
 
 - category: ast_evaluation
-  sub-category: not
+  sub-category: list
   tests:
-    - command: "! true"
-    - command: "! false"
-    - command: "! echo coucou"
+    - command: "echo coucou; echo ahhhh; echo bbbbb"
+    - command: "echo coucou; ! echo ahhh"
 
 - category: ast_evaluation
-  sub-category: and_or
+  sub-category: condition
   tests:
+    - command: "! true"
+    - command: "! echo coucou"
     - command: "echo coucou && echo aaaaa"
     - command: "echo coucou || echo aaaaa"
     - command: "true && echo coucou"
@@ -25,8 +27,12 @@
     - command: "! false && echo coucou"
 
 - category: ast_evaluation
-  sub-category: while_until
+  sub-category: loop
   tests:
     - command: "while false; do echo coucou; done"
     - command: "until true; do echo coucou; done"
     - command: "while ! echo coucou; do echo ahhhh; done"
+    - command: "touch test.txt; while cat test.txt; rm test.txt; done"
+    - command: "touch test.txt; while cat test.txt; do echo coucou; rm test.txt; done"
+    - command: "rm test.txt; until cat test.txt; do touch test.txt; echo coucou; done"
+

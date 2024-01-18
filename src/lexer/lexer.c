@@ -38,7 +38,7 @@ static struct token token_alloc(enum token_type type, enum token_family family,
 
 static int check_io_number(struct lexer *lexer)
 {
-    for (size_t i = 0; i < lexer->current_word->len; i++)
+    for (size_t i = 0; lexer->current_word->data[i] != '\0'; i++)
     {
         if (!isdigit(lexer->current_word->data[i]))
             return 0;
