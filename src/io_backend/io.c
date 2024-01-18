@@ -6,8 +6,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../logger/logger.h"
-
 FILE *stream = NULL;
 
 int io_abstraction(int argc, char *argv[])

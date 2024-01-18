@@ -17,7 +17,8 @@ enum ast_type
     AST_OR,
     AST_NEG,
     AST_PIPE,
-    AST_REDIR
+    AST_REDIR,
+    AST_ASSIGNMENT
 };
 
 struct ast
