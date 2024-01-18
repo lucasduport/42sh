@@ -241,6 +241,7 @@ static int execute_command(struct ast *command, struct environment *env)
         code = builtin_false(command->arg);
     else
         code = execvp_wrapper(command->arg, env);
+    //FIXME: we should only fflush for builtins
     fflush(stdout);
     fflush(stderr);
     return code;

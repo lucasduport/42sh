@@ -3,6 +3,7 @@
 
 #include "../executable/environment/environment.h"
 #include "../utils/list/list.h"
+#include "../utils/variables/variables.h"
 
 int expansion(struct list *list, struct environment *env);
 

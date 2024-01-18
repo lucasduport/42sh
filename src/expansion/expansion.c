@@ -68,6 +68,11 @@ static void remove_at_n(char **str, size_t n)
 static int escape_backlash(struct environment *env, char **str, size_t *index)
 {
     (void)env;
+    if ((*str)[*index + 1] == '\\')
+    {
+        *index += 1;
+        return 0;
+    }
     remove_at_n(str, *index);
     if ((*str)[*index] == '\n')
     {
@@ -95,8 +100,10 @@ static int escape_backlash_double_quote(struct environment *env, char **str,
         || (*str)[*index + 1] == '\n')
     {
         remove_at_n(str, *index);
-        *index = *index - 1;
+        *index -= 1;
     }
+    else
+        *index += 1;
     return 0;
 }
 
@@ -137,6 +144,10 @@ static int expand_cmd_substitution(struct environment *env, char **str,
                                    size_t *index)
 {
     // TODO: implement command substitution step 3
+    (void)env;
+    (void)str;
+    (void)index;
+    return 0;
 }
 
 /**
@@ -168,7 +179,7 @@ static int expand_variable(struct environment *env, char **str, size_t *index)
     }
 
     var_name[strlen(var_name)] = '\0';
-    char *var_value = get_variable(env, var_name);
+    char *var_value = get_value(env->variables, var_name);
     free(var_name);
 
     // Insert the value of the variable in the string
@@ -243,32 +254,37 @@ static int expand_dollar(struct environment *env, char **str, size_t *index)
 static int expand_double_quotes(struct environment *env, char **str,
                                 size_t *index)
 {
-    for (size_t i = *index + 1; (*str)[i] != '\0'; i++)
+    size_t first_quote = *index;
+    *index += 1;
+    for (; (*str)[*index] != '\0';)
     {
-        if ((*str)[i] == '\"')
+        if ((*str)[*index] == '\"')
         {
+            // Remove the second quote
             remove_at_n(str, *index);
-            remove_at_n(str, i - 1);
-            *index = i - 1;
+
+            // Remove the first quote
+            remove_at_n(str, first_quote);
+            *index -= 1;
             return 0;
         }
-        else if ((*str)[i] == '$')
+        else if ((*str)[*index] == '$')
         {
-            if (expand_dollar(env, str, &i) == -1)
+            if (expand_dollar(env, str, index) == -1)
                 return -1;
         }
-        else if ((*str)[i] == '\\')
+        else if ((*str)[*index] == '\\')
         {
-            if (escape_backlash_double_quote(env, str, &i) == -1)
+            if (escape_backlash_double_quote(env, str, index) == -1)
                 return -1;
         }
-        else if ((*str)[i] == '`')
+        else if ((*str)[*index] == '`')
         {
-            if (expand_cmd_substitution(env, str, &i) == -1)
+            if (expand_cmd_substitution(env, str, index) == -1)
                 return -1;
         }
         else
-            i++;
+            *index += 1;
     }
     return -1;
 }
