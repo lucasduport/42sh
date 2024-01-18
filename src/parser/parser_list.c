@@ -74,7 +74,6 @@ enum parser_status parser_compound_list(struct lexer *lex, struct ast **res)
             || peek.type == TOKEN_THEN || peek.type == TOKEN_FI
             || peek.type == TOKEN_DONE || peek.type == TOKEN_DO)
         {
-            debug_printf(LOG_PARS, "[PARSER] Here !\n");
             struct ast *tmp = *res;
             *res = ast_new(AST_LIST);
             (*res)->first_child = tmp;

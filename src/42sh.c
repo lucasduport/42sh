@@ -4,7 +4,7 @@
 
 int main(int argc, char **argv)
 {
-    // create_logger("stdout");
+    //create_logger("stdout");
     enable_log_type(LOG_IO_BACK);
     enable_log_type(LOG_LEX);
     enable_log_type(LOG_PARS);
@@ -16,6 +16,9 @@ int main(int argc, char **argv)
     struct lexer *lex = lexer_new(argc, argv);
     if (lex == NULL)
     {
+        if (argc > 2 && strlen(argv[2]) == 0)
+            return 0;
+            
         debug_printf(LOG_MAIN, "[MAIN] Failed initialize lexer\n");
         return 2;
     }
@@ -29,10 +32,13 @@ int main(int argc, char **argv)
     {
         if (parse_code == PARSER_OK)
         {
-            ast_print(res);
-            debug_printf(LOG_AST, "\n");
-            code = execute_ast(res, NULL);
-            ast_free(res);
+            if (res != NULL)
+            {
+                ast_print(res);
+                debug_printf(LOG_AST, "\n");
+                code = execute_ast(res, NULL);
+                ast_free(res);
+            }
         }
         else
             code = 2;

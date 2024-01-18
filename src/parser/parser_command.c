@@ -21,7 +21,7 @@ enum parser_status parser_command(struct lexer *lex, struct ast **res)
         struct ast *tmp_redir = NULL;
 
         peek = lexer_peek(lex);
-        while (peek.family == TOKEN_FAM_OPERATOR)
+        while (peek.family != TOKEN_FAM_OPERATOR && peek.type != TOKEN_EOF)
         {
             if (parser_redirection(lex, res) == PARSER_UNEXPECTED_TOKEN)
             {

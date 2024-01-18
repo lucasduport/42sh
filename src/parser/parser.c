@@ -19,6 +19,7 @@ enum parser_status parser_input(struct lexer *lex, struct ast **res)
 
     // parse_list works => there must be an EOF or NEWLINE.
     peek_type = (lexer_peek(lex)).type;
+    debug_printf(LOG_PARS, "[PARSER] peek after execution : %d\n", peek_type);
     if (peek_type == TOKEN_EOF || peek_type == TOKEN_NEWLINE)
     {
         token_free(lexer_pop(lex));
