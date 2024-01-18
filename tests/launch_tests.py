@@ -29,7 +29,11 @@ class TestShellScript(unittest.TestCase):
         temp_file_path = ".tmp_tst"
         with open(temp_file_path, 'w') as temp_file:
             temp_file.write(command)
-        
+
+        if input_type == "file_b_n":
+            with open(temp_file_path, 'a') as temp_file:
+                temp_file.write("\n")
+            
         if input_type == "file":
             result = subprocess.run(f"{binary} {temp_file_path}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             return result
@@ -38,6 +42,9 @@ class TestShellScript(unittest.TestCase):
             return result
         elif input_type == "stdin":
             result = subprocess.run(f"{binary} < {temp_file_path}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            return result
+        elif input_type == "file_b_n":
+            result = subprocess.run(f"{binary} {temp_file_path} -n", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             return result
 
         # Delete the temporary file after execution
@@ -90,7 +97,7 @@ class TestShellScript(unittest.TestCase):
             self.results[category][sub_category] = {"success": 0, "fail": 0}
 
         for test_case in tests:
-            for input_type in ["cmd_arg", "file", "stdin"]:
+            for input_type in ["cmd_arg", "file", "stdin", "file_b_n"]:
                 test_function, test_args = self.create_test_from_case(test_case, yaml_data, input_type, verbose=verbose)
                 test_function(*test_args)
 
