@@ -23,6 +23,19 @@ void ast_add_brother(struct ast *ast, struct ast *new_brother)
     p->next = new_brother;
 }
 
+void ast_add_child_to_child(struct ast **ast, struct ast *new_child)
+{
+    if (*ast == NULL)
+        *ast = new_child;
+    else
+    {
+        struct ast *p = *ast;
+        while (p->first_child != NULL)
+            p = p->first_child;
+        p->first_child = new_child;
+    }
+}
+
 void ast_free(struct ast *ast)
 {
     if (ast != NULL)
@@ -79,7 +92,7 @@ void ast_print(struct ast *ast)
                      (ast->type == AST_WHILE) ? "while" : "until");
         if (ast->first_child == NULL)
         {
-            debug_printf(LOG_AST, "AST error - 'while' node - no condition\n");
+            debug_printf(LOG_AST, "AST error - 'while' or 'until' node - no condition\n");
             return;
         }
         ast_print(ast->first_child);
@@ -94,6 +107,42 @@ void ast_print(struct ast *ast)
         child = child->next;
         ast_print(child);
         debug_printf(LOG_AST, " } done");
+    }
+
+    else if (ast->type == AST_AND || ast->type == AST_OR)
+    {
+        if (ast->first_child == NULL || ast->first_child->next == NULL)
+        {
+            debug_printf(LOG_AST, "AST error - 'and' or 'or' node - missing command\n");
+            return;
+        }
+        debug_printf(LOG_AST, "{ ");
+        ast_print(ast->first_child);
+        debug_printf(LOG_AST, " } %s { ", (ast->type == AST_AND) ? "&&" : "||");
+        ast_print(ast->first_child->next);
+        debug_printf(LOG_AST, " }");
+    }
+
+    else if (ast->type == AST_PIPE)
+    {
+        if (ast->first_child == NULL || ast->first_child->next == NULL)
+        {
+            debug_printf(LOG_AST, "AST error - 'and' or 'or' node - missing command\n");
+            return;
+        }
+        debug_printf(LOG_AST, "{ ");
+        ast_print(ast->first_child);
+        debug_printf(LOG_AST, " } | { ");
+        ast_print(ast->first_child->next);
+        debug_printf(LOG_AST, " }");
+    }
+
+    else if (ast->type == AST_REDIR)
+    {
+        debug_printf(LOG_AST, "R[ ");
+        list_print(ast->arg);
+        debug_printf(LOG_AST, " ]");
+        ast_print(ast->first_child);
     }
 
     else if (ast->type == AST_COMMAND)

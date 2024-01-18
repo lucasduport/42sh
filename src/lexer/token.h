@@ -42,9 +42,6 @@ enum token_type
     // ---------------------------------
     TOKEN_EOF,
 
-    TOKEN_AND,
-    TOKEN_OR,
-
     TOKEN_WORD,
 
     TOKEN_NULL,

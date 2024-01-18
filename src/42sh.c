@@ -22,7 +22,8 @@ int main(int argc, char **argv)
 
     // Initialise variable used for parsing
     struct ast *res;
-    int code = 0;
+    int code = 0;        
+
     enum parser_status parse_code = parser_input(lex, &res);
     while (parse_code != PARSER_EOF)
     {
@@ -35,6 +36,7 @@ int main(int argc, char **argv)
         }
         else
             code = 2;
+
         parse_code = parser_input(lex, &res);
     }
 

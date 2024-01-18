@@ -55,9 +55,50 @@ enum parser_status parser_pipeline(struct lexer *lex, struct ast **res)
         peek = lexer_peek(lex);
     }
 
+    debug_printf(LOG_PARS, "[PARSER] Quit parser pipeline\n");
     *res = tmp_final;
     return PARSER_OK;
 }
 
-// TODO Implement prefix
-// TODO Implement redirection
+enum parser_status parser_prefix(struct lexer *lex, struct ast **res)
+{
+    return parser_redirection(lex, res);
+}
+
+enum parser_status parser_redirection(struct lexer *lex, struct ast **res)
+{
+    struct token number = lexer_peek(lex);
+
+    if (number.family == TOKEN_FAM_IO_NUMBER)
+        lexer_pop(lex);
+    
+    // Check redirection token
+    struct token redir = lexer_peek(lex);
+    if (redir.family != TOKEN_FAM_REDIR)
+        goto error;
+
+    lexer_pop(lex);
+    // Check word token
+    struct token word = lexer_peek(lex);
+    if (word.type != TOKEN_WORD)
+    {
+        token_free(redir);
+        goto error;
+    }
+    lexer_pop(lex);
+
+    *res = ast_new(AST_REDIR);
+    (*res)->arg = list_create(redir.data);
+    list_append((*res)->arg, word.data);
+    
+    if (number.family == TOKEN_FAM_IO_NUMBER)
+        list_append((*res)->arg, number.data);
+    return PARSER_OK;
+
+error:
+    // If there is IO_NUMBER, peek and number differ
+    if (number.family == TOKEN_FAM_IO_NUMBER)
+        token_free(number);
+    token_free(lexer_pop(lex));
+    return PARSER_UNEXPECTED_TOKEN;
+}

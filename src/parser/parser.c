@@ -43,10 +43,11 @@ enum parser_status parser_and_or(struct lexer *lex, struct ast **res)
 
     // Check optional { ('&&' || '||') {'\n'} pipeline }
     struct token peek = lexer_peek(lex);
-    while (peek.type == TOKEN_AND || peek.type == TOKEN_OR)
+    while (peek.type == TOKEN_AND_IF || peek.type == TOKEN_OR_IF)
     {
+        debug_printf(LOG_PARS, "[PARSER] Enter in and/or loop\n");
         // Create 'and' or 'or' AST for after
-        struct ast *tmp = ast_new((peek.type == TOKEN_AND) ? AST_AND : AST_OR);
+        struct ast *tmp = ast_new((peek.type == TOKEN_AND_IF) ? AST_AND : AST_OR);
         token_free(lexer_pop(lex));
 
         peek = lexer_peek(lex);
@@ -69,6 +70,7 @@ enum parser_status parser_and_or(struct lexer *lex, struct ast **res)
         tmp_final = tmp;
 
         peek = lexer_peek(lex);
+        debug_printf(LOG_PARS, "[PARSER] End of and/or loop\n");
     }
     *res = tmp_final;
     return PARSER_OK;
@@ -80,6 +82,9 @@ enum parser_status parser_element(struct lexer *lex, struct ast **res)
 
     if (peek.family != TOKEN_FAM_OPERATOR && peek.type != TOKEN_EOF)
     {
+        if (peek.family == TOKEN_FAM_IO_NUMBER || peek.family == TOKEN_FAM_REDIR)
+            return parser_redirection(lex, res);
+        
         peek = lexer_pop(lex);
         list_append((*res)->arg, peek.data);
         debug_printf(LOG_PARS, "[PARSER] Return element = %s\n", peek.data);

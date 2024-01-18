@@ -16,7 +16,8 @@ enum ast_type
     AST_AND,
     AST_OR,
     AST_NEG,
-    AST_PIPE
+    AST_PIPE,
+    AST_REDIR
 };
 
 struct ast
@@ -44,10 +45,18 @@ struct ast *ast_new(enum ast_type type);
  *
  * The new brother is add at the total end of the brother's list.
  *
- * @param parameter1 current ast node
- * @param parameter2 brother that we want to add
+ * @param ast Current ast node
+ * @param new_brother Brother that we want to add
  */
 void ast_add_brother(struct ast *ast, struct ast *new_brother);
+
+/**
+ * @brief Add a child at the last child of an ast
+ *
+ * @param ast Current ast node
+ * @param new_child Child that we want to add
+ */
+void ast_add_child_to_child(struct ast **ast, struct ast *new_child);
 
 /**
  * @brief Recursively free the given ast
