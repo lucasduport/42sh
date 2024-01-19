@@ -22,15 +22,26 @@ int execute_assignment(struct ast *ast, struct environment *env)
         return -1;
     }
 
+    // Execute child before assignement if this is not 2 different command
+    if (ast->first_child != NULL)
+        execute_ast(ast->first_child, env);
+
+    //Expand if necessary
+    if (expansion(ast->arg, env) == -1)
+    {
+        fprintf(stderr, "Expansion failed\n");
+        return 2;
+    }
+
+    // Set variable
     char delim[] = "=";
     char *variable_name = strtok(ast->arg->current, delim);
     char *variable_value = strtok(NULL, delim);
 
     if (set_variable(&env->variables, variable_name, variable_value) == -1)
     {
-        debug_printf(LOG_EXEC, "[EXECUTE] Set variable failed\n");
         fprintf(stderr, "Assignment failed\n");
-        return -1;
+        return 2;
     }
     return 0;
 }

@@ -27,6 +27,7 @@ enum token_type
     TOKEN_AND_IF, // &&
     TOKEN_OR_IF, // ||
     TOKEN_DSEMI, // ;;
+    TOKEN_EOF,
 
     // ---- REDIRECTION OPERATORS ------
     TOKEN_LESS, // <
@@ -40,8 +41,6 @@ enum token_type
     TOKEN_CLOBBER, // >|
 
     // ---------------------------------
-    TOKEN_EOF,
-
     TOKEN_WORD,
 
     TOKEN_NULL,
