@@ -45,7 +45,7 @@ int main(int argc, char **argv)
             {
                 ast_print(res);
                 debug_printf(LOG_AST, "\n");
-                code = execute_ast(res, NULL);
+                code = execute_ast(res, env);
                 ast_free(res);
             }
         }

@@ -174,32 +174,34 @@ static int expand_variable(struct environment *env, char **str, size_t *index)
 {
     // *index is at $ or at {
     char *var_name = NULL;
+    size_t var_len = 0;
     size_t delim_index = *index;
-    size_t i;
-    for (i = *index + 1; (*str)[i] != '\0';)
+    *index += 1;
+    for (;(*str)[*index] != '\0';)
     {
-        if (!is_valid_char((*str)[i]))
+        if (!is_valid_char((*str)[*index]))
             break;
         else
         {
-            var_name = realloc(var_name, i - *index + 2);
-            var_name[i - *index - 1] = (*str)[i];
+            var_name = realloc(var_name, var_len + 2);
+            var_len++;
+            var_name[var_len - 1] = (*str)[*index];
             // Remove the character from the string
             // Acts as a shift, or as an incrementation of i
-            remove_at_n(str, i);
+            remove_at_n(str, *index);
         }
     }
 
-    var_name[i - *index + 1] = '\0';
+    var_name[var_len] = '\0';
     char *var_value = get_value(env->variables, var_name);
     free(var_name);
 
-    // Insert the value of the variable in the string
-    insert_at_n(str, var_value, delim_index);
-    *index = *index + strlen(var_value);
-
     // Remove the first delimiter ($ or {)
     remove_at_n(str, delim_index);
+
+    // Insert the value of the variable in the string
+    insert_at_n(str, var_value, delim_index);
+    *index = delim_index + strlen(var_value);
     return 0;
 }
 
@@ -213,11 +215,10 @@ static int expand_variable(struct environment *env, char **str, size_t *index)
  */
 static int expand_brace(struct environment *env, char **str, size_t *index)
 {
-    // Skip the $,now at {
     size_t dollar = *index;
 
-    *index = *index + 1;
-
+    // Skip the $,now at {
+    *index += 1;
     expand_variable(env, str, index);
 
     if ((*str)[*index] == '}')
@@ -226,6 +227,7 @@ static int expand_brace(struct environment *env, char **str, size_t *index)
         remove_at_n(str, dollar);
         // { char is remove in expand_variable
         // removes } char
+        *index -= 1;
         remove_at_n(str, *index);
         return 0;
     }
