@@ -24,7 +24,13 @@ struct environment *environment_new(void);
  */
 struct environment *dup_environment(struct environment *env);
 
-void environment_destroy(struct environment *env);
+
+/**
+ * @brief Free the environment
+ * 
+ * @param env The environment
+*/
+void environment_free(struct environment *env);
 
 /**
  * @brief Check if name is the name of environment variable
@@ -91,16 +97,18 @@ void set_random(struct environment *env);
  * And set $#
  * 
  * @param env The environment
+ * @param argc
  * @param argv The list of arguments
 */
-void set_number_variable(struct environment *env, char *argv[]);
+void set_number_variable(struct environment *env, int argc, char *argv[]);
 
 /**
  * @brief Set all the special variables in the environment
  * 
  * @param env The environment
+ * @param argc
  * @param argv
 */
-void set_environment(struct environment *env, char *argv[]);
+void set_environment(struct environment *env, int argc, char *argv[]);
 
 #endif /* ! ENVIRONMENT_H */

@@ -18,7 +18,7 @@ struct environment *dup_environment(struct environment *env)
     return new_env;
 }
 
-void environment_destroy(struct environment *env)
+void environment_free(struct environment *env)
 {
     free_variables(env->variables);
     free(env);
@@ -146,16 +146,28 @@ void set_random(struct environment *env)
     set_variable(&env->variables, "RANDOM", str);
 }
 
-void set_number_variable(struct environment *env, char *argv[])
+void set_number_variable(struct environment *env, int argc, char *argv[])
 {
     int i = 0;
+    int loop = 1;
+
     if (strcmp(argv[1], "-c") == 0)
-        i = 4;
+    {
+        if (argc <= 4)
+            loop = 0;
+        else
+            i = 4;
+    }
     else
-        i = 2;
+    {
+        if (argc <= 2)
+            loop = 0;
+        else
+            i = 2;
+    }
 
     int var_number = 1;
-    while (argv[i] != NULL)
+    while (argv[i] != NULL && loop)
     {
         char var_name[2];
         sprintf(var_name, "%d", var_number);
@@ -163,17 +175,24 @@ void set_number_variable(struct environment *env, char *argv[])
         var_number++;
         i++;
     }
+
     var_number--;
     char args_count[16];
     sprintf(args_count, "%d", var_number);
     set_variable(&env->variables, "#", args_count);
 }
 
-void set_environment(struct environment *env, char *argv[])
+void set_environment(struct environment *env, int argc, char *argv[])
 {
-    set_number_variable(env, argv);
+    if (argc)
+        argc = argc;
+    
+    if (argv)
+        argv = argv;
+    
+    //set_number_variable(env, argc, argv);
 
-    set_star_variable(env);
+    //set_star_variable(env);
 
     set_dollar_dollar(env);
 
