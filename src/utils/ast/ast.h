@@ -28,6 +28,7 @@ struct ast
     struct list *arg; ///< List of arguments if there are some
     struct ast *next; ///< Point to the next child of the parent's node
     struct ast *first_child; ///< Point to the first child of the node
+    int is_expand; ///< Whether the node has already been expanded or not
 };
 
 /**

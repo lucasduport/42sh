@@ -74,7 +74,7 @@ int execute_command(struct ast *command, struct environment *env)
     if (command->arg == NULL)
         return 2;
 
-    if (expansion(command->arg, env) == -1)
+    if (!command->is_expand && expansion(command->arg, env) == -1)
     {
         fprintf(stderr, "Expansion failed\n");
         return 2;

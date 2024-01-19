@@ -80,7 +80,7 @@ enum parser_status parser_element(struct lexer *lex, struct ast **res)
 {
     struct token peek = lexer_peek(lex);
 
-    if (peek.family != TOKEN_FAM_OPERATOR && peek.type != TOKEN_EOF)
+    if (peek.family != TOKEN_FAM_OPERATOR)
     {
         if (peek.family == TOKEN_FAM_IO_NUMBER || peek.family == TOKEN_FAM_REDIR)
             return parser_redirection(lex, res);

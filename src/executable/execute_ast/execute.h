@@ -80,6 +80,15 @@ int execute_while(struct ast *first_child, struct environment *env);
  */
 int execute_until(struct ast *first_child, struct environment *env);
 
+/**
+ * @file execute_loop.c
+ * @brief Execute for node
+ *
+ * @param first_child First child of 'until' node -> condition
+ * @return return value from execution of last command, 0 if nothing is execute
+ */
+int execute_for(struct ast *ast, struct environment *env);
+
 struct redirection
 {
     int word_fd;

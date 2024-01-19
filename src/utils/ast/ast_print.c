@@ -96,7 +96,8 @@ static void ast_print_redir(struct ast *ast)
 
 static void ast_print_assignment(struct ast *ast)
 {
-    debug_printf(LOG_AST, "A[ %s ]", ast->arg->current);
+    debug_printf(LOG_AST, "A");
+    list_print(ast->arg);
     if (ast->first_child != NULL)
         debug_printf(LOG_AST, "->");
     ast_print(ast->first_child);

@@ -5,13 +5,10 @@
 
 struct ast *ast_new(enum ast_type type)
 {
-    struct ast *new = malloc(sizeof(struct ast));
+    struct ast *new = calloc(1, sizeof(struct ast));
     if (!new)
         return NULL;
     new->type = type;
-    new->arg = NULL;
-    new->first_child = NULL;
-    new->next = NULL;
     return new;
 }
 
