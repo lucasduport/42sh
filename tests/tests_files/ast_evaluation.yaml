@@ -1,5 +1,5 @@
 - category: ast_execution
-  sub-category: classique
+  sub-category: classic
   tests:
     - command: ""
     - command: "echo coucou"

@@ -7,7 +7,7 @@
         caca
         boudin
         if true; then
-          echo "true"
+          echo true
         else
-          echo "false"
+          echo false
         fi

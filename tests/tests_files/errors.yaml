@@ -20,3 +20,10 @@
     - command: "if true; else echo tests; fi"
     - command: "if trn false; fi"
     - command: "if false; then ti"
+
+- category: errors
+  sub-category: bad expansions
+  tests:
+    - command: echo -E 'This is ting escape characters\\tand \\ backslashes'"
+    - command: echo -n -e -E Mixing options aes\\n'"
+    - command: echo -e 'This is another\nt and \\n escaped newlines

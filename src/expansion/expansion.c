@@ -71,14 +71,23 @@ static int escape_backlash(struct environment *env, char **str, size_t *index)
     if ((*str)[*index + 1] == '\\')
     {
         *index += 1;
-        return 0;
     }
-    remove_at_n(str, *index);
-    if ((*str)[*index] == '\n')
+    else if ((*str)[*index + 1] == '$' || (*str)[*index + 1] == '`'
+             || (*str)[*index + 1] == '\"' || (*str)[*index + 1] == '\'')
     {
         remove_at_n(str, *index);
-        *index = *index - 1;
+        *index += 1;
     }
+    else if ((*str)[*index + 1] == '\n')
+    {
+        // Remove the \ character
+        remove_at_n(str, *index);
+
+        // Remove the \n
+        remove_at_n(str, *index);
+    }
+    else 
+        remove_at_n(str, *index);
     return 0;
 }
 
@@ -119,12 +128,17 @@ static int expand_single_quotes(struct environment *env, char **str,
                                 size_t *index)
 {
     (void)env;
+    size_t first_quote = *index;
     for (size_t i = *index + 1; (*str)[i] != '\0'; i++)
     {
         if ((*str)[i] == '\'')
         {
-            remove_at_n(str, *index);
-            remove_at_n(str, i - 1);
+            // Remove the second quote
+            remove_at_n(str, i);
+
+            // Remove the first quote
+            remove_at_n(str, first_quote);
+
             *index = i - 1;
             return 0;
         }
@@ -317,6 +331,7 @@ int expansion(struct list *arguments, struct environment *env)
                 i++;
             if (ret == -1)
             {
+                arg->current = current;
                 debug_printf(LOG_EXP,
                              "[EXPANSION] expansion: failed to expand %s\n",
                              current);

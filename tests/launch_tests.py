@@ -36,19 +36,16 @@ class TestShellScript(unittest.TestCase):
             
         if input_type == "file":
             result = subprocess.run(f"{binary} {temp_file_path}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-            return result
         elif input_type == "cmd_arg":
             result = subprocess.run(f"{binary} -c \"{command}\"", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-            return result
         elif input_type == "stdin":
             result = subprocess.run(f"{binary} < {temp_file_path}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-            return result
         elif input_type == "file_b_n":
             result = subprocess.run(f"{binary} {temp_file_path} -n", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-            return result
-
+        
         # Delete the temporary file after execution
         os.remove(temp_file_path)
+        return result
 
     def run_test(self, test_case, yaml_data, input_type, verbose=False):
         category = yaml_data.get("category", "")
@@ -66,8 +63,8 @@ class TestShellScript(unittest.TestCase):
             print(colored(f"✘ {category} - {sub_category} - {input_type}: {command}", 'red'))
             self.results[category][sub_category]["fail"] += 1
         else:
-            if verbose:
-                print(colored(f"✔ {category} - {sub_category} - {input_type}: {command}", 'green'))
+            #if verbose:
+                #print(colored(f"✔ {category} - {sub_category} - {input_type}: {command}", 'green'))
             self.results[category][sub_category]["success"] += 1
 
         if verbose:

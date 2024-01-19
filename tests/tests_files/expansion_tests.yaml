@@ -14,3 +14,18 @@
   tests:
     - command: "\\echo"
     - command: "\\ls"
+
+- category: expansion
+  sub-category: double_quote
+  tests:
+    - command: echo \"Hello World\"
+    - command: echo \"Hello World\" \"Hello World\"
+    - command: echo \"e\n\"\"e\n\"aa\"b\"
+    - command: /bin/echo \\ \"e\\n\"\"e\\n\"aa\"b\"
+    - command: /bin/echo \"e\\n\"\"e\\n\"aa\"b\"
+    - command: \"ls\"
+    - command: \"echo\" \"Hell World\"
+    - command: echo \"Hey\n\\t\\\t hola''\"'ketal'\\ "
+    - command: echo \"Hey\n\\t\\\t hol\\a''\\\"'ketal'\\\\""
+    - command: \\\\\\\\\\\\\\\\\
+
