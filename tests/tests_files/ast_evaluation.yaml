@@ -4,10 +4,6 @@
     - command: ""
     - command: "echo coucou"
     - command: "ls"
-
-- category: ast_evaluation
-  sub-category: list
-  tests:
     - command: "echo coucou; echo ahhhh; echo bbbbb"
     - command: "echo coucou; ! echo ahhh"
 
@@ -32,7 +28,10 @@
     - command: "while false; do echo coucou; done"
     - command: "until true; do echo coucou; done"
     - command: "while ! echo coucou; do echo ahhhh; done"
+    - command: "until cat test.txt; do echo coucou > test.txt; done"
     - command: "touch test.txt; while cat test.txt; rm test.txt; done"
     - command: "touch test.txt; while cat test.txt; do echo coucou; rm test.txt; done"
     - command: "rm test.txt; until cat test.txt; do touch test.txt; echo coucou; done"
+    - command: "for i in; do echo coucou; done"
+    - command: "for i in a b c; do echo coucou; done"
 

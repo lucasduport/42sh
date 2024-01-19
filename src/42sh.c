@@ -9,8 +9,7 @@ int main(int argc, char **argv)
     //enable_log_type(LOG_PARS);
     enable_log_type(LOG_AST);
     enable_log_type(LOG_UTILS);
-    enable_log_type(LOG_MAIN);
-    //enable_log_type(LOG_EXEC);
+    enable_log_type(LOG_EXEC);
 
     // Initialise lexer
     struct lexer *lex = lexer_new(argc, argv);
