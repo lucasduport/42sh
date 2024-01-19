@@ -2,6 +2,7 @@
 
 #include <errno.h>
 #include <unistd.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
@@ -49,14 +50,9 @@ static int execvp_wrapper(struct list *arg, struct environment *env)
         }
         argv[i] = NULL;
 
-        int retCode = execvp(argv[0], argv);
-        if (retCode == -1 && errno == ENOENT)
-        {
-            fprintf(stderr, "%s: command not found\n", argv[0]);
-            retCode = 127;
-        }
-        free(argv);
-        return retCode;
+        execvp(argv[0], argv);
+        fprintf(stderr, "%s : command not found\n", argv[0]);
+        _exit(127);
     }
     else
     {

@@ -165,6 +165,8 @@ def get_print_colour(success_percentage):
         return 'red'
 
 def load_test_files(directory):
+    if not os.path.isdir(directory):
+        return [directory]
     test_files = [f for f in os.listdir(directory) if f.endswith('.yaml') or f.endswith('.yml')]
     return [os.path.join(directory, file) for file in test_files]
 

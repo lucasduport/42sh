@@ -11,3 +11,16 @@
         else
           echo false
         fi
+    - command: |
+        echo "This is a simple command"
+        echo "with multiple lines"
+        echo "and no special characters"
+
+    - command: |
+        echo "Command 1" || echo "Command 2 failed"
+
+    - command: |
+        echo "Command 1" && echo "Command 2" || echo "Command 3"
+
+    - command: |
+        echo "Command with conditional execution:" && true || echo "This should not be printed"
