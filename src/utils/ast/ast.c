@@ -61,19 +61,9 @@ void ast_print(struct ast *ast)
     if (ast->type == AST_IF)
     {
         debug_printf(LOG_AST, "if { ");
-        if (ast->first_child == NULL)
-        {
-            debug_printf(LOG_AST, "AST error - 'if' node - no condition\n");
-            return;
-        }
         ast_print(ast->first_child);
 
         struct ast *child = ast->first_child;
-        if (child->next == NULL)
-        {
-            debug_printf(LOG_AST, "AST error - 'if' node - no then\n");
-            return;
-        }
         debug_printf(LOG_AST, " } then { ");
         child = child->next;
         ast_print(child);
@@ -90,19 +80,9 @@ void ast_print(struct ast *ast)
     {
         debug_printf(LOG_AST, "%s { ",
                      (ast->type == AST_WHILE) ? "while" : "until");
-        if (ast->first_child == NULL)
-        {
-            debug_printf(LOG_AST, "AST error - 'while' or 'until' node - no condition\n");
-            return;
-        }
         ast_print(ast->first_child);
 
         struct ast *child = ast->first_child;
-        if (child->next == NULL)
-        {
-            debug_printf(LOG_AST, "AST error - 'while' node - no do\n");
-            return;
-        }
         debug_printf(LOG_AST, " } do { ");
         child = child->next;
         ast_print(child);
@@ -120,11 +100,6 @@ void ast_print(struct ast *ast)
 
     else if (ast->type == AST_AND || ast->type == AST_OR)
     {
-        if (ast->first_child == NULL || ast->first_child->next == NULL)
-        {
-            debug_printf(LOG_AST, "AST error - 'and' or 'or' node - missing command\n");
-            return;
-        }
         debug_printf(LOG_AST, "{ ");
         ast_print(ast->first_child);
         debug_printf(LOG_AST, " } %s { ", (ast->type == AST_AND) ? "&&" : "||");
@@ -134,11 +109,6 @@ void ast_print(struct ast *ast)
 
     else if (ast->type == AST_PIPE)
     {
-        if (ast->first_child == NULL || ast->first_child->next == NULL)
-        {
-            debug_printf(LOG_AST, "AST error - 'and' or 'or' node - missing command\n");
-            return;
-        }
         debug_printf(LOG_AST, "{ ");
         ast_print(ast->first_child);
         debug_printf(LOG_AST, " } | { ");
@@ -148,9 +118,18 @@ void ast_print(struct ast *ast)
 
     else if (ast->type == AST_REDIR)
     {
-        debug_printf(LOG_AST, "R[ ");
+        debug_printf(LOG_AST, "R");
         list_print(ast->arg);
-        debug_printf(LOG_AST, " ]");
+        if (ast->first_child != NULL)
+            debug_printf(LOG_AST, "->");
+        ast_print(ast->first_child);
+    }
+
+    else if (ast->type == AST_ASSIGNMENT)
+    {
+        debug_printf(LOG_AST, "A[ %s ]", ast->arg->current);
+        if (ast->first_child != NULL)
+            debug_printf(LOG_AST, "->");
         ast_print(ast->first_child);
     }
 
@@ -171,6 +150,8 @@ void ast_print(struct ast *ast)
         {
             ast_print(child);
             child = child->next;
+            if (child != NULL)
+                debug_printf(LOG_AST, "; ");
         }
         debug_printf(LOG_AST, " }");
     }

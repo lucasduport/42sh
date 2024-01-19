@@ -122,7 +122,8 @@ enum parser_status parser_pipeline(struct lexer *lex, struct ast **res);
  * @file parser_redir.c
  * @brief Parse prefix grammar :
  *
- * redirection
+ *   ASSIGNMENT_WORD
+ * | redirection
  */
 enum parser_status parser_prefix(struct lexer *lex, struct ast **res);
 

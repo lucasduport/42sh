@@ -4,10 +4,6 @@ enum parser_status parser_command(struct lexer *lex, struct ast **res)
 {
     struct token peek = lexer_peek(lex);
 
-    // TOKEN_WORD -> first of simple_command
-    if (peek.type == TOKEN_WORD)
-        return parser_simple_command(lex, res);
-
     // Firsts of shell_command
     if (peek.type == TOKEN_IF || peek.type == TOKEN_WHILE
         || peek.type == TOKEN_UNTIL || peek.type == TOKEN_FOR)
@@ -40,9 +36,8 @@ enum parser_status parser_command(struct lexer *lex, struct ast **res)
         }
         return PARSER_OK;
     }
-
-    token_free(lexer_pop(lex));
-    return PARSER_UNEXPECTED_TOKEN;
+    else
+        return parser_simple_command(lex, res);
 }
 
 enum parser_status parser_simple_command(struct lexer *lex, struct ast **res)
@@ -52,7 +47,7 @@ enum parser_status parser_simple_command(struct lexer *lex, struct ast **res)
     struct ast *tmp_redir = NULL;
 
     // Parse prefix
-    while (peek.family == TOKEN_FAM_IO_NUMBER || peek.family == TOKEN_FAM_REDIR)
+    while (peek.family == TOKEN_FAM_IO_NUMBER || peek.family == TOKEN_FAM_REDIR || peek.family == TOKEN_FAM_ASSIGNMENT_W)
     {
         debug_printf(LOG_PARS, "[PARSER] In prefix loop\n");
         if (parser_prefix(lex, res) == PARSER_UNEXPECTED_TOKEN)
@@ -88,7 +83,6 @@ enum parser_status parser_simple_command(struct lexer *lex, struct ast **res)
         debug_printf(LOG_PARS, "[PARSER] In element loop, peek data = %s\n", peek.data);
         if (peek.family == TOKEN_FAM_IO_NUMBER || peek.family == TOKEN_FAM_REDIR)
         {
-            debug_printf(LOG_PARS, "[PARSER] In element loop, IO_number\n");
             if (parser_element(lex, res) == PARSER_UNEXPECTED_TOKEN)
             {
                 ast_free(tmp_command);
