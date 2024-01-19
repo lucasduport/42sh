@@ -22,9 +22,8 @@ int execute_assignment(struct ast *ast, struct environment *env)
         return -1;
     }
 
-    char delim[] = "=";
-    char *variable_name = strtok(ast->arg->current, delim);
-    char *variable_value = strtok(NULL, delim);
+    char *variable_name = strtok(ast->arg->current, "=");
+    char *variable_value = strtok(NULL, "=");
 
     if (set_variable(&env->variables, variable_name, variable_value) == -1)
     {

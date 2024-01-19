@@ -4,7 +4,7 @@
 
 int main(int argc, char **argv)
 {
-    // create_logger("stdout");
+    //create_logger("stdout");
     enable_log_type(LOG_IO_BACK);
     enable_log_type(LOG_LEX);
     enable_log_type(LOG_PARS);
@@ -47,6 +47,7 @@ int main(int argc, char **argv)
     }
 
     lexer_free(lex);
+    environment_destroy(env);
     destroy_logger();
     return code;
 }

@@ -97,5 +97,7 @@ int execute_command(struct ast *command, struct environment *env)
         code = execvp_wrapper(command->arg, env);
     fflush(stdout);
     fflush(stderr);
+
+    //set_exit_variale(env, code);
     return code;
 }
