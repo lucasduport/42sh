@@ -333,7 +333,9 @@ static struct token parse_input_for_tok(struct lexer *lexer)
     // rule 3
     else if (lexer->last_is_op && !is_valid_operator(lexer))
     {
-        lexer->last_is_op = 0;
+        if (lexer->current_char != '\n')
+            lexer->last_is_op = 0;
+        
         struct token tok = token_new(lexer);
 
         if (lexer->current_char != ' ' && lexer->current_char != '\t')

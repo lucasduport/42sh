@@ -62,19 +62,15 @@ enum parser_status parser_compound_list(struct lexer *lex, struct ast **res)
         token_free(lexer_pop(lex));
         peek = lexer_peek(lex);
 
-        // Skip '\n'
-        while (peek.type == TOKEN_NEWLINE)
-        {
-            token_free(lexer_pop(lex));
-            peek = lexer_peek(lex);
-        }
+        // Skip optional newline
+        skip_newline(lex);
 
+        peek = lexer_peek(lex);
         debug_printf(LOG_PARS, "[PARSER] peek = %s\n", peek.data);
         if (peek.type == TOKEN_ELSE || peek.type == TOKEN_ELIF
             || peek.type == TOKEN_THEN || peek.type == TOKEN_FI
             || peek.type == TOKEN_DONE || peek.type == TOKEN_DO)
         {
-            debug_printf(LOG_PARS, "[PARSER] Here !\n");
             struct ast *tmp = *res;
             *res = ast_new(AST_LIST);
             (*res)->first_child = tmp;

@@ -12,10 +12,10 @@
  *  0    if successfull
  *  127  if there is wrong command
  * -1    if there is an error on our part
- *  1    otherwhise
+ *  1    otherwise
  */
 
-typedef int (*exec_ast_node)(struct ast *, struct environment *);
+typedef int (*exec_ast_node)(struct ast *ast, struct environment *env);
 
 /**
  * @file execute_commande.c

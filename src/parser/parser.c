@@ -93,3 +93,13 @@ enum parser_status parser_element(struct lexer *lex, struct ast **res)
 
     return PARSER_UNEXPECTED_TOKEN;
 }
+
+void skip_newline(struct lexer *lex)
+{
+    struct token peek = lexer_peek(lex);
+    while (peek.type == TOKEN_NEWLINE)
+    {
+        token_free(lexer_pop(lex));
+        peek = lexer_peek(lex);
+    }
+}
