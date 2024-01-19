@@ -69,6 +69,8 @@ static void print_str_escape(char *str)
         }
         else
         {
+            if (str[i] == '\\' && str[i + 1] == '\\')
+                i++;
             putchar(str[i]);
             i++;
         }
