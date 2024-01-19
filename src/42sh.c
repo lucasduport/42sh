@@ -9,6 +9,7 @@ int main(int argc, char **argv)
     //enable_log_type(LOG_PARS);
     enable_log_type(LOG_AST);
     enable_log_type(LOG_UTILS);
+    enable_log_type(LOG_MAIN);
     //enable_log_type(LOG_EXEC);
 
     // Initialise lexer
@@ -33,7 +34,7 @@ int main(int argc, char **argv)
         {
             if (res != NULL)
             {
-                //ast_print(res);
+                ast_print(res);
                 debug_printf(LOG_AST, "\n");
                 code = execute_ast(res, NULL);
                 ast_free(res);
