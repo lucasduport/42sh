@@ -2,6 +2,7 @@ lib_LIBRARIES = libutils.a
 
 libutils_a_SOURCES =  \
     ast/ast.c \
+    ast/ast_print.c \
     ast/ast.h \
     list/list.c \
     list/list.h \

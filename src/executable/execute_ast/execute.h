@@ -13,10 +13,10 @@
  *  127  if there is wrong command
  *  2    expansion error
  * -1    if there is an error on our part
- *  1    otherwhise
+ *  1    otherwise
  */
 
-typedef int (*exec_ast_node)(struct ast *, struct environment *);
+typedef int (*exec_ast_node)(struct ast *ast, struct environment *env);
 
 /**
  * @file execute_commande.c
@@ -80,6 +80,15 @@ int execute_while(struct ast *first_child, struct environment *env);
  * @return return value from execution of last command, 0 if nothing is execute
  */
 int execute_until(struct ast *first_child, struct environment *env);
+
+/**
+ * @file execute_loop.c
+ * @brief Execute for node
+ *
+ * @param first_child First child of 'until' node -> condition
+ * @return return value from execution of last command, 0 if nothing is execute
+ */
+int execute_for(struct ast *ast, struct environment *env);
 
 struct redirection
 {

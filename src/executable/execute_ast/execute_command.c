@@ -1,6 +1,7 @@
 #include "execute.h"
 
 #include <errno.h>
+#include <err.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -28,6 +29,9 @@ static int execvp_wrapper(struct list *arg, struct environment *env)
     }
 
     int pid = fork();
+    if (pid == -1)
+        return 2;
+        
     if (pid == 0)
     {
         // Child process
@@ -51,18 +55,15 @@ static int execvp_wrapper(struct list *arg, struct environment *env)
         argv[i] = NULL;
 
         execvp(argv[0], argv);
-        fprintf(stderr, "%s : command not found\n", argv[0]);
+        fprintf(stderr, "%s: command not found\n", argv[0]);
         _exit(127);
     }
-    else
-    {
-        // Parent process
-        int parent_pid;
-        // Wait for child process to finish
-        waitpid(pid, &parent_pid, 0);
-        // Return child process return value
-        return WEXITSTATUS(parent_pid);
-    }
+    
+    int return_status;
+    // Wait for child process to finish
+    waitpid(pid, &return_status, 0);
+    // Return child process return value
+    return WEXITSTATUS(return_status);
 }
 
 int execute_command(struct ast *command, struct environment *env)
@@ -70,9 +71,8 @@ int execute_command(struct ast *command, struct environment *env)
     if (command->arg == NULL)
         return 2;
 
-    if (expansion(command->arg, env) == -1)
+    if (!command->is_expand && expansion(command->arg, env) == -1)
     {
-        debug_printf(LOG_EXEC, "[EXECUTE] Expansion failed\n");
         fprintf(stderr, "Expansion failed\n");
         return 2;
     }
@@ -91,7 +91,7 @@ int execute_command(struct ast *command, struct environment *env)
         code = builtin_false(command->arg);
     else
         code = execvp_wrapper(command->arg, env);
-    fflush(stdout);
     fflush(stderr);
+    fflush(stdout);
     return code;
 }
