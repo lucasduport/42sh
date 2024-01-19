@@ -89,6 +89,19 @@ void free_variables(struct variable *head)
         struct variable *temp = head;
         head = head->next;
         free(temp->name);
+        free(temp->value);
         free(temp);
+    }
+}
+
+void print_variables(struct variable *head)
+{
+    struct variable *p = head;
+    while (p != NULL)
+    {
+        debug_printf(LOG_UTILS, "[VAR NAME] %s\n", p->name);
+        debug_printf(LOG_UTILS, "[VAR VALUE] %s\n", p->value);
+        debug_printf(LOG_UTILS, "next\n");
+        p = p->next;
     }
 }
