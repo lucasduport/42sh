@@ -77,8 +77,8 @@ static struct token token_new(struct lexer *lexer)
     char *reserved_words[] = { "if",   "then",  "elif",  "else", "fi", "do",
                                "done", "while", "until", "for",  "in", "!",
                                ";",    "\n",    "|",     "&&",   "||", ";;",
-                               "<",    ">",     "<<",    ">>",   "<&", "&>",
-                               "<>",   "<<-",   ">|",    "\0" };
+                               "\0", "<",    ">",     "<<",    ">>",   "<&",
+                               "&>", "<>",   "<<-",   ">|"};
 
     int family = 0;
     for (size_t i = 0; i < sizeof(reserved_words) / sizeof(char *); i++)
@@ -86,7 +86,7 @@ static struct token token_new(struct lexer *lexer)
         // debug_printf(LOG_LEX,"test '%s' == '%s'\n", reserved_words[i],
         //              lexer->current_word->data);
 
-        if (i == 12 || i == 18)
+        if (i == 12 || i == 19)
             family++;
 
         if (!strcmp(reserved_words[i], lexer->current_word->data))

@@ -68,17 +68,7 @@ static void remove_at_n(char **str, size_t n)
 static int escape_backlash(struct environment *env, char **str, size_t *index)
 {
     (void)env;
-    if ((*str)[*index + 1] == '\\')
-    {
-        *index += 1;
-    }
-    else if ((*str)[*index + 1] == '$' || (*str)[*index + 1] == '`'
-             || (*str)[*index + 1] == '\"' || (*str)[*index + 1] == '\'')
-    {
-        remove_at_n(str, *index);
-        *index += 1;
-    }
-    else if ((*str)[*index + 1] == '\n')
+    if ((*str)[*index + 1] == '\n')
     {
         // Remove the \ character
         remove_at_n(str, *index);
@@ -86,8 +76,14 @@ static int escape_backlash(struct environment *env, char **str, size_t *index)
         // Remove the \n
         remove_at_n(str, *index);
     }
-    else 
+    else
+    {
+        // Remove the \ character
         remove_at_n(str, *index);
+        // Skips the next character to escape it (if not \0)
+        if ((*str)[*index] != '\0')
+            *index += 1;
+    }
     return 0;
 }
 
@@ -108,8 +104,10 @@ static int escape_backlash_double_quote(struct environment *env, char **str,
         || (*str)[*index + 1] == '\"' || (*str)[*index + 1] == '\\'
         || (*str)[*index + 1] == '\n')
     {
+        // Remove the \ character
         remove_at_n(str, *index);
-        *index -= 1;
+        // Skip the next character to escape it
+        *index += 1;
     }
     else
         *index += 1;

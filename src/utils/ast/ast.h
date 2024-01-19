@@ -11,6 +11,7 @@ enum ast_type
     AST_IF,
     AST_WHILE,
     AST_UNTIL,
+    AST_FOR,
     AST_COMMAND,
     AST_LIST,
     AST_AND,
@@ -27,6 +28,7 @@ struct ast
     struct list *arg; ///< List of arguments if there are some
     struct ast *next; ///< Point to the next child of the parent's node
     struct ast *first_child; ///< Point to the first child of the node
+    int is_expand; ///< Whether the node has already been expanded or not
 };
 
 /**
@@ -66,7 +68,10 @@ void ast_add_child_to_child(struct ast **ast, struct ast *new_child);
  */
 void ast_free(struct ast *ast);
 
+typedef void (*print_ast_node)(struct ast *ast);
+
 /**
+ * @file ast_print.c
  * @brief Print ast format pretty-print
  *
  * @param parameter1 ast that we want to print

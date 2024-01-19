@@ -19,7 +19,6 @@ enum parser_status parser_input(struct lexer *lex, struct ast **res)
 
     // parse_list works => there must be an EOF or NEWLINE.
     peek_type = (lexer_peek(lex)).type;
-    debug_printf(LOG_PARS, "[PARSER] peek after execution : %d\n", peek_type);
     if (peek_type == TOKEN_EOF || peek_type == TOKEN_NEWLINE)
     {
         token_free(lexer_pop(lex));
@@ -81,7 +80,7 @@ enum parser_status parser_element(struct lexer *lex, struct ast **res)
 {
     struct token peek = lexer_peek(lex);
 
-    if (peek.family != TOKEN_FAM_OPERATOR && peek.type != TOKEN_EOF)
+    if (peek.family != TOKEN_FAM_OPERATOR)
     {
         if (peek.family == TOKEN_FAM_IO_NUMBER || peek.family == TOKEN_FAM_REDIR)
             return parser_redirection(lex, res);
@@ -93,4 +92,14 @@ enum parser_status parser_element(struct lexer *lex, struct ast **res)
     }
 
     return PARSER_UNEXPECTED_TOKEN;
+}
+
+void skip_newline(struct lexer *lex)
+{
+    struct token peek = lexer_peek(lex);
+    while (peek.type == TOKEN_NEWLINE)
+    {
+        token_free(lexer_pop(lex));
+        peek = lexer_peek(lex);
+    }
 }

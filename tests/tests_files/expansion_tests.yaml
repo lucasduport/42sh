@@ -28,4 +28,9 @@
     - command: echo \"Hey\n\\t\\\t hola''\"'ketal'\\ "
     - command: echo \"Hey\n\\t\\\t hol\\a''\\\"'ketal'\\\\""
     - command: \\\\\\\\\\\\\\\\\
+    - command: \\\\\\\\
+    - command: \\\\\\\\n
+    - command: \\\'\\\\'\n
+    - command: echo "aa\
+    - command: echo "aa\b\cc"
 
