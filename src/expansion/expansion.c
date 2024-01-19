@@ -175,10 +175,10 @@ static int expand_cmd_substitution(struct environment *env, char **str,
 static int expand_variable(struct environment *env, char **str, size_t *index)
 {
     // *index is at $ or at {
-    (void)env;
     char *var_name = NULL;
     size_t delim_index = *index;
-    for (size_t i = *index + 1; (*str)[i] != '\0';)
+    size_t i;
+    for (i = *index + 1; (*str)[i] != '\0';)
     {
         if (!is_valid_char((*str)[i]))
             break;
@@ -192,7 +192,7 @@ static int expand_variable(struct environment *env, char **str, size_t *index)
         }
     }
 
-    var_name[strlen(var_name)] = '\0';
+    var_name[i - *index + 1] = '\0';
     char *var_value = get_value(env->variables, var_name);
     free(var_name);
 

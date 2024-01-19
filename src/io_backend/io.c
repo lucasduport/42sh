@@ -10,14 +10,18 @@ FILE *stream = NULL;
 
 int io_abstraction(int argc, char *argv[])
 {
-    // TODO: handle arg error
-
     // Stdin case.
     if (argc == 1)
         stream = stdin;
     // String case.
     else if (!strcmp(argv[1], "-c"))
-    { 
+    {
+        if (argc == 2)
+        {
+            fprintf(stderr, "%s: option requires an argument\n", argv[1]);
+            return IO_FAILED;          
+        }
+
         stream = fmemopen(argv[2], strlen(argv[2]), "r");
         if (stream == NULL)
             goto error;
