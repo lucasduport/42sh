@@ -67,7 +67,10 @@ void ast_add_child_to_child(struct ast **ast, struct ast *new_child);
  */
 void ast_free(struct ast *ast);
 
+typedef void (*print_ast_node)(struct ast *ast);
+
 /**
+ * @file ast_print.c
  * @brief Print ast format pretty-print
  *
  * @param parameter1 ast that we want to print

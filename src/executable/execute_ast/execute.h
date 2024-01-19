@@ -15,7 +15,7 @@
  *  1    otherwise
  */
 
-typedef int (*exec_ast_node)(struct ast *, struct environment *);
+typedef int (*exec_ast_node)(struct ast *ast, struct environment *env);
 
 /**
  * @file execute_commande.c
