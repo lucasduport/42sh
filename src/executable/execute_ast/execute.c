@@ -31,9 +31,10 @@ int execute_assignment(struct ast *ast, struct environment *env)
     // Expand child before assignment
     if (ast->first_child != NULL)
     {
-        struct list *expand_child_arg = expansion(ast->first_child->arg, env);
+        int return_code = 0;
+        struct list *expand_child_arg = expansion(ast->first_child->arg, env, &return_code);
         if (expand_child_arg == NULL)
-            return 2;
+            return return_code;
 
         list_destroy(ast->first_child->arg);
         ast->first_child->arg = expand_child_arg;

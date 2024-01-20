@@ -49,18 +49,21 @@ int execute_for(struct ast *ast, struct environment *env)
     }
 
     int ret_code = 0;
+    struct list *for_cond_exp = expansion(ast->arg->next, env, &ret_code);
+    if (for_cond_exp == NULL)
+        return ret_code;
 
-    for (struct list *temp = ast->arg->next; temp != NULL; temp = temp->next)
+    for (struct list *temp = for_cond_exp; temp != NULL; temp = temp->next)
     {
         if (set_variable(&(env->variables), for_var, temp->current) == -1)
         {
             debug_printf(LOG_EXEC, "[EXECUTE] Variables assignment failed\n");
+            list_destroy(for_cond_exp);
             return 2;
         }
 
         ret_code = execute_ast(ast->first_child, env);
     }
-
+    list_destroy(for_cond_exp);
     return ret_code;
-
 }
