@@ -19,6 +19,7 @@
   sub-category: hard
   tests:
     - command: "echo > test.txt coucou; cat test.txt"
+    - command: "echo > test.txt coucou > a.txt ahhhh; cat test.txt; cat a.txt"
     - command: "rm test.txt; echo > test.txt >> test.txt coucou; cat test.txt"
     - command: "fbhfre > test.txt > coco.txt coucou; cat test.txt; cat coco.txt"
     - command: "fbhfre > test.txt 2> coco.txt coucou; cat test.txt"

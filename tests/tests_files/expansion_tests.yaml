@@ -39,4 +39,5 @@
   tests:
     - command: "B=4 echo $B"
     - command: "B=4; echo $B"
+    - command: "for fruit in pomme poire pêche; do echo $fruit; done"
 
