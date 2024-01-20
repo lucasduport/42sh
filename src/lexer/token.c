@@ -4,6 +4,7 @@
 
 void print_token(struct token token)
 {
+    debug_printf(LOG_LEX, "[LEXER] token_type %d\n", token.type);
     char *token_fam[] = { "RESERVED",  "OPERATOR",     "REDIR",
                           "IO_NUMBER", "ASSIGNMENT_W", "WORD" };
 
@@ -11,10 +12,9 @@ void print_token(struct token token)
                            "FI",         "DO",        "DONE",    "WHILE",
                            "UNTIL",      "FOR",       "IN",      "NEG",
                            "SEMICOLONS", "NEWLINE",   "PIPE",    "AND_IF",
-                           "OR_IF",      "DSEMI",     "LESS",    "GREAT",
+                           "OR_IF",      "DSEMI",  "EOF", "LESS",    "GREAT",
                            "DLESS",      "DGREAT",    "LESSAND", "GREATAND",
-                           "LESSGREAT",  "DLESSDASH", "CLOBBER", "EOF",
-                           "AND",        "OR",        "WORD",    "NULL" };
+                           "LESSGREAT",  "DLESSDASH", "CLOBBER", "WORD", "NULL" };
 
     debug_printf(LOG_LEX,
                  "[TOKEN] Family: TOKEN_FAM_%s | Type: TOKEN_%s | Data: %s\n",

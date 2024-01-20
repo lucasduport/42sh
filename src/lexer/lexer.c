@@ -199,63 +199,6 @@ static int is_subshell(struct lexer *lexer)
     return 0;
 }
 
-/*
-static int test_end_expansion(struct lexer *lexer)
-{
-    if (lexer->current_expansion == '{')
-        return lexer->current_char == '}';
-
-    else if (lexer->current_expansion == '(')
-        return lexer->current_char == ')';
-
-    else
-        return lexer->current_char == '`';
-}
-
-static void feed_until_end(struct lexer *lexer)
-{
-    do
-    {
-        lexer->current_char = io_getchar();
-
-        if (lexer->current_char == lexer->current_expansion)
-            lexer->count_expansion++;
-
-        if (test_end_expansion(lexer))
-            lexer->count_expansion--;
-
-        string_append_char(lexer->current_word, lexer->current_char);
-
-    } while (!test_end_expansion(lexer) && lexer->count_expansion != 0);
-}
-
-
-static void feed_expansion(struct lexer *lexer)
-{
-    if (lexer->current_char == '`')
-    {
-        lexer->current_expansion = lexer->current_char;
-        lexer->count_expansion++;
-        feed_until_end(lexer);
-    }
-
-    else if (lexer->current_char == '$')
-    {
-        string_append_char(lexer->current_word, lexer->current_char);
-
-        lexer->current_char = io_getchar();
-
-        if (lexer->current_char == '{' || lexer->current_char == '(')
-        {
-            string_append_char(lexer->current_word, lexer->current_char);
-            lexer->current_expansion = lexer->current_char;
-            lexer->count_expansion++;
-            feed_until_end(lexer);
-        }
-        // "bonjour $name ! comment vas tu ?"
-    }
-}*/
-
 /**
  * @brief Update the quote state
  *
@@ -264,31 +207,20 @@ static void feed_expansion(struct lexer *lexer)
  *
  * @param lexer
  */
-static void update_quote(struct lexer *lexer)
+static void set_quote(struct lexer *lexer)
 {
-    debug_printf(LOG_LEX, "update_quote\n");
     if (lexer->current_char == '\\')
     {
         string_append_char(lexer->current_word, lexer->current_char);
         lexer->current_char = io_getchar();
-        debug_printf(LOG_LEX, "current_char: %c\n", lexer->current_char);
+        debug_printf(LOG_LEX, "[LEXER] current_char: %c\n", lexer->current_char);
         string_append_char(lexer->current_word, lexer->current_char);
     }
     else
     {
-        if (lexer->is_quoted == 0)
-        {
-            debug_printf(LOG_LEX, "enter quote mode\n");
-            lexer->is_quoted = !lexer->is_quoted;
-            lexer->current_quote = lexer->current_char;
-        }
-
-        else if (lexer->current_char == lexer->current_quote)
-        {
-            debug_printf(LOG_LEX, "quit quote mode\n");
-            lexer->is_quoted = !lexer->is_quoted;
-        }
-
+        debug_printf(LOG_LEX, "[LEXER] set quote mode\n");
+        lexer->is_quoted = 1;
+        lexer->current_quote = lexer->current_char;
         string_append_char(lexer->current_word, lexer->current_char);
     }
 }
@@ -304,6 +236,60 @@ static void skip_comment(struct lexer *lexer)
 {
     while (lexer->current_char != '\n')
         lexer->current_char = io_getchar();
+}
+
+/**
+ * @brief Check if the lexer need to change one mode.
+ * 
+*/
+static void check_special_behavior(struct lexer *lexer)
+{
+    if (lexer->is_quoted && lexer->current_char == lexer->current_quote)
+    {
+        debug_printf(LOG_LEX, "[LEXER] quit quote mode\n");
+        lexer->is_quoted = 0;
+    }
+
+    if (lexer->is_subshell && !lexer->is_quoted && lexer->current_char == ')')
+    {
+        debug_printf(LOG_LEX, "[LEXER] quit subshell mode\n");
+        lexer->is_subshell = 0;
+    }
+}
+
+static void get_variable(struct lexer *lexer)
+{
+    do 
+    {
+        string_append_char(lexer->current_word, lexer->current_char);
+        lexer->current_char = io_getchar();
+    } while (lexer->current_char != '}' && lexer->current_char != '\0');
+}
+
+static int find_mode(struct lexer *lexer)
+{
+    lexer->current_char = io_getchar();
+
+    if (lexer->current_char == '{')
+        get_variable(lexer);
+    else if (lexer->current_char == '(')
+        lexer->is_subshell = 1;
+    else if (isblank(lexer->current_char))
+        return 1;
+    else if (first_char_op(lexer))
+        return 1;
+
+    if (lexer->current_char == '\0')
+    {
+        lexer->last_token = (struct token){ .type = TOKEN_EOF,
+                              .family = TOKEN_FAM_OPERATOR,
+                              .data = NULL };
+
+        return 1;
+    }
+
+    string_append_char(lexer->current_word, lexer->current_char);
+    return 0;
 }
 
 /**
@@ -345,19 +331,21 @@ static struct token parse_input_for_tok(struct lexer *lexer)
     }
 
     // rule 4
-    else if (is_quote(lexer))
-        update_quote(lexer);
+    else if (!lexer->is_quoted && is_quote(lexer))
+        set_quote(lexer);
 
     // rule 5
-    else if (!lexer->is_quoted && is_subshell(lexer))
+    else if (!lexer->is_quoted && !lexer->is_subshell && is_subshell(lexer))
     {
-        // debug_printf(LOG_LEX, "EXPANSION!\n");
-        // feed_expansion(lexer);
+        // Append '$' or '`'
         string_append_char(lexer->current_word, lexer->current_char);
+        
+        if (find_mode(lexer))
+            return token_new(lexer);
     }
 
     // rule 6
-    else if (!lexer->is_quoted && first_char_op(lexer))
+    else if (!lexer->is_quoted && !lexer->is_subshell && first_char_op(lexer))
     {
         lexer->last_is_op = 1;
 
@@ -376,7 +364,7 @@ static struct token parse_input_for_tok(struct lexer *lexer)
     }
 
     // rule 7
-    else if (!lexer->is_quoted && isblank(lexer->current_char))
+    else if (!lexer->is_quoted && !lexer->is_subshell && isblank(lexer->current_char))
     {
         if (lexer->current_word->len != 0)
             return token_new(lexer);
@@ -384,7 +372,10 @@ static struct token parse_input_for_tok(struct lexer *lexer)
 
     // rule 8
     else if (lexer->current_word->len != 0)
+    {
         string_append_char(lexer->current_word, lexer->current_char);
+        check_special_behavior(lexer);
+    }
 
     // rule 9
     else if (lexer->current_char == '#')
