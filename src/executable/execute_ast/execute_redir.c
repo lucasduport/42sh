@@ -120,7 +120,7 @@ static struct redirection open_file(char *operator, char *filename)
     if (flags == -1)
         debug_printf(LOG_EXEC, "operator '%s' not found\n", operator);
   
-    redir.word_fd = open(filename, flags);
+    redir.word_fd = open(filename, flags, 0644);
     return redir;
 }
 
@@ -135,7 +135,11 @@ int execute_redir(struct ast *ast, struct environment *env)
     struct redirection redir = open_file(operator, filename);
 
     if (ast->arg->next->next != NULL)
-        redir.io_number = atoi(ast->arg->next->next->current);
+    {
+        int fd = atoi(ast->arg->next->next->current);
+        if (fcntl(fd, F_GETFD) != -1)
+            redir.io_number = fd;
+    }
 
     int save_fd = dup(redir.io_number);
     if (save_fd == -1)
