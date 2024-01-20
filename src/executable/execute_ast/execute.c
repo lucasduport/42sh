@@ -31,9 +31,10 @@ int execute_assignment(struct ast *ast, struct environment *env)
     // Expand child before assignment
     if (ast->first_child != NULL)
     {
-        struct list *expand_child_arg = expansion(ast->first_child->arg, env);
+        int return_code = 0;
+        struct list *expand_child_arg = expansion(ast->first_child->arg, env, &return_code);
         if (expand_child_arg == NULL)
-            return 2;
+            return return_code;
 
         list_destroy(ast->first_child->arg);
         ast->first_child->arg = expand_child_arg;
@@ -46,6 +47,7 @@ int execute_assignment(struct ast *ast, struct environment *env)
         // Set variable
         char *variable_name = strtok(p->current, delim);
         char *variable_value = strtok(NULL, delim);
+        // FIXME: Expand right side of assignment
         if (variable_name == NULL || variable_value == NULL
             || set_variable(&env->variables, variable_name, variable_value)
                 == -1)
