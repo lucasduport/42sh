@@ -12,7 +12,7 @@
     - command: "if false; then echo tests; else not_found; fi"
 
 - category: errors
-  sub-category: syntax_errors
+  sub-category: parsing_errors
   tests:
     - command: "if false; thrue; fi"
     - command: "if echo; thelse f; fi"
@@ -20,6 +20,22 @@
     - command: "if true; else echo tests; fi"
     - command: "if trn false; fi"
     - command: "if false; then ti"
+    - command: "echo coucou && "
+    - command: "&& echo coucou"
+    - command: "echo coucou |"
+    - command: "| echo coucou"
+    - command: "echo coucou >"
+    - command: "while echo coucou do echo ahhh; done"
+    - command: "while echo coucou; do echo ahhh done"
+    - command: "while echo coucou; do echo ahhh;"
+    - command: "while echo coucou; echo ahhh; done"
+    - command: "until echo coucou do echo ahhh; done"
+    - command: "until echo coucou; do echo ahhh done"
+    - command: "for i lol; do echo coucou; done"
+    - command: "for i in lol; do echo coucou; dove"
+    - command: "for i in lol; do echo coucou"
+    - command: "for i in lol; echo coucou"
+    - command: "for i in lol do"
 
 - category: errors
   sub-category: bad expansions

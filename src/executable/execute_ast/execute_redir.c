@@ -124,6 +124,26 @@ static struct redirection open_file(char *operator, char *filename)
     return redir;
 }
 
+/**
+ * @brief Check if the io_number is a valid fd.
+ * 
+ * @param fd File descriptor to test.
+ * @return 0 if valid, 1 otherwise.
+*/
+static int is_valid_fd(int fd)
+{
+    if (fd == 1 || fd == 2)
+        return 1;    
+
+    FILE *check = fdopen(fd, "rw");
+    
+    if (check == NULL)
+        return 0;
+
+    fclose(check);
+    return 1;
+}
+
 int execute_redir(struct ast *ast, struct environment *env)
 {       
     if (ast->arg == NULL)
@@ -135,7 +155,11 @@ int execute_redir(struct ast *ast, struct environment *env)
     struct redirection redir = open_file(operator, filename);
 
     if (ast->arg->next->next != NULL)
-        redir.io_number = atoi(ast->arg->next->next->current);
+    {
+        int fd = atoi(ast->arg->next->next->current);
+        if (is_valid_fd(fd))
+            redir.io_number = fd;
+    }
 
     int save_fd = dup(redir.io_number);
     if (save_fd == -1)
