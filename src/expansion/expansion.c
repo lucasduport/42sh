@@ -193,7 +193,13 @@ static int expand_variable(struct environment *env, char **str, size_t *index)
     }
 
     var_name[var_len] = '\0';
-    char *var_value = get_value(env->variables, var_name);
+    char *var_value;
+    
+    if (check_env_variable(var_name))
+        var_value = getenv(var_name);
+    else
+        var_value = get_value(env->variables, var_name);
+        
     free(var_name);
 
     // Remove the first delimiter ($ or {)

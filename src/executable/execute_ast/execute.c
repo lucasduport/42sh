@@ -46,12 +46,21 @@ int execute_assignment(struct ast *ast, struct environment *env)
         // Set variable
         char *variable_name = strtok(p->current, delim);
         char *variable_value = strtok(NULL, delim);
-        if (variable_name == NULL || variable_value == NULL
-            || set_variable(&env->variables, variable_name, variable_value)
-                == -1)
+
+        if (variable_name == NULL || variable_value == NULL)
         {
             fprintf(stderr, "Assignment failed\n");
             return 2;
+        }
+
+        if (!check_special_variable(variable_name))
+        {
+            if (set_variable(&env->variables, variable_name, variable_value)
+                == -1)
+            {
+                fprintf(stderr, "Assignment failed\n");
+                return 2;
+            }
         }
     }
 
