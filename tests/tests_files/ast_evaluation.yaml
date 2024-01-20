@@ -40,4 +40,5 @@
   sub-category: assignment
   tests:
     - command: "B=4"
-
+    - command: "B=4 echo > test.txt coucou"
+    - command: "B=5 A=6"
