@@ -7,13 +7,18 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-exec_ast_node executes[] = 
-{
-    [AST_IF] = execute_if, [AST_LIST] = execute_list, [AST_WHILE] = execute_while, [AST_UNTIL] = execute_until,
-    [AST_AND] = execute_and, [AST_OR] = execute_or, [AST_PIPE] = execute_pipe, [AST_REDIR] = execute_redir,
-    [AST_COMMAND] = execute_command, [AST_NEG] = execute_neg, [AST_ASSIGNMENT] = execute_assignment,
-    [AST_FOR] = execute_for
-};
+exec_ast_node executes[] = { [AST_IF] = execute_if,
+                             [AST_LIST] = execute_list,
+                             [AST_WHILE] = execute_while,
+                             [AST_UNTIL] = execute_until,
+                             [AST_AND] = execute_and,
+                             [AST_OR] = execute_or,
+                             [AST_PIPE] = execute_pipe,
+                             [AST_REDIR] = execute_redir,
+                             [AST_COMMAND] = execute_command,
+                             [AST_NEG] = execute_neg,
+                             [AST_ASSIGNMENT] = execute_assignment,
+                             [AST_FOR] = execute_for };
 
 int execute_assignment(struct ast *ast, struct environment *env)
 {
@@ -29,9 +34,9 @@ int execute_assignment(struct ast *ast, struct environment *env)
         struct list *expand_child_arg = expansion(ast->first_child->arg, env);
         if (expand_child_arg == NULL)
             return 2;
-        
-        list_destroy(ast->arg);
-        ast->arg = expand_child_arg;
+
+        list_destroy(ast->first_child->arg);
+        ast->first_child->arg = expand_child_arg;
         ast->first_child->is_expand = 1;
     }
 
@@ -41,8 +46,9 @@ int execute_assignment(struct ast *ast, struct environment *env)
         // Set variable
         char *variable_name = strtok(p->current, delim);
         char *variable_value = strtok(NULL, delim);
-
-        if (set_variable(&env->variables, variable_name, variable_value) == -1)
+        if (variable_name == NULL || variable_value == NULL
+            || set_variable(&env->variables, variable_name, variable_value)
+                == -1)
         {
             fprintf(stderr, "Assignment failed\n");
             return 2;
@@ -57,7 +63,7 @@ int execute_list(struct ast *ast, struct environment *env)
 {
     struct ast *tmp = ast->first_child;
     int res = 0;
-    
+
     // While there is no error on our part
     while (tmp != NULL && res != -1 && res != 2)
     {

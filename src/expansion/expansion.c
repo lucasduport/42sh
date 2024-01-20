@@ -177,7 +177,7 @@ static int expand_variable(struct environment *env, char **str, size_t *index)
     size_t var_len = 0;
     size_t delim_index = *index;
     *index += 1;
-    for (;(*str)[*index] != '\0';)
+    for (; (*str)[*index] != '\0';)
     {
         if (!is_valid_char((*str)[*index]))
             break;
@@ -200,8 +200,16 @@ static int expand_variable(struct environment *env, char **str, size_t *index)
     remove_at_n(str, delim_index);
 
     // Insert the value of the variable in the string
-    insert_at_n(str, var_value, delim_index);
-    *index = delim_index + strlen(var_value);
+    if (var_value != NULL)
+    {
+        insert_at_n(str, var_value, delim_index);
+        *index = delim_index + strlen(var_value);
+    }
+    else
+    {
+        // If the variable is not set, remove the variable name
+        *index = delim_index;
+    }
     return 0;
 }
 
