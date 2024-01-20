@@ -35,13 +35,13 @@ class TestShellScript(unittest.TestCase):
                 temp_file.write("\n")
             
         if input_type == "file":
-            result = subprocess.run(f"{binary} {temp_file_path}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            result = subprocess.run(f"{binary} {temp_file_path}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=3)
         elif input_type == "cmd_arg":
-            result = subprocess.run(f"{binary} -c \"{command}\"", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            result = subprocess.run(f"{binary} -c \"{command}\"", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,  timeout=3)
         elif input_type == "stdin":
-            result = subprocess.run(f"{binary} < {temp_file_path}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            result = subprocess.run(f"{binary} < {temp_file_path}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,  timeout=3)
         elif input_type == "file_b_n":
-            result = subprocess.run(f"{binary} {temp_file_path} -n", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            result = subprocess.run(f"{binary} {temp_file_path} -n", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,  timeout=3)
         
         # Delete the temporary file after execution
         os.remove(temp_file_path)
