@@ -52,6 +52,7 @@ int execute_assignment(struct ast *ast, struct environment *env)
         char *variable_name = strtok(p->current, delim);
         char *variable_value = strtok(NULL, delim);
 
+        // Return code 4 to know if the variable is expended
         int ret = 4;
         if (variable_value != NULL)
             variable_value = expand_string(variable_value, env, &ret);

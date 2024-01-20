@@ -255,7 +255,7 @@ static int expand_brace(struct environment *env, char **str, size_t *index)
     }
     if ((*str)[*index] != '}')
     {
-        debug_printf(LOG_EXP, "[EXPANSION] unmatched }\n");
+        free(var_name);
         return 2;
     }
 
@@ -264,7 +264,8 @@ static int expand_brace(struct environment *env, char **str, size_t *index)
     {
         if (!is_valid_char(var_name[i]))
         {
-            debug_printf(LOG_EXP, "[EXPANSION] bad variable name\n");
+            debug_printf(LOG_EXP, "[EXPANSION] bad variable name: %s\n", var_name);
+            free(var_name);
             return 1;
         }
     }
@@ -384,7 +385,8 @@ char *expand_string(char *str, struct environment *env, int *ret)
     return copy;
 }
 
-struct list *expansion(struct list *arguments, struct environment *env, int *ret)
+struct list *expansion(struct list *arguments, struct environment *env,
+                       int *ret)
 {
     struct list *copy = list_copy(arguments);
     struct list *p = copy;
@@ -409,9 +411,9 @@ struct list *expansion(struct list *arguments, struct environment *env, int *ret
             {
                 if (*ret == 2)
                     fprintf(stderr,
-                            "Unexpected EOF while looking for matching `}'\n");
+                            "expansion: Unexpected EOF while looking for matching `}'\n");
                 else if (*ret == 1)
-                    fprintf(stderr, "Bad substitution\n");
+                    fprintf(stderr, "expansion: Bad substitution\n");
                 p->current = current;
                 list_destroy(copy);
                 return NULL;
