@@ -85,7 +85,7 @@ enum parser_status parser_simple_command(struct lexer *lex, struct ast **res)
         peek = lexer_peek(lex);
     }
 
-    struct token peek = lexer_peek(lex);
+    peek = lexer_peek(lex);
     // No word
     peek = lexer_peek(lex);
     if (peek.type != TOKEN_WORD)
