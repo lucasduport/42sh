@@ -56,4 +56,14 @@
     - command: A=4 B=$A; echo $B
     - command: A=4 B=$A echo $B; echo $A; echo $B
     - command: echo {}
+    - command: ehco dollar?; echo $?; echo $?
+    - command: echo $?; echo $UID; echo $?
+    - command: echo $PWD
+    - command: echo $OLDPWD; echo $?
+    - command: PWD=kk; echo $PWD; echo $OLDPWD
+    - command: PWD=$OLDPWD; echo $PWD; echo $?
+
+
+    
+
 

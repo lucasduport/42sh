@@ -23,65 +23,68 @@ exec_ast_node executes[] = { [AST_IF] = execute_if,
 int execute_assignment(struct ast *ast, struct environment *env)
 {
     if (ast->arg == NULL)
-    {
-        debug_printf(LOG_EXEC, "[EXECUTE] Missing command argument\n");
         return -1;
-    }
 
+    char *variable_value = NULL;
     struct variable *var_before = NULL;
+    int code = 0;
+    
     // Expand child before assignment
     if (ast->first_child != NULL)
     {
-        int return_code = 0;
-        struct list *expand_child_arg =
-            expansion(ast->first_child->arg, env, &return_code);
-        if (expand_child_arg == NULL)
-            return return_code;
-
+        struct list *child_arg = expansion(ast->first_child->arg, env, &code);
+        if (child_arg == NULL)
+            return code;
+        
+        // Replace argument by expand
         list_destroy(ast->first_child->arg);
-        ast->first_child->arg = expand_child_arg;
+        ast->first_child->arg = child_arg;
         ast->first_child->is_expand = 1;
 
         // If there is child => variable assignment is local
         var_before = dup_variables(env->variables);
     }
 
-    char delim[] = "=";
     for (struct list *p = ast->arg; p != NULL; p = p->next)
     {
         // Set variable
-        char *variable_name = strtok(p->current, delim);
-        char *variable_value = strtok(NULL, delim);
+        char *variable_name = strtok(p->current, "=");
+        variable_value = expand_string(strtok(NULL, "="), env, &code);
 
-        // Return code 4 to know if the variable is expended
-        int ret = 4;
-        if (variable_value != NULL)
-            variable_value = expand_string(variable_value, env, &ret);
+        if (variable_value == NULL)
+            code = 0;
 
-        if (variable_name == NULL || variable_value == NULL
-            || set_variable(&env->variables, variable_name, variable_value)
-                == -1)
+        // If it's environment variable
+        else if (check_env_variable(variable_name))
         {
-            if (ret != 4)
-                free(variable_value);
-            free_variables(var_before);
-            fprintf(stderr, "Assignment failed\n");
-            return 2;
+            if (setenv(variable_name, variable_value, 1) == -1)
+                goto error;
         }
-
-        if (ret != 4)
-            free(variable_value);
+        else
+        {
+            if (set_variable(&env->variables, variable_name, variable_value) == -1)
+                goto error;
+        }
+        free(variable_value);
     }
 
-    int code = execute_ast(ast->first_child, env);
+    code = execute_ast(ast->first_child, env);
 
+    // If variables are local, reset environment
     if (var_before != NULL)
     {
         free_variables(env->variables);
         env->variables = var_before;
     }
     return code;
+
+error:
+    free(variable_value);
+    free_variables(var_before);
+    fprintf(stderr, "Assignment failed\n");
+    return code;
 }
+
 
 int execute_list(struct ast *ast, struct environment *env)
 {
