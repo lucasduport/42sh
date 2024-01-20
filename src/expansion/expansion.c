@@ -311,6 +311,33 @@ static int expand_double_quotes(struct environment *env, char **str,
     return -1;
 }
 
+char *expand_string(char *str, struct environment *env, int *ret)
+{
+    char *copy = strdup(str);
+    size_t i = 0;
+    while (copy[i] != '\0')
+    {
+        *ret = 0;
+        if (copy[i] == '\'')
+            *ret = expand_single_quotes(env, &copy, &i);
+        else if (copy[i] == '\"')
+            *ret = expand_double_quotes(env, &copy, &i);
+        else if (copy[i] == '$')
+            *ret = expand_dollar(env, &copy, &i);
+        else if (copy[i] == '\\')
+            *ret = escape_backlash(env, &copy, &i);
+        else
+            i++;
+        if (*ret == -1)
+        {
+            fprintf(stderr, "Failed to expand %s\n", str);
+            free(copy);
+            return NULL;
+        }
+    }
+    return copy;
+}
+
 struct list *expansion(struct list *arguments, struct environment *env)
 {
     struct list *copy = list_copy(arguments);

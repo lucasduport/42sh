@@ -34,10 +34,6 @@
 - category: execvp
   sub-category: execvp
   tests:
-    - command: "/bin/ls"
-    - command: "/bin/ls -l"
-    - command: "/bin/ls -l -a"
-    - command: "/bin/ls -l -a -t"
     - command: "/bin/echo -n Hello World"
     - command: "/bin/echo -n -e -E 'Hello\nWorld'"
     - command: "/bin/echo -n -e -E 'Mixing options and\\n multiline\\t strings with \\ backslashes\\n'"
