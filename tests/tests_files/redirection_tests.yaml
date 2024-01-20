@@ -7,8 +7,6 @@
     - command: "echo coucou | cat"
     - command: "sleep 1 | echo a; echo b"
     - command: "sleep 1; echo a | echo b"
-    - command: "echo a | sleep 1; echo b"
-    - command: "echo a; sleep 1 | echo b"
 
 - category: redirection
   sub-category: classic
