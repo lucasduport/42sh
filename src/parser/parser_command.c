@@ -36,49 +36,68 @@ enum parser_status parser_command(struct lexer *lex, struct ast **res)
         }
         return PARSER_OK;
     }
+    return parser_simple_command(lex, res);
+}
+
+static enum parser_status errorsc(struct ast *tmp_redir,
+                                  struct ast *tmp_assignment,
+                                  struct ast *tmp_command)
+{
+    ast_free(tmp_redir);
+    ast_free(tmp_assignment);
+    ast_free(tmp_command);
+    return PARSER_UNEXPECTED_TOKEN;
+}
+
+static void link_redir_command(struct ast **res, struct ast **tmp_redir,
+                               struct ast **tmp_assignment,
+                               struct ast **tmp_command)
+{
+    if ((*tmp_assignment)->arg == NULL)
+        ast_free(*tmp_assignment);
     else
-        return parser_simple_command(lex, res);
+        ast_add_child_to_child(tmp_redir, *tmp_assignment);
+
+    ast_add_child_to_child(tmp_redir, *tmp_command);
+    *res = *tmp_redir;
 }
 
 enum parser_status parser_simple_command(struct lexer *lex, struct ast **res)
 {
-    debug_printf(LOG_PARS, "[PARSER] In parser simple_command\n");
     struct token peek = lexer_peek(lex);
-
     struct ast *tmp_redir = NULL;
-    struct ast *tmp_assignement = ast_new(AST_ASSIGNMENT);
+    struct ast *tmp_assignment = ast_new(AST_ASSIGNMENT);
     struct ast *tmp_command = ast_new(AST_COMMAND);
 
-    // Parse prefix
     while (peek.family == TOKEN_FAM_IO_NUMBER || peek.family == TOKEN_FAM_REDIR
            || peek.family == TOKEN_FAM_ASSIGNMENT_W)
     {
         enum parser_status stat = 0;
-        if (peek.family == TOKEN_FAM_ASSIGNMENT_W)
-            stat = parser_prefix(lex, &tmp_assignement);
-        else
-            stat = parser_prefix(lex, res);
+        stat = parser_prefix(
+            lex,
+            (peek.family == TOKEN_FAM_ASSIGNMENT_W) ? &tmp_assignment : res);
 
         if (stat == PARSER_UNEXPECTED_TOKEN)
-            goto error;
+            return errorsc(tmp_redir, tmp_assignment, tmp_command);
 
         if (peek.family != TOKEN_FAM_ASSIGNMENT_W)
             ast_add_child_to_child(&tmp_redir, *res);
         peek = lexer_peek(lex);
     }
 
+    struct token peek = lexer_peek(lex);
     // No word
     peek = lexer_peek(lex);
     if (peek.type != TOKEN_WORD)
     {
         *res = tmp_redir;
         // Minimum one prefix
-        if (tmp_redir == NULL && tmp_assignement->arg == NULL)
+        if (tmp_redir == NULL && tmp_assignment->arg == NULL)
         {
             token_free(lexer_pop(lex));
-            goto error;
+            return errorsc(tmp_redir, tmp_assignment, tmp_command);
         }
-        ast_add_child_to_child(&tmp_redir, tmp_assignement);
+        ast_add_child_to_child(&tmp_redir, tmp_assignment);
         ast_free(tmp_command);
         *res = tmp_redir;
         return PARSER_OK;
@@ -91,13 +110,11 @@ enum parser_status parser_simple_command(struct lexer *lex, struct ast **res)
     peek = lexer_peek(lex);
     while (peek.family != TOKEN_FAM_OPERATOR)
     {
-        debug_printf(LOG_PARS, "[PARSER] In element loop, peek data = %s\n",
-                     peek.data);
         if (peek.family == TOKEN_FAM_IO_NUMBER
             || peek.family == TOKEN_FAM_REDIR)
         {
             if (parser_element(lex, res) == PARSER_UNEXPECTED_TOKEN)
-                goto error;
+                return errorsc(tmp_redir, tmp_assignment, tmp_command);
 
             ast_add_child_to_child(&tmp_redir, *res);
         }
@@ -107,21 +124,8 @@ enum parser_status parser_simple_command(struct lexer *lex, struct ast **res)
     }
 
     // Link redir and command
-    if (tmp_assignement->arg == NULL)
-        ast_free(tmp_assignement);
-    else
-        ast_add_child_to_child(&tmp_redir, tmp_assignement);
-
-    ast_add_child_to_child(&tmp_redir, tmp_command);
-    *res = tmp_redir;
-
+    link_redir_command(res, &tmp_redir, &tmp_assignment, &tmp_command);
     return PARSER_OK;
-
-error:
-    ast_free(tmp_redir);
-    ast_free(tmp_assignement);
-    ast_free(tmp_command);
-    return PARSER_UNEXPECTED_TOKEN;
 }
 
 enum parser_status parser_shell_command(struct lexer *lex, struct ast **res)
