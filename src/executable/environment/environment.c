@@ -111,10 +111,7 @@ struct list *get_at_variable(struct environment *env)
 
     while (token != NULL)
     {
-        if (list == NULL)
-            list = list_create(strdup(token));
-        else
-            list_append(list, strdup(token));
+        list_append(&list, strdup(token));
         token = strtok(NULL, " ");
     }
 

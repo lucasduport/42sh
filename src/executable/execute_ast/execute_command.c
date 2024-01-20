@@ -66,33 +66,41 @@ static int execvp_wrapper(struct list *arg, struct environment *env)
     return WEXITSTATUS(return_status);
 }
 
-int execute_command(struct ast *command, struct environment *env)
+int execute_command(struct ast *ast, struct environment *env)
 {
-    if (command->arg == NULL)
+    if (ast->arg == NULL)
         return 2;
 
-    if (!command->is_expand && expansion(command->arg, env) == -1)
+    struct list *tmp_arg = ast->arg;
+    if (!ast->is_expand)
     {
-        fprintf(stderr, "Expansion failed\n");
-        return 2;
+        tmp_arg = expansion(ast->arg, env);
+        if (tmp_arg == NULL)
+            return 2;
     }
+    ast->is_expand = !ast->is_expand;
 
     // First arg contains the command
-    char *first_arg = list_get_n(command->arg, 0);
+    char *first_arg = list_get_n(tmp_arg, 0);
 
     int code = 0;
     if (strcmp(first_arg, "echo") == 0)
-        code = builtin_echo(command->arg);
+        code = builtin_echo(tmp_arg);
 
     else if (strcmp(first_arg, "true") == 0)
-        code = builtin_true(command->arg);
+        code = builtin_true(tmp_arg);
 
     else if (strcmp(first_arg, "false") == 0)
-        code = builtin_false(command->arg);
+        code = builtin_false(tmp_arg);
     else
-        code = execvp_wrapper(command->arg, env);
+        code = execvp_wrapper(tmp_arg, env);
     fflush(stderr);
     fflush(stdout);
+
+    // If we expand -> free tmp_arg
+    if (ast->is_expand)
+        list_destroy(tmp_arg);
+    ast->is_expand = !ast->is_expand;
 
     //set_exit_variale(env, code);
     return code;

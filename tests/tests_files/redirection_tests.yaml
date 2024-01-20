@@ -1,4 +1,14 @@
 - category: redirection
+  sub-category: pipe
+  tests:
+    - command: "echo coucou | cat"
+    - command: "echo coucou | cat | echo coucou | cat"
+    - command: "echo coucou | cat; echo coucou | cat"
+    - command: "echo coucou | cat"
+    - command: "sleep 1 | echo a; echo b"
+    - command: "sleep 1; echo a | echo b"
+
+- category: redirection
   sub-category: classic
   tests:
     - command: "echo coucou > t.txt; cat t.txt"
@@ -13,12 +23,14 @@
   tests:
     - command: "echo coucou > t.txt > a.txt; cat t.txt; cat t.txt"
     - command: "echo coucou > t.txt 2> err.txt; cat t.txt"
+    - command: "echo coucou 50<> t.txt; rm t.txt"
     - command: "vdjkfgbdk > t.txt 2> err.txt; cat t.txt"
 
 - category: redirection
   sub-category: hard
   tests:
     - command: "echo > test.txt coucou; cat test.txt"
+    - command: "echo > test.txt coucou > a.txt ahhhh; cat test.txt; cat a.txt"
     - command: "rm test.txt; echo > test.txt >> test.txt coucou; cat test.txt"
     - command: "fbhfre > test.txt > coco.txt coucou; cat test.txt; cat coco.txt"
     - command: "fbhfre > test.txt 2> coco.txt coucou; cat test.txt"

@@ -22,16 +22,16 @@ typedef int (*exec_ast_node)(struct ast *ast, struct environment *env);
  * @file execute_commande.c
  * @brief Execute command node
  *
- * @param command Node command
+ * @param ast 'command' node
  * @return return value from execution of the command
  */
-int execute_command(struct ast *command, struct environment *env);
+int execute_command(struct ast *ast, struct environment *env);
 
 /**
  * @file execute_condition.c
  * @brief Execute if node
  *
- * @param first_child First child of 'if' node -> condition
+ * @param ast 'if' node
  * @return value of 'then' execution or 'else' execution or 0 by default
  */
 int execute_if(struct ast *ast, struct environment *env);
@@ -67,25 +67,25 @@ int execute_neg(struct ast *ast, struct environment *env);
  * @file execute_loop.c
  * @brief Execute while node
  *
- * @param first_child First child of 'while' node -> condition
+ * @param ast 'while' node
  * @return return value from execution of last command, 0 if nothing is execute
  */
-int execute_while(struct ast *first_child, struct environment *env);
+int execute_while(struct ast *ast, struct environment *env);
 
 /**
  * @file execute_loop.c
  * @brief Execute until node
  *
- * @param first_child First child of 'until' node -> condition
+ * @param ast 'until' node
  * @return return value from execution of last command, 0 if nothing is execute
  */
-int execute_until(struct ast *first_child, struct environment *env);
+int execute_until(struct ast *ast, struct environment *env);
 
 /**
  * @file execute_loop.c
  * @brief Execute for node
  *
- * @param first_child First child of 'until' node -> condition
+ * @param ast 'for' node
  * @return return value from execution of last command, 0 if nothing is execute
  */
 int execute_for(struct ast *ast, struct environment *env);
@@ -100,7 +100,7 @@ struct redirection
  * @file execute_redir.c
  * @brief Execute general ast
  *
- * @param ast AST that we want to execute
+ * @param ast 'pipe' node
  * @return value of the execution
  */
 int execute_pipe(struct ast *ast, struct environment *env);
@@ -109,7 +109,7 @@ int execute_pipe(struct ast *ast, struct environment *env);
  * @file execute_redir.c
  * @brief Execute redirection for redirection.
  *
- * @param ast AST that we want to execute
+ * @param ast 'redir' node
  * @return value of the execution
  */
 int execute_redir(struct ast *ast, struct environment *env);
@@ -118,7 +118,7 @@ int execute_redir(struct ast *ast, struct environment *env);
  * @file execute.c
  * @brief Execute the assignment node
  *
- * @param ast The executed AST
+ * @param ast 'assignment' node"
  * @return execution value of the assignment
  */
 int execute_assignment(struct ast *ast, struct environment *env);
@@ -127,10 +127,10 @@ int execute_assignment(struct ast *ast, struct environment *env);
  * @file execute.c
  * @brief Execute list node
  *
- * @param first_child First child of 'list' node
+ * @param ast 'list' node
  * @return return value from execution of last command
  */
-int execute_list(struct ast *first_child, struct environment *env);
+int execute_list(struct ast *ast, struct environment *env);
 
 /**
  * @file execute.c

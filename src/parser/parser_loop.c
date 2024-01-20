@@ -129,7 +129,7 @@ static enum parser_status sub_parse_for_nosemi(struct lexer *lex, struct ast *tm
 
         while (peek.type == TOKEN_WORD)
         {
-            list_append(tmp_final->arg, peek.data);
+            list_append(&tmp_final->arg, peek.data);
             lexer_pop(lex);
             peek = lexer_peek(lex);
         }

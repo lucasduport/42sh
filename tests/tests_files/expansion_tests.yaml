@@ -34,3 +34,10 @@
     - command: echo "aa\
     - command: echo "aa\b\cc"
 
+- category: expansion
+  sub-category: variable
+  tests:
+    - command: "B=4 echo $B"
+    - command: "C=4; echo $C"
+    - command: "for fruit in pomme poire pêche; do echo $fruit; done"
+
