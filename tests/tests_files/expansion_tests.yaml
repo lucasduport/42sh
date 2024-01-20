@@ -47,4 +47,7 @@
     - command: "for hi in \"Hello World\"; do echo ${hi[]}; done"
     - command: "for hi in \"Hello World\"; do echo ${ hi}; done"
     - command: echo ${
+    - command: "for hi in \"Hello World\"; do echo ${hi } ${hi[]}; done"
+    - command: "for hi in \"Hello World\"; do echo ${ hi} ${hi}; done"
+    - command: "for hi in \"Hello World\"; do echo ${hi} ${hi }; done"
 
