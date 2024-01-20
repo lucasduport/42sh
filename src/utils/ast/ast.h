@@ -55,6 +55,7 @@ void ast_add_brother(struct ast *ast, struct ast *new_brother);
 
 /**
  * @brief Add a child at the last child of an ast
+ * If ast in NULL, ast = new_child
  *
  * @param ast Current ast node
  * @param new_child Child that we want to add

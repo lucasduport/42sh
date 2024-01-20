@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define NB_TYPES 9
+#define NB_TYPES 10
 
 struct my_logs
 {
@@ -30,7 +30,8 @@ enum log_type
     LOG_UTILS,
     LOG_AST,
     LOG_MAIN,
-    LOG_EXP
+    LOG_EXP,
+    LOG_ENV,
 };
 
 /**

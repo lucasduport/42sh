@@ -44,4 +44,11 @@ struct variable *dup_variables(struct variable *head);
  */
 void free_variables(struct variable *head);
 
+/**
+ * @brief Debug function that prints the var list
+ *
+ * @param head The head of the list
+ */
+void print_variables(struct variable *head);
+
 #endif /* ! VARIABLES_H */

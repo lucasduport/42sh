@@ -17,14 +17,23 @@ int main(int argc, char **argv)
     {
         if (argc > 2 && strlen(argv[2]) == 0)
             return 0;
-            
+
         debug_printf(LOG_MAIN, "[MAIN] Failed initialize lexer\n");
         return 2;
     }
 
+    struct environment *env = environment_new();
+    if (env == NULL)
+    {
+        debug_printf(LOG_MAIN, "[MAIN] Failed initialize env\n");
+        return 2;
+    }
+
+    set_environment(env, argc, argv);
+
     // Initialise variable used for parsing
     struct ast *res;
-    int code = 0;        
+    int code = 0;
 
     enum parser_status parse_code = parser_input(lex, &res);
     while (parse_code != PARSER_EOF)
@@ -35,17 +44,17 @@ int main(int argc, char **argv)
             {
                 ast_print(res);
                 debug_printf(LOG_AST, "\n");
-                code = execute_ast(res, NULL);
+                code = execute_ast(res, env);
                 ast_free(res);
             }
         }
         else
             code = 2;
-
         parse_code = parser_input(lex, &res);
     }
 
     lexer_free(lex);
+    environment_free(env);
     destroy_logger();
     return code;
 }

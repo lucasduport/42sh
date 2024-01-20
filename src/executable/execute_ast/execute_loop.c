@@ -52,11 +52,11 @@ int execute_for(struct ast *ast, struct environment *env)
 
     for (struct list *temp = ast->arg->next; temp != NULL; temp = temp->next)
     {
-        /*if (set_variable(&(env->variables), for_var, temp->current) == -1)
+        if (set_variable(&(env->variables), for_var, temp->current) == -1)
         {
             debug_printf(LOG_EXEC, "[EXECUTE] Variables assignment failed\n");
             return 2;
-        }*/
+        }
 
         ret_code = execute_ast(ast->first_child, env);
     }

@@ -36,6 +36,11 @@ static struct token token_alloc(enum token_type type, enum token_family family,
     return token;
 }
 
+/**
+ * @brief Check if the current word could be an IO number
+ * 
+ * @param lexer The lexer
+*/
 static int check_io_number(struct lexer *lexer)
 {
     for (size_t i = 0; lexer->current_word->data[i] != '\0'; i++)
@@ -47,6 +52,13 @@ static int check_io_number(struct lexer *lexer)
     return lexer->current_char == '<' || lexer->current_char == '>';
 }
 
+/**
+ * @brief Check if the current word could be an assignment word
+ * 
+ * a=2 ?
+ * 
+ * @param lexer The lexer
+*/
 static int check_assignment(struct lexer *lexer)
 {
     size_t len = lexer->current_word->len;
@@ -77,8 +89,8 @@ static struct token token_new(struct lexer *lexer)
     char *reserved_words[] = { "if",   "then",  "elif",  "else", "fi", "do",
                                "done", "while", "until", "for",  "in", "!",
                                ";",    "\n",    "|",     "&&",   "||", ";;",
-                               "\0", "<",    ">",     "<<",    ">>",   "<&",
-                               "&>", "<>",   "<<-",   ">|"};
+                               "\0",   "<",     ">",     "<<",   ">>", "<&",
+                               "&>",   "<>",    "<<-",   ">|" };
 
     int family = 0;
     for (size_t i = 0; i < sizeof(reserved_words) / sizeof(char *); i++)
@@ -141,7 +153,6 @@ static int is_valid_operator(struct lexer *lexer)
 
     for (size_t i = 0; i < sizeof(reserved_operators) / sizeof(char *); i++)
     {
-        // FIXME: May be a probleme with the last null char
         if (!string_n_cmp(lexer->current_word, reserved_operators[i],
                           strlen(reserved_operators[i])))
         {
