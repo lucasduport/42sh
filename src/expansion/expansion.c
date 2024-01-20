@@ -2,6 +2,17 @@
 
 #include <stddef.h>
 
+static int is_special_char(char c)
+{
+    char special_char[] = {'?', '*', '$', '#', '@'};
+    for (size_t i = 0; i < sizeof(special_char) / sizeof(char); i++)
+    {
+        if (special_char[i] == c)
+            return 1;
+    }
+    return 0;
+}
+
 /**
  * @brief Check if a character is a valid character for a variable name
  *
@@ -11,7 +22,7 @@
 static int is_valid_char(char c)
 {
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_'
-        || (c >= '0' && c <= '9');
+        || (c >= '0' && c <= '9') || is_special_char(c);
 }
 /**
  * @brief Expand a variable
@@ -360,6 +371,9 @@ static int expand_double_quotes(struct environment *env, char **str,
 
 char *expand_string(char *str, struct environment *env, int *ret)
 {
+    if (str == NULL)
+        return NULL;
+    
     char *copy = strdup(str);
     size_t i = 0;
     while (copy[i] != '\0')

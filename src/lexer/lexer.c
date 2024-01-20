@@ -61,9 +61,7 @@ static int check_io_number(struct lexer *lexer)
 */
 static int check_assignment(struct lexer *lexer)
 {
-    size_t len = lexer->current_word->len;
-    if (lexer->current_word->data[0] == '='
-        || lexer->current_word->data[len - 1] == '=')
+    if (lexer->current_word->data[0] == '=')
         return 0;
 
     int contains_equal = 0;
@@ -72,7 +70,6 @@ static int check_assignment(struct lexer *lexer)
         if (lexer->current_word->data[i] == '=')
             contains_equal++;
     }
-
     return contains_equal == 1;
 }
 

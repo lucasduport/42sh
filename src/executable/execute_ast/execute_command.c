@@ -103,6 +103,6 @@ int execute_command(struct ast *ast, struct environment *env)
         list_destroy(tmp_arg);
     ast->is_expand = !ast->is_expand;
 
-    //set_exit_variale(env, code);
+    set_exit_variale(env, code);
     return code;
 }

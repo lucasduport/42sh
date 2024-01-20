@@ -191,6 +191,8 @@ void set_environment(struct environment *env, int argc, char *argv[])
 
     //set_star_variable(env);
 
+    set_exit_variale(env, 0);
+
     set_dollar_dollar(env);
 
     set_random(env);
