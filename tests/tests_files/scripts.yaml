@@ -24,3 +24,18 @@
 
     - command: |
         echo "Command with conditional execution:" && true || echo "This should not be printed"
+    
+    - command: |
+        echo Printing numbers from 1 to 5 using a for loop:
+        for i in 1 2 3 4 5; do
+          for i in 1 2 3 4 5; do
+            echo $i
+            caca
+            boudin
+            echo $i
+          done
+          echo $i
+          caca
+          boudin
+          echo $i
+        done
