@@ -1,4 +1,9 @@
 - category: redirection
+  sub-category: pipe
+  tests:
+    - command: "echo coucou | cat"
+
+- category: redirection
   sub-category: classic
   tests:
     - command: "echo coucou > t.txt; cat t.txt"
@@ -13,7 +18,7 @@
   tests:
     - command: "echo coucou > t.txt > a.txt; cat t.txt; cat t.txt"
     - command: "echo coucou > t.txt 2> err.txt; cat t.txt"
-    - command: "echo coucou 50<> cat.txt "
+    - command: "echo coucou 50<> t.txt; rm t.txt"
     - command: "vdjkfgbdk > t.txt 2> err.txt; cat t.txt"
 
 - category: redirection
