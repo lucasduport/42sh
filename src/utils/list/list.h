@@ -24,11 +24,13 @@ struct list *list_create(char *current);
 
 /**
  * @brief Append a new element at the end of the linked list.
+ * 
+ * If *l is NULL, a new list is create
  *
- * @param l Linked list to modify.
+ * @param l Pointer to linked list to modify.
  * @param current Element to append.
  */
-void list_append(struct list *l, char *current);
+void list_append(struct list **l, char *current);
 
 /**
  * @brief Get the nth element.
@@ -38,6 +40,14 @@ void list_append(struct list *l, char *current);
  * @return The n-ieme element if found, NULL otherwise.
  */
 char *list_get_n(struct list *l, size_t n);
+
+/**
+ * @brief Copy a list, inclund string
+ * 
+ * @param list List that we want to copy
+ * @return Copy of original list
+*/
+struct list *list_copy(struct list *original);
 
 /**
  * @brief Free all linked list.

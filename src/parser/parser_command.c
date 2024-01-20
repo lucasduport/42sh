@@ -72,11 +72,14 @@ enum parser_status parser_simple_command(struct lexer *lex, struct ast **res)
     {
         *res = tmp_redir;
         // Minimum one prefix
-        if (tmp_redir == NULL)
+        if (tmp_redir == NULL && tmp_assignement->arg == NULL)
         {
             token_free(lexer_pop(lex));
             goto error;
         }
+        ast_add_child_to_child(&tmp_redir, tmp_assignement);
+        ast_free(tmp_command);
+        *res = tmp_redir;
         return PARSER_OK;
     }
 

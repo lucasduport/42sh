@@ -303,18 +303,13 @@ static int expand_double_quotes(struct environment *env, char **str,
     return -1;
 }
 
-/**
- * @brief Try every expansions on the arguments
- *
- * @param arguments Arguments to expand
- * @param env Environment
- */
-int expansion(struct list *arguments, struct environment *env)
+struct list *expansion(struct list *arguments, struct environment *env)
 {
-    struct list *arg = arguments;
-    while (arg != NULL)
+    struct list *copy = list_copy(arguments);
+    struct list *p = copy;
+    while (p != NULL)
     {
-        char *current = arg->current;
+        char *current = p->current;
         size_t i = 0;
         while (current[i] != '\0')
         {
@@ -331,15 +326,14 @@ int expansion(struct list *arguments, struct environment *env)
                 i++;
             if (ret == -1)
             {
-                arg->current = current;
-                debug_printf(LOG_EXP,
-                             "[EXPANSION] expansion: failed to expand %s\n",
-                             current);
-                return -1;
+                p->current = current;
+                fprintf(stderr, "Failed to expand %s\n", current);
+                list_destroy(copy);
+                return NULL;
             }
         }
-        arg->current = current;
-        arg = arg->next;
+        p->current = current;
+        p = p->next;
     }
-    return 0;
+    return copy;
 }

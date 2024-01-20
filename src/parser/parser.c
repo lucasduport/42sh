@@ -86,7 +86,7 @@ enum parser_status parser_element(struct lexer *lex, struct ast **res)
             return parser_redirection(lex, res);
         
         peek = lexer_pop(lex);
-        list_append((*res)->arg, peek.data);
+        list_append(&((*res)->arg), peek.data);
         debug_printf(LOG_PARS, "[PARSER] Return element = %s\n", peek.data);
         return PARSER_OK;
     }

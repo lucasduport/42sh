@@ -4,13 +4,12 @@
 
 int main(int argc, char **argv)
 {
-    //create_logger("stdout");
+    // create_logger("stdout");
     // enable_log_type(LOG_LEX);
-    // enable_log_type(LOG_PARS);
-    enable_log_type(LOG_AST);
-    enable_log_type(LOG_UTILS);
-    enable_log_type(LOG_MAIN);
-    //enable_log_type(LOG_EXEC);
+    enable_log_type(LOG_PARS);
+    // enable_log_type(LOG_AST);
+    // enable_log_type(LOG_UTILS);
+    // enable_log_type(LOG_EXEC);
 
     // Initialise lexer
     struct lexer *lex = lexer_new(argc, argv);

@@ -26,19 +26,13 @@ int execute_assignment(struct ast *ast, struct environment *env)
     // Expand child before assignment
     if (ast->first_child != NULL)
     {
-        if (expansion(ast->first_child->arg, env) == -1)
-        {
-            fprintf(stderr, "Expansion failed\n");
+        struct list *expand_child_arg = expansion(ast->first_child->arg, env);
+        if (expand_child_arg == NULL)
             return 2;
-        }
+        
+        list_destroy(ast->arg);
+        ast->arg = expand_child_arg;
         ast->first_child->is_expand = 1;
-    }
-
-    //Expand if necessary
-    if (expansion(ast->arg, env) == -1)
-    {
-        fprintf(stderr, "Expansion failed\n");
-        return 2;
     }
 
     char delim[] = "=";
