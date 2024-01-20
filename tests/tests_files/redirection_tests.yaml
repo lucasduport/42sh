@@ -13,7 +13,7 @@
   tests:
     - command: "echo coucou > t.txt > a.txt; cat t.txt; cat t.txt"
     - command: "echo coucou > t.txt 2> err.txt; cat t.txt"
-    - command: "echo coucou 50<> cat "
+    - command: "echo coucou 50<> cat.txt "
     - command: "vdjkfgbdk > t.txt 2> err.txt; cat t.txt"
 
 - category: redirection
