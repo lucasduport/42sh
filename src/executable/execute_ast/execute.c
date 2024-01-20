@@ -28,14 +28,14 @@ int execute_assignment(struct ast *ast, struct environment *env)
     char *variable_value = NULL;
     struct variable *var_before = NULL;
     int code = 0;
-    
+
     // Expand child before assignment
     if (ast->first_child != NULL)
     {
         struct list *child_arg = expansion(ast->first_child->arg, env, &code);
         if (child_arg == NULL)
             return code;
-        
+
         // Replace argument by expand
         list_destroy(ast->first_child->arg);
         ast->first_child->arg = child_arg;
@@ -62,7 +62,8 @@ int execute_assignment(struct ast *ast, struct environment *env)
         }
         else
         {
-            if (set_variable(&env->variables, variable_name, variable_value) == -1)
+            if (set_variable(&env->variables, variable_name, variable_value)
+                == -1)
                 goto error;
         }
         free(variable_value);
@@ -84,7 +85,6 @@ error:
     fprintf(stderr, "Assignment failed\n");
     return code;
 }
-
 
 int execute_list(struct ast *ast, struct environment *env)
 {

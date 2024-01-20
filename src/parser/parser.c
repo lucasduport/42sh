@@ -2,6 +2,11 @@
 
 #include <stdio.h>
 
+/**
+* @brief Skip token until the next newline or EOF
+* 
+* @param lex Current lexer
+*/
 static void skip_to_end(struct lexer *lex)
 {
     struct token peek = lexer_peek(lex);
