@@ -315,7 +315,7 @@ static void skip_comment(struct lexer *lexer)
 static struct token parse_input_for_tok(struct lexer *lexer)
 {
     lexer->current_char = io_getchar();
-    debug_printf(LOG_LEX, "%c\n", lexer->current_char);
+    //debug_printf(LOG_LEX, "%c\n", lexer->current_char);
 
     // rule 1
     if (lexer->current_char == '\0')
