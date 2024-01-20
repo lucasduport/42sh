@@ -74,9 +74,10 @@ int execute_command(struct ast *ast, struct environment *env)
     struct list *tmp_arg = ast->arg;
     if (!ast->is_expand)
     {
-        tmp_arg = expansion(ast->arg, env);
+        int return_code = 0;
+        tmp_arg = expansion(ast->arg, env, &return_code);
         if (tmp_arg == NULL)
-            return 2;
+            return return_code;
     }
     ast->is_expand = !ast->is_expand;
 

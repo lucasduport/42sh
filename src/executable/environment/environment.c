@@ -81,7 +81,7 @@ void set_star_variable(struct environment *env)
     if (args_count == 0)
         return;
 
-    char i_str[2];
+    char i_str[20];
     char *star_value = strdup(get_value(env->variables, "1"));
 
     int i = 2;
@@ -166,7 +166,7 @@ void set_number_variable(struct environment *env, int argc, char *argv[])
     int var_number = 1;
     while (argv[i] != NULL && loop)
     {
-        char var_name[2];
+        char var_name[20];
         sprintf(var_name, "%d", var_number);
         set_variable(&env->variables, var_name, argv[i]);
         var_number++;
@@ -174,7 +174,7 @@ void set_number_variable(struct environment *env, int argc, char *argv[])
     }
 
     var_number--;
-    char args_count[16];
+    char args_count[20];
     sprintf(args_count, "%d", var_number);
     set_variable(&env->variables, "#", args_count);
 }

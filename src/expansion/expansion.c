@@ -141,7 +141,7 @@ static int expand_single_quotes(struct environment *env, char **str,
             return 0;
         }
     }
-    return -1;
+    return 2;
 }
 
 /**
@@ -172,7 +172,7 @@ static int expand_cmd_substitution(struct environment *env, char **str,
  */
 static int expand_variable(struct environment *env, char **str, size_t *index)
 {
-    // *index is at $ or at {
+    // *index is at $
     char *var_name = NULL;
     size_t var_len = 0;
     size_t delim_index = *index;
@@ -191,12 +191,16 @@ static int expand_variable(struct environment *env, char **str, size_t *index)
             remove_at_n(str, *index);
         }
     }
-
+    if (var_name == NULL)
+    {
+        debug_printf(LOG_EXP, "[EXPANSION] bad variable name\n");
+        return 1;
+    }
     var_name[var_len] = '\0';
     char *var_value = get_value(env->variables, var_name);
     free(var_name);
 
-    // Remove the first delimiter ($ or {)
+    // Remove the first delimiter $
     remove_at_n(str, delim_index);
 
     // Insert the value of the variable in the string
@@ -219,32 +223,69 @@ static int expand_variable(struct environment *env, char **str, size_t *index)
  * @param env Environment
  * @param str String to expand
  * @param index Index of the variable
- * @return int 0 if success, -1 otherwise
+ * @return int return code
  */
 static int expand_brace(struct environment *env, char **str, size_t *index)
 {
+    // *index is at $
     size_t dollar = *index;
 
     // Skip the $,now at {
     *index += 1;
-    expand_variable(env, str, index);
+    size_t brace = *index;
 
-    if ((*str)[*index] == '}')
+    char *var_name = NULL;
+    size_t var_len = 0;
+
+    *index += 1;
+    for (; (*str)[*index] != '\0' && (*str)[*index] != '}';)
     {
-        // removes $ char
-        remove_at_n(str, dollar);
-        // { char is remove in expand_variable
-        // removes } char
-        *index -= 1;
+        var_name = realloc(var_name, var_len + 2);
+        var_len++;
+        var_name[var_len - 1] = (*str)[*index];
+        // Remove the character from the string
+        // Acts as a shift, or as an incrementation of i
         remove_at_n(str, *index);
-        return 0;
+    }
+    if ((*str)[*index] != '}')
+    {
+        free(var_name);
+        return 2;
+    }
+
+    var_name[var_len] = '\0';
+    for (size_t i = 0; i < var_len; i++)
+    {
+        if (!is_valid_char(var_name[i]))
+        {
+            debug_printf(LOG_EXP, "[EXPANSION] bad variable name: %s\n", var_name);
+            free(var_name);
+            return 1;
+        }
+    }
+    char *var_value = get_value(env->variables, var_name);
+    free(var_name);
+
+    // Remove the {
+    remove_at_n(str, brace);
+
+    // Insert the value of the variable in the string
+    if (var_value != NULL)
+    {
+        insert_at_n(str, var_value, brace);
+        *index = brace + strlen(var_value);
     }
     else
     {
-        debug_printf(LOG_EXP,
-                     "[EXPANSION] expand_brace: failed to match } %s\n", *str);
-        return -1;
+        // If the variable is not set, remove the variable name
+        *index = brace;
     }
+    // removes $ char
+    remove_at_n(str, dollar);
+    // removes } char
+    *index -= 1;
+    remove_at_n(str, *index);
+    return 0;
 }
 
 /**
@@ -308,10 +349,39 @@ static int expand_double_quotes(struct environment *env, char **str,
         else
             *index += 1;
     }
-    return -1;
+    return 2;
 }
 
-struct list *expansion(struct list *arguments, struct environment *env)
+
+char *expand_string(char *str, struct environment *env, int *ret)
+{
+    char *copy = strdup(str);
+    size_t i = 0;
+    while (copy[i] != '\0')
+    {
+        *ret = 0;
+        if (copy[i] == '\'')
+            *ret = expand_single_quotes(env, &copy, &i);
+        else if (copy[i] == '\"')
+            *ret = expand_double_quotes(env, &copy, &i);
+        else if (copy[i] == '$')
+            *ret = expand_dollar(env, &copy, &i);
+        else if (copy[i] == '\\')
+            *ret = escape_backlash(env, &copy, &i);
+        else
+            i++;
+        if (*ret == -1)
+        {
+            fprintf(stderr, "Failed to expand %s\n", str);
+            free(copy);
+            return NULL;
+        }
+    }
+    return copy;
+}
+
+struct list *expansion(struct list *arguments, struct environment *env,
+                       int *ret)
 {
     struct list *copy = list_copy(arguments);
     struct list *p = copy;
@@ -321,21 +391,25 @@ struct list *expansion(struct list *arguments, struct environment *env)
         size_t i = 0;
         while (current[i] != '\0')
         {
-            int ret = 0;
+            *ret = 0;
             if (current[i] == '\'')
-                ret = expand_single_quotes(env, &current, &i);
+                *ret = expand_single_quotes(env, &current, &i);
             else if (current[i] == '\"')
-                ret = expand_double_quotes(env, &current, &i);
+                *ret = expand_double_quotes(env, &current, &i);
             else if (current[i] == '$')
-                ret = expand_dollar(env, &current, &i);
+                *ret = expand_dollar(env, &current, &i);
             else if (current[i] == '\\')
-                ret = escape_backlash(env, &current, &i);
+                *ret = escape_backlash(env, &current, &i);
             else
                 i++;
-            if (ret == -1)
+            if (*ret != 0)
             {
+                if (*ret == 2)
+                    fprintf(stderr,
+                            "expansion: Unexpected EOF while looking for matching `}'\n");
+                else if (*ret == 1)
+                    fprintf(stderr, "expansion: Bad substitution\n");
                 p->current = current;
-                fprintf(stderr, "Failed to expand %s\n", current);
                 list_destroy(copy);
                 return NULL;
             }

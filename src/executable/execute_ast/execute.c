@@ -28,16 +28,21 @@ int execute_assignment(struct ast *ast, struct environment *env)
         return -1;
     }
 
+    struct variable *var_before = NULL;
     // Expand child before assignment
     if (ast->first_child != NULL)
     {
-        struct list *expand_child_arg = expansion(ast->first_child->arg, env);
+        int return_code = 0;
+        struct list *expand_child_arg = expansion(ast->first_child->arg, env, &return_code);
         if (expand_child_arg == NULL)
-            return 2;
+            return return_code;
 
         list_destroy(ast->first_child->arg);
         ast->first_child->arg = expand_child_arg;
         ast->first_child->is_expand = 1;
+
+        //If there is child => variable assignment is local
+        var_before = dup_variables(env->variables);
     }
 
     char delim[] = "=";
@@ -46,17 +51,35 @@ int execute_assignment(struct ast *ast, struct environment *env)
         // Set variable
         char *variable_name = strtok(p->current, delim);
         char *variable_value = strtok(NULL, delim);
+
+        // Return code 4 to know if the variable is expended
+        int ret = 4;
+        if (variable_value != NULL)
+            variable_value = expand_string(variable_value, env, &ret);
+
         if (variable_name == NULL || variable_value == NULL
             || set_variable(&env->variables, variable_name, variable_value)
                 == -1)
         {
+            if (ret != 4)
+                free(variable_value);
+            free_variables(var_before);
             fprintf(stderr, "Assignment failed\n");
             return 2;
         }
+
+        if (ret != 4)
+            free(variable_value);
     }
 
-    execute_ast(ast->first_child, env);
-    return 0;
+    int code = execute_ast(ast->first_child, env);
+
+    if (var_before != NULL)
+    {
+        free_variables(env->variables);
+        env->variables = var_before;
+    }
+    return code;
 }
 
 int execute_list(struct ast *ast, struct environment *env)
