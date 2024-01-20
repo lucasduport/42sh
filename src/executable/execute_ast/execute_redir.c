@@ -91,7 +91,7 @@ static struct redirection open_file(char *operator, char *filename)
     else if (!strcmp(operator, "<>"))
     {  
         redir.io_number = 0;
-        flags = O_RDWR;
+        flags = O_RDWR | O_CREAT | O_TRUNC;
     }
     else
     {  
@@ -120,7 +120,7 @@ static struct redirection open_file(char *operator, char *filename)
     if (flags == -1)
         debug_printf(LOG_EXEC, "operator '%s' not found\n", operator);
   
-    redir.word_fd = open(filename, flags, 0664);
+    redir.word_fd = open(filename, flags);
     return redir;
 }
 
