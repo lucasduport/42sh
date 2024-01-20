@@ -91,7 +91,7 @@ static struct redirection open_file(char *operator, char *filename)
     else if (!strcmp(operator, "<>"))
     {  
         redir.io_number = 0;
-        flags = O_RDWR;
+        flags = O_RDWR | O_CREAT | O_TRUNC;
     }
     else
     {  
@@ -120,28 +120,8 @@ static struct redirection open_file(char *operator, char *filename)
     if (flags == -1)
         debug_printf(LOG_EXEC, "operator '%s' not found\n", operator);
   
-    redir.word_fd = open(filename, flags, 0664);
+    redir.word_fd = open(filename, flags, 0644);
     return redir;
-}
-
-/**
- * @brief Check if the io_number is a valid fd.
- * 
- * @param fd File descriptor to test.
- * @return 0 if valid, 1 otherwise.
-*/
-static int is_valid_fd(int fd)
-{
-    if (fd == 1 || fd == 2)
-        return 1;    
-
-    FILE *check = fdopen(fd, "rw");
-    
-    if (check == NULL)
-        return 0;
-
-    fclose(check);
-    return 1;
 }
 
 int execute_redir(struct ast *ast, struct environment *env)
@@ -157,7 +137,7 @@ int execute_redir(struct ast *ast, struct environment *env)
     if (ast->arg->next->next != NULL)
     {
         int fd = atoi(ast->arg->next->next->current);
-        if (is_valid_fd(fd))
+        if (fcntl(fd, F_GETFD) != -1)
             redir.io_number = fd;
     }
 
