@@ -28,6 +28,7 @@
     - command: "while false; do echo coucou; done"
     - command: "until true; do echo coucou; done"
     - command: "while ! echo coucou; do echo ahhhh; done"
+    - command: "rm test.txt; until cat test.txt; do echo coucou > test.txt; done; rm test.txt"
     - command: "touch test.txt; while cat test.txt; rm test.txt; done"
     - command: "touch test.txt; while cat test.txt; do echo coucou; rm test.txt; done"
     - command: "rm test.txt; until cat test.txt; do touch test.txt; echo coucou; done"
@@ -39,4 +40,5 @@
   sub-category: assignment
   tests:
     - command: "B=4"
-
+    - command: "B=4 echo > test.txt coucou"
+    - command: "B=5 A=6"

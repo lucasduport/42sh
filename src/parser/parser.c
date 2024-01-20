@@ -2,6 +2,16 @@
 
 #include <stdio.h>
 
+static void skip_to_end(struct lexer *lex)
+{
+    struct token peek = lexer_peek(lex);
+    while (peek.type != TOKEN_NEWLINE && peek.type != TOKEN_EOF)
+    {
+        token_free(lexer_pop(lex));
+        peek = lexer_peek(lex);
+    }
+}
+
 enum parser_status parser_input(struct lexer *lex, struct ast **res)
 {
     enum token_type peek_type = (lexer_peek(lex)).type;
@@ -29,6 +39,7 @@ enum parser_status parser_input(struct lexer *lex, struct ast **res)
     goto error;
 
 error:
+    skip_to_end(lex);
     fprintf(stderr, "parser: parsing error\n");
     ast_free(*res);
     return PARSER_UNEXPECTED_TOKEN;

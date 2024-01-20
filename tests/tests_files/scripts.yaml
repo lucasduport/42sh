@@ -38,4 +38,27 @@
           caca
           boudin
           echo $i
+
+- category: scripts
+  sub-category: redir
+  tests:
+    - command: |
+        echo coucou |
+
+        echo ahhhh
+
+- category: scripts
+  sub-category: loop
+  tests:
+    - command: |
+        while false
+        do echo coucou
+        done
+    - command: |
+        until true
+        do echo coucou
+        done
+    - command: |
+        for i in a b c
+        do echo coucou
         done
