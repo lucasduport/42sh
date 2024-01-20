@@ -8,13 +8,13 @@ void print_token(struct token token)
     char *token_fam[] = { "RESERVED",  "OPERATOR",     "REDIR",
                           "IO_NUMBER", "ASSIGNMENT_W", "WORD" };
 
-    char *token_type[] = { "IF",         "THEN",      "ELIF",    "ELSE",
-                           "FI",         "DO",        "DONE",    "WHILE",
-                           "UNTIL",      "FOR",       "IN",      "NEG",
-                           "SEMICOLONS", "NEWLINE",   "PIPE",    "AND_IF",
-                           "OR_IF",      "DSEMI",  "EOF", "LESS",    "GREAT",
-                           "DLESS",      "DGREAT",    "LESSAND", "GREATAND",
-                           "LESSGREAT",  "DLESSDASH", "CLOBBER", "WORD", "NULL" };
+    char *token_type[] = {
+        "IF",         "THEN",      "ELIF",      "ELSE",    "FI",     "DO",
+        "DONE",       "WHILE",     "UNTIL",     "FOR",     "IN",     "NEG",
+        "SEMICOLONS", "NEWLINE",   "PIPE",      "AND_IF",  "OR_IF",  "DSEMI",
+        "EOF",        "LESS",      "GREAT",     "DLESS",   "DGREAT", "LESSAND",
+        "GREATAND",   "LESSGREAT", "DLESSDASH", "CLOBBER", "WORD",   "NULL"
+    };
 
     debug_printf(LOG_LEX,
                  "[TOKEN] Family: TOKEN_FAM_%s | Type: TOKEN_%s | Data: %s\n",

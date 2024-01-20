@@ -183,13 +183,13 @@ void set_environment(struct environment *env, int argc, char *argv[])
 {
     if (argc)
         argc = argc;
-    
+
     if (argv)
         argv = argv;
-    
-    //set_number_variable(env, argc, argv);
 
-    //set_star_variable(env);
+    // set_number_variable(env, argc, argv);
+
+    // set_star_variable(env);
 
     set_dollar_dollar(env);
 

@@ -19,7 +19,7 @@ int io_abstraction(int argc, char *argv[])
         if (argc == 2)
         {
             fprintf(stderr, "%s: option requires an argument\n", argv[1]);
-            return IO_FAILED;          
+            return IO_FAILED;
         }
 
         stream = fmemopen(argv[2], strlen(argv[2]), "r");

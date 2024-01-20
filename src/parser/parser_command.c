@@ -8,11 +8,11 @@ enum parser_status parser_command(struct lexer *lex, struct ast **res)
     if (peek.type == TOKEN_IF || peek.type == TOKEN_WHILE
         || peek.type == TOKEN_UNTIL || peek.type == TOKEN_FOR)
     {
-        debug_printf(LOG_PARS,"[PARSER] Shell command - command\n");
+        debug_printf(LOG_PARS, "[PARSER] Shell command - command\n");
 
         if (parser_shell_command(lex, res) == PARSER_UNEXPECTED_TOKEN)
             return PARSER_UNEXPECTED_TOKEN;
-        
+
         struct ast *tmp_command = *res;
         struct ast *tmp_redir = NULL;
 
@@ -25,7 +25,7 @@ enum parser_status parser_command(struct lexer *lex, struct ast **res)
                 ast_free(tmp_redir);
                 return PARSER_UNEXPECTED_TOKEN;
             }
-            
+
             ast_add_child_to_child(&tmp_redir, *res);
             peek = lexer_peek(lex);
         }
@@ -50,14 +50,15 @@ enum parser_status parser_simple_command(struct lexer *lex, struct ast **res)
     struct ast *tmp_command = ast_new(AST_COMMAND);
 
     // Parse prefix
-    while (peek.family == TOKEN_FAM_IO_NUMBER || peek.family == TOKEN_FAM_REDIR || peek.family == TOKEN_FAM_ASSIGNMENT_W)
+    while (peek.family == TOKEN_FAM_IO_NUMBER || peek.family == TOKEN_FAM_REDIR
+           || peek.family == TOKEN_FAM_ASSIGNMENT_W)
     {
         enum parser_status stat = 0;
         if (peek.family == TOKEN_FAM_ASSIGNMENT_W)
             stat = parser_prefix(lex, &tmp_assignement);
         else
             stat = parser_prefix(lex, res);
-        
+
         if (stat == PARSER_UNEXPECTED_TOKEN)
             goto error;
 
@@ -65,7 +66,7 @@ enum parser_status parser_simple_command(struct lexer *lex, struct ast **res)
             ast_add_child_to_child(&tmp_redir, *res);
         peek = lexer_peek(lex);
     }
-    
+
     // No word
     peek = lexer_peek(lex);
     if (peek.type != TOKEN_WORD)
@@ -90,8 +91,10 @@ enum parser_status parser_simple_command(struct lexer *lex, struct ast **res)
     peek = lexer_peek(lex);
     while (peek.family != TOKEN_FAM_OPERATOR)
     {
-        debug_printf(LOG_PARS, "[PARSER] In element loop, peek data = %s\n", peek.data);
-        if (peek.family == TOKEN_FAM_IO_NUMBER || peek.family == TOKEN_FAM_REDIR)
+        debug_printf(LOG_PARS, "[PARSER] In element loop, peek data = %s\n",
+                     peek.data);
+        if (peek.family == TOKEN_FAM_IO_NUMBER
+            || peek.family == TOKEN_FAM_REDIR)
         {
             if (parser_element(lex, res) == PARSER_UNEXPECTED_TOKEN)
                 goto error;
@@ -108,7 +111,7 @@ enum parser_status parser_simple_command(struct lexer *lex, struct ast **res)
         ast_free(tmp_assignement);
     else
         ast_add_child_to_child(&tmp_redir, tmp_assignement);
-    
+
     ast_add_child_to_child(&tmp_redir, tmp_command);
     *res = tmp_redir;
 

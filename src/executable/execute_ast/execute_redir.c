@@ -1,15 +1,15 @@
-#include "execute.h"
-
-#include <fcntl.h>
 #include <err.h>
+#include <fcntl.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h> 
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <unistd.h>
+
+#include "execute.h"
 
 /**
  * @brief Exec each part of pipe
@@ -17,10 +17,11 @@
  * @param left 1 if it's left part of pipe 0 otherwise
  * @param fds_pipe Array that contain file descriptors of pipe
  * @param env Current environement
- * 
+ *
  * @return Return code of ast's execution
-*/
-static int exec_fork(struct ast *ast, int is_left, int fds_pipe[2], struct environment *env)
+ */
+static int exec_fork(struct ast *ast, int is_left, int fds_pipe[2],
+                     struct environment *env)
 {
     pid_t p = fork();
     if (p == -1)
@@ -68,7 +69,7 @@ int execute_pipe(struct ast *ast, struct environment *env)
     int returnStatus;
     waitpid(p_left, &returnStatus, 0);
     close(fds_pipe[1]);
-    waitpid(p_right, &returnStatus, 0); 
+    waitpid(p_right, &returnStatus, 0);
     close(fds_pipe[0]);
 
     // Return exit code from second command
@@ -77,10 +78,11 @@ int execute_pipe(struct ast *ast, struct environment *env)
 
 /**
  * @brief Open a file with the appropriate mode based on the operator used.
- * 
- * @return A redirection structure that contain the file descriptor and other usefull things.
+ *
+ * @return A redirection structure that contain the file descriptor and other
+ * usefull things.
  */
-static struct redirection open_file(char *operator, char *filename)
+static struct redirection open_file(char *operator, char * filename)
 {
     struct redirection redir;
     redir.io_number = 1;
@@ -89,12 +91,12 @@ static struct redirection open_file(char *operator, char *filename)
     if (!strcmp(operator, ">>"))
         flags = O_WRONLY | O_CREAT | O_APPEND;
     else if (!strcmp(operator, "<>"))
-    {  
+    {
         redir.io_number = 0;
         flags = O_RDWR | O_CREAT | O_TRUNC;
     }
     else
-    {  
+    {
         char *write_only[] = { ">", ">|", ">&" };
         for (size_t i = 0; i < sizeof(write_only) / sizeof(char *); i++)
         {
@@ -104,7 +106,7 @@ static struct redirection open_file(char *operator, char *filename)
                 break;
             }
         }
-        
+
         char *read_only[] = { "<", "<&" };
         for (size_t i = 0; i < sizeof(read_only) / sizeof(char *); i++)
         {
@@ -115,21 +117,21 @@ static struct redirection open_file(char *operator, char *filename)
                 break;
             }
         }
-   }
+    }
 
     if (flags == -1)
         debug_printf(LOG_EXEC, "operator '%s' not found\n", operator);
-  
+
     redir.word_fd = open(filename, flags, 0644);
     return redir;
 }
 
 int execute_redir(struct ast *ast, struct environment *env)
-{       
+{
     if (ast->arg == NULL)
         return -1;
 
-    char *operator = ast->arg->current;
+    char *operator= ast->arg->current;
     char *filename = ast->arg->next->current;
 
     struct redirection redir = open_file(operator, filename);
@@ -160,6 +162,6 @@ int execute_redir(struct ast *ast, struct environment *env)
     dup2(save_fd, redir.io_number);
     close(save_fd);
     close(redir.word_fd);
- 
+
     return code;
 }

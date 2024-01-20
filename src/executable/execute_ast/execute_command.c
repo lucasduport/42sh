@@ -1,11 +1,11 @@
-#include "execute.h"
-
-#include <errno.h>
 #include <err.h>
-#include <unistd.h>
+#include <errno.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <unistd.h>
+
+#include "execute.h"
 
 /**
  * @brief Execute commands which are not builtins
@@ -31,7 +31,7 @@ static int execvp_wrapper(struct list *arg, struct environment *env)
     int pid = fork();
     if (pid == -1)
         return 2;
-        
+
     if (pid == 0)
     {
         // Child process
@@ -58,7 +58,7 @@ static int execvp_wrapper(struct list *arg, struct environment *env)
         fprintf(stderr, "%s: command not found\n", argv[0]);
         _exit(127);
     }
-    
+
     int return_status;
     // Wait for child process to finish
     waitpid(pid, &return_status, 0);
@@ -103,6 +103,6 @@ int execute_command(struct ast *ast, struct environment *env)
         list_destroy(tmp_arg);
     ast->is_expand = !ast->is_expand;
 
-    //set_exit_variale(env, code);
+    // set_exit_variale(env, code);
     return code;
 }

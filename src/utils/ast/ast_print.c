@@ -24,7 +24,8 @@ static void ast_print_list(struct ast *ast)
 
 static void ast_print_while_until(struct ast *ast)
 {
-    debug_printf(LOG_AST, "%s { ", (ast->type == AST_WHILE) ? "while" : "until");
+    debug_printf(LOG_AST, "%s { ",
+                 (ast->type == AST_WHILE) ? "while" : "until");
     ast_print(ast->first_child);
 
     struct ast *child = ast->first_child;
@@ -103,12 +104,13 @@ static void ast_print_assignment(struct ast *ast)
     ast_print(ast->first_child);
 }
 
-print_ast_node printers[] = 
-{
-    [AST_COMMAND] = ast_print_command, [AST_LIST] = ast_print_list, [AST_WHILE] = ast_print_while_until,
-    [AST_UNTIL] = ast_print_while_until, [AST_FOR] = ast_print_for, [AST_IF] = ast_print_if,
-    [AST_NEG] = ast_print_neg, [AST_AND] = ast_print_and_or, [AST_OR] = ast_print_and_or,
-    [AST_PIPE] = ast_print_pipe, [AST_REDIR] = ast_print_redir, [AST_ASSIGNMENT] = ast_print_assignment
+print_ast_node printers[] = {
+    [AST_COMMAND] = ast_print_command,   [AST_LIST] = ast_print_list,
+    [AST_WHILE] = ast_print_while_until, [AST_UNTIL] = ast_print_while_until,
+    [AST_FOR] = ast_print_for,           [AST_IF] = ast_print_if,
+    [AST_NEG] = ast_print_neg,           [AST_AND] = ast_print_and_or,
+    [AST_OR] = ast_print_and_or,         [AST_PIPE] = ast_print_pipe,
+    [AST_REDIR] = ast_print_redir,       [AST_ASSIGNMENT] = ast_print_assignment
 };
 
 void ast_print(struct ast *ast)
@@ -118,4 +120,3 @@ void ast_print(struct ast *ast)
     else
         printers[ast->type](ast);
 }
-

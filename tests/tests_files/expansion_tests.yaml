@@ -55,4 +55,5 @@
     - command: for fruit in pomme poire pêche; do echo $fruit; done
     - command: A=4 B=$A; echo $B
     - command: A=4 B=$A echo $B; echo $A; echo $B
+    - command: echo {}
 

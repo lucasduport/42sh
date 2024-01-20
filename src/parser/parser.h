@@ -135,7 +135,6 @@ enum parser_status parser_prefix(struct lexer *lex, struct ast **res);
  */
 enum parser_status parser_redirection(struct lexer *lex, struct ast **res);
 
-
 /**
  * @file parser_loop.c
  * @brief Parse while grammar :
@@ -156,7 +155,8 @@ enum parser_status parser_rule_until(struct lexer *lex, struct ast **res);
  * @file parser_loop.c
  * @brief Parse for grammar :
  *
- * 'for' WORD ([';'] | [ {'\n'} 'in' {WORD} (';' | '\n') ] ) {'\n'} 'do' compund_list 'done'
+ * 'for' WORD ([';'] | [ {'\n'} 'in' {WORD} (';' | '\n') ] ) {'\n'} 'do'
+ * compund_list 'done'
  */
 enum parser_status parser_rule_for(struct lexer *lex, struct ast **res);
 

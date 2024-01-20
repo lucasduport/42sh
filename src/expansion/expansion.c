@@ -258,7 +258,8 @@ static int expand_brace(struct environment *env, char **str, size_t *index)
     {
         if (!is_valid_char(var_name[i]))
         {
-            debug_printf(LOG_EXP, "[EXPANSION] bad variable name: %s\n", var_name);
+            debug_printf(LOG_EXP, "[EXPANSION] bad variable name: %s\n",
+                         var_name);
             free(var_name);
             return 1;
         }
@@ -352,7 +353,6 @@ static int expand_double_quotes(struct environment *env, char **str,
     return 2;
 }
 
-
 char *expand_string(char *str, struct environment *env, int *ret)
 {
     char *copy = strdup(str);
@@ -406,7 +406,8 @@ struct list *expansion(struct list *arguments, struct environment *env,
             {
                 if (*ret == 2)
                     fprintf(stderr,
-                            "expansion: Unexpected EOF while looking for matching `}'\n");
+                            "expansion: Unexpected EOF while looking for "
+                            "matching `}'\n");
                 else if (*ret == 1)
                     fprintf(stderr, "expansion: Bad substitution\n");
                 p->current = current;

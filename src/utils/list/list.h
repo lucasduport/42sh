@@ -24,7 +24,7 @@ struct list *list_create(char *current);
 
 /**
  * @brief Append a new element at the end of the linked list.
- * 
+ *
  * If *l is NULL, a new list is create
  *
  * @param l Pointer to linked list to modify.
@@ -43,10 +43,10 @@ char *list_get_n(struct list *l, size_t n);
 
 /**
  * @brief Copy a list, inclund string
- * 
+ *
  * @param list List that we want to copy
  * @return Copy of original list
-*/
+ */
 struct list *list_copy(struct list *original);
 
 /**

@@ -38,9 +38,9 @@ static struct token token_alloc(enum token_type type, enum token_family family,
 
 /**
  * @brief Check if the current word could be an IO number
- * 
+ *
  * @param lexer The lexer
-*/
+ */
 static int check_io_number(struct lexer *lexer)
 {
     for (size_t i = 0; lexer->current_word->data[i] != '\0'; i++)
@@ -54,11 +54,11 @@ static int check_io_number(struct lexer *lexer)
 
 /**
  * @brief Check if the current word could be an assignment word
- * 
+ *
  * a=2 ?
- * 
+ *
  * @param lexer The lexer
-*/
+ */
 static int check_assignment(struct lexer *lexer)
 {
     size_t len = lexer->current_word->len;
@@ -213,7 +213,8 @@ static void set_quote(struct lexer *lexer)
     {
         string_append_char(lexer->current_word, lexer->current_char);
         lexer->current_char = io_getchar();
-        debug_printf(LOG_LEX, "[LEXER] current_char: %c\n", lexer->current_char);
+        debug_printf(LOG_LEX, "[LEXER] current_char: %c\n",
+                     lexer->current_char);
         string_append_char(lexer->current_word, lexer->current_char);
     }
     else
@@ -240,8 +241,8 @@ static void skip_comment(struct lexer *lexer)
 
 /**
  * @brief Check if the lexer need to change one mode.
- * 
-*/
+ *
+ */
 static void check_special_behavior(struct lexer *lexer)
 {
     if (lexer->is_quoted && lexer->current_char == lexer->current_quote)
@@ -259,7 +260,7 @@ static void check_special_behavior(struct lexer *lexer)
 
 static void get_variable(struct lexer *lexer)
 {
-    do 
+    do
     {
         string_append_char(lexer->current_word, lexer->current_char);
         lexer->current_char = io_getchar();
@@ -282,8 +283,8 @@ static int find_mode(struct lexer *lexer)
     if (lexer->current_char == '\0')
     {
         lexer->last_token = (struct token){ .type = TOKEN_EOF,
-                              .family = TOKEN_FAM_OPERATOR,
-                              .data = NULL };
+                                            .family = TOKEN_FAM_OPERATOR,
+                                            .data = NULL };
 
         return 1;
     }
@@ -301,7 +302,7 @@ static int find_mode(struct lexer *lexer)
 static struct token parse_input_for_tok(struct lexer *lexer)
 {
     lexer->current_char = io_getchar();
-    //debug_printf(LOG_LEX, "%c\n", lexer->current_char);
+    // debug_printf(LOG_LEX, "%c\n", lexer->current_char);
 
     // rule 1
     if (lexer->current_char == '\0')
@@ -321,7 +322,7 @@ static struct token parse_input_for_tok(struct lexer *lexer)
     {
         if (lexer->current_char != '\n')
             lexer->last_is_op = 0;
-        
+
         struct token tok = token_new(lexer);
 
         if (lexer->current_char != ' ' && lexer->current_char != '\t')
@@ -339,7 +340,7 @@ static struct token parse_input_for_tok(struct lexer *lexer)
     {
         // Append '$' or '`'
         string_append_char(lexer->current_word, lexer->current_char);
-        
+
         if (find_mode(lexer))
             return token_new(lexer);
     }
@@ -364,7 +365,8 @@ static struct token parse_input_for_tok(struct lexer *lexer)
     }
 
     // rule 7
-    else if (!lexer->is_quoted && !lexer->is_subshell && isblank(lexer->current_char))
+    else if (!lexer->is_quoted && !lexer->is_subshell
+             && isblank(lexer->current_char))
     {
         if (lexer->current_word->len != 0)
             return token_new(lexer);

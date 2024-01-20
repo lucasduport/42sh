@@ -33,7 +33,8 @@ int execute_assignment(struct ast *ast, struct environment *env)
     if (ast->first_child != NULL)
     {
         int return_code = 0;
-        struct list *expand_child_arg = expansion(ast->first_child->arg, env, &return_code);
+        struct list *expand_child_arg =
+            expansion(ast->first_child->arg, env, &return_code);
         if (expand_child_arg == NULL)
             return return_code;
 
@@ -41,7 +42,7 @@ int execute_assignment(struct ast *ast, struct environment *env)
         ast->first_child->arg = expand_child_arg;
         ast->first_child->is_expand = 1;
 
-        //If there is child => variable assignment is local
+        // If there is child => variable assignment is local
         var_before = dup_variables(env->variables);
     }
 

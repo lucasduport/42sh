@@ -63,11 +63,11 @@ enum parser_status parser_prefix(struct lexer *lex, struct ast **res)
     if (peek.family == TOKEN_FAM_ASSIGNMENT_W)
     {
         list_append(&((*res)->arg), peek.data);
-        
+
         lexer_pop(lex);
         return PARSER_OK;
     }
-    
+
     return parser_redirection(lex, res);
 }
 
@@ -77,7 +77,7 @@ enum parser_status parser_redirection(struct lexer *lex, struct ast **res)
 
     if (number.family == TOKEN_FAM_IO_NUMBER)
         lexer_pop(lex);
-    
+
     // Check redirection token
     struct token redir = lexer_peek(lex);
     if (redir.family != TOKEN_FAM_REDIR)
@@ -96,7 +96,7 @@ enum parser_status parser_redirection(struct lexer *lex, struct ast **res)
     *res = ast_new(AST_REDIR);
     (*res)->arg = list_create(redir.data);
     list_append(&((*res)->arg), word.data);
-    
+
     if (number.family == TOKEN_FAM_IO_NUMBER)
         list_append(&((*res)->arg), number.data);
     return PARSER_OK;
