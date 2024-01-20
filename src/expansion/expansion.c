@@ -4,7 +4,7 @@
 
 static int is_special_char(char c)
 {
-    char special_char[] = {'?', '*', '$', '#', '@'};
+    char special_char[] = { '?', '*', '$', '#', '@' };
     for (size_t i = 0; i < sizeof(special_char) / sizeof(char); i++)
     {
         if (special_char[i] == c)
@@ -209,12 +209,12 @@ static int expand_variable(struct environment *env, char **str, size_t *index)
     }
     var_name[var_len] = '\0';
     char *var_value;
-    
+
     if (check_env_variable(var_name))
         var_value = getenv(var_name);
     else
         var_value = get_value(env->variables, var_name);
-        
+
     free(var_name);
 
     // Remove the first delimiter $
@@ -374,7 +374,7 @@ char *expand_string(char *str, struct environment *env, int *ret)
 {
     if (str == NULL)
         return NULL;
-    
+
     char *copy = strdup(str);
     size_t i = 0;
     while (copy[i] != '\0')

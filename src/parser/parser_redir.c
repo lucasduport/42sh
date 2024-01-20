@@ -15,8 +15,6 @@ enum parser_status parser_pipeline(struct lexer *lex, struct ast **res)
 
     if (parser_command(lex, res) == PARSER_UNEXPECTED_TOKEN)
     {
-        debug_printf(LOG_PARS,
-                     "[PARSER] Failed parse first command - pipeline\n");
         ast_free(tmp_final);
         return PARSER_UNEXPECTED_TOKEN;
     }
