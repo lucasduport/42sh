@@ -299,7 +299,6 @@ static int find_mode(struct lexer *lexer)
 static struct token parse_input_for_tok(struct lexer *lexer)
 {
     lexer->current_char = io_getchar();
-    // debug_printf(LOG_LEX, "%c\n", lexer->current_char);
 
     // rule 1
     if (lexer->current_char == '\0')
@@ -317,8 +316,7 @@ static struct token parse_input_for_tok(struct lexer *lexer)
     // rule 3
     else if (lexer->last_is_op && !is_valid_operator(lexer))
     {
-        if (lexer->current_char != '\n')
-            lexer->last_is_op = 0;
+            lexer->last_is_op = !(lexer->current_char != '\n');
 
         struct token tok = token_new(lexer);
 
@@ -352,8 +350,7 @@ static struct token parse_input_for_tok(struct lexer *lexer)
             struct token tok = token_new(lexer);
             string_append_char(lexer->current_word, lexer->current_char);
 
-            if (lexer->current_char == '\n')
-                lexer->is_newline = 1;
+            lexer->is_newline = lexer->current_char == '\n';
 
             return tok;
         }
