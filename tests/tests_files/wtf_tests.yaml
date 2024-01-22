@@ -1,0 +1,10 @@
+- category: wtf
+  sub-category: unique symbols
+  tests:
+    - command: $
+    - command: !
+    - command: ';'
+    - command: ','
+    - command: ^
+    - command:
+    - command: a

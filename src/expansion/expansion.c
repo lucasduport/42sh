@@ -204,8 +204,7 @@ static int expand_variable(struct environment *env, char **str, size_t *index)
     }
     if (var_name == NULL)
     {
-        debug_printf(LOG_EXP, "[EXPANSION] bad variable name\n");
-        return 1;
+        return 0;
     }
     var_name[var_len] = '\0';
     char *var_value;
@@ -427,7 +426,7 @@ struct list *expansion(struct list *arguments, struct environment *env,
                 if (*ret == 2)
                     fprintf(stderr,
                             "expansion: Unexpected EOF while looking for "
-                            "matching `}'\n");
+                            "matching `%s'\n", current);
                 else if (*ret == 1)
                     fprintf(stderr, "expansion: Bad substitution\n");
                 p->current = current;

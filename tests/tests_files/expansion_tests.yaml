@@ -34,6 +34,18 @@
     - command: echo "aa\
     - command: echo "aa\b\cc"
 
+    # Traces:
+    - command: echo '"\\\\'"\\
+    - command: z="coucou les michtos"; echo $z
+    - command: $ \\a \\b \\z \\ \"
+    - command: $`"\\
+    - command: |
+        \\
+        '
+        \" \" \' a b c d \\ | "
+    - command: $`"\\
+    
+
 - category: expansion
   sub-category: variable
   tests:

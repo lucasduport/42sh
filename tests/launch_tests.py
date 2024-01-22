@@ -27,6 +27,8 @@ class TestShellScript(unittest.TestCase):
     def run_command(self, binary, command, input_type):
         # Create a temporary file to store the command
         temp_file_path = ".tmp_tst"
+        if command == None:
+            command = ""
         with open(temp_file_path, 'w') as temp_file:
             temp_file.write(command)
 
