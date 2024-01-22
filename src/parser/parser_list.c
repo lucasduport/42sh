@@ -2,8 +2,8 @@
 
 enum parser_status parser_list(struct lexer *lex, struct ast **res)
 {
-    if (parser_and_or(lex, res) == PARSER_UNEXPECTED_TOKEN)
-        return PARSER_UNEXPECTED_TOKEN;
+    if (parser_and_or(lex, res) == PARSER_ERROR)
+        return PARSER_ERROR;
 
     struct token peek = lexer_peek(lex);
 
@@ -24,10 +24,10 @@ enum parser_status parser_list(struct lexer *lex, struct ast **res)
 
         struct ast *tmp_ast = NULL;
         // Else we need to parse 'and_or'
-        if (parser_and_or(lex, &tmp_ast) == PARSER_UNEXPECTED_TOKEN)
+        if (parser_and_or(lex, &tmp_ast) == PARSER_ERROR)
         {
             ast_free(tmp_ast);
-            return PARSER_UNEXPECTED_TOKEN;
+            return PARSER_ERROR;
         }
 
         // If and_or works, add command retrieving
@@ -52,8 +52,8 @@ enum parser_status parser_compound_list(struct lexer *lex, struct ast **res)
     }
 
     debug_printf(LOG_PARS, "[PARSER] Try parse first and_or - compund list\n");
-    if (parser_and_or(lex, res) == PARSER_UNEXPECTED_TOKEN)
-        return PARSER_UNEXPECTED_TOKEN;
+    if (parser_and_or(lex, res) == PARSER_ERROR)
+        return PARSER_ERROR;
 
     peek = lexer_peek(lex);
 
@@ -79,10 +79,10 @@ enum parser_status parser_compound_list(struct lexer *lex, struct ast **res)
 
         struct ast *tmp_ast = NULL;
         // Else we need to parse 'and_or'
-        if (parser_and_or(lex, &tmp_ast) == PARSER_UNEXPECTED_TOKEN)
+        if (parser_and_or(lex, &tmp_ast) == PARSER_ERROR)
         {
             ast_free(tmp_ast);
-            return PARSER_UNEXPECTED_TOKEN;
+            return PARSER_ERROR;
         }
 
         // If and_or works, add command retrieving

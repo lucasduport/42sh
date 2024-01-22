@@ -109,7 +109,7 @@ static struct token token_new(struct lexer *lexer)
         return token_alloc(TOKEN_WORD, TOKEN_FAM_IO_NUMBER, lexer);
 
     if (check_assignment(lexer))
-        return token_alloc(TOKEN_WORD, TOKEN_FAM_ASSIGNMENT_W, lexer);
+        return token_alloc(TOKEN_WORD, TOKEN_FAM_ASSW, lexer);
 
     return token_alloc(TOKEN_WORD, TOKEN_FAM_WORD, lexer);
 }

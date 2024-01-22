@@ -14,6 +14,7 @@ enum ast_type
     AST_FOR,
     AST_COMMAND,
     AST_LIST,
+    AST_FUNC,
     AST_AND,
     AST_OR,
     AST_NEG,
