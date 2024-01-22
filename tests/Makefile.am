@@ -12,7 +12,7 @@ check-io: testsIo
 check-local: testsIo
 	./$(check_PROGRAMS)
 	rm -f *.txt
-	python3 launch_tests.py --verbose tests_files/builtin_tests.yaml
+	python3 launch_tests.py --verbose tests_files
 
 clean-local:
 	rm -f testsIo
