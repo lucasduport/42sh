@@ -181,11 +181,8 @@ void set_number_variable(struct environment *env, int argc, char *argv[])
 
 void set_environment(struct environment *env, int argc, char *argv[])
 {
-    if (argc)
-        argc = argc;
-
-    if (argv)
-        argv = argv;
+    (void)argc;
+    (void)argv;
 
     // set_number_variable(env, argc, argv);
 

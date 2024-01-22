@@ -38,7 +38,7 @@ static int exec_fork(struct ast *ast, int is_left, int fds_pipe[2],
         close(is_left ? fds_pipe[0] : fds_pipe[1]);
 
         int code = execute_ast(ast, env);
-        exit(code);
+        _exit(code);
     }
 
     return p;
@@ -85,44 +85,36 @@ int execute_pipe(struct ast *ast, struct environment *env)
 static struct redirection open_file(char *operator, char * filename)
 {
     struct redirection redir;
-    redir.io_number = 1;
-    int flags = -1;
 
-    if (!strcmp(operator, ">>"))
-        flags = O_WRONLY | O_CREAT | O_APPEND;
-    else if (!strcmp(operator, "<>"))
+    int index = 0;
+    int default_io[] = { 1, -1, 0, -1, 1, 1, 1, -1, 0, 0 };
+    char *operators[] = {">>", NULL, "<>", NULL, ">", ">|", ">&", NULL, "<", "<&" };
+    int flags[] = 
+    {   O_WRONLY | O_CREAT | O_APPEND,
+        O_RDWR | O_CREAT | O_APPEND,
+        O_WRONLY | O_CREAT | O_TRUNC, 
+        O_RDONLY
+    };
+    
+    size_t i = 0;
+    for ( ; i < sizeof(operators) / sizeof(char *); i++)
     {
-        redir.io_number = 0;
-        flags = O_RDWR | O_CREAT | O_TRUNC;
-    }
-    else
-    {
-        char *write_only[] = { ">", ">|", ">&" };
-        for (size_t i = 0; i < sizeof(write_only) / sizeof(char *); i++)
-        {
-            if (!strcmp(write_only[i], operator))
-            {
-                flags = O_WRONLY | O_CREAT | O_TRUNC;
-                break;
-            }
-        }
+        if (operators[i] == NULL)
+            index++;
 
-        char *read_only[] = { "<", "<&" };
-        for (size_t i = 0; i < sizeof(read_only) / sizeof(char *); i++)
-        {
-            if (!strcmp(read_only[i], operator))
-            {
-                redir.io_number = 0;
-                flags = O_RDONLY;
-                break;
-            }
-        }
+        else if (!strcmp(operators[i], operator))
+            break;
     }
 
-    if (flags == -1)
-        debug_printf(LOG_EXEC, "operator '%s' not found\n", operator);
+    if (i == sizeof(operators) / sizeof(char *))
+        debug_printf(LOG_EXEC, "[EXEC] operator '%s' not found\n", operator);
 
-    redir.word_fd = open(filename, flags, 0644);
+    if (i == 6 || i == 9)
+        redir.word_fd = atoi(filename);
+    else    
+        redir.word_fd = open(filename, flags[index], 0644);
+
+    redir.io_number = default_io[i];
     return redir;
 }
 
