@@ -4,11 +4,11 @@
 
 int main(int argc, char **argv)
 {
-    // create_logger("stdout");
+    //create_logger("stdout");
     enable_log_type(LOG_LEX);
-    disable_log_type(LOG_LEX);
-    enable_all_logs();
-    disable_all_logs();
+    //disable_log_type(LOG_LEX);
+    //enable_all_logs();
+    //disable_all_logs();
     // enable_log_type(LOG_PARS);
     // enable_log_type(LOG_AST);
     // enable_log_type(LOG_UTILS);
@@ -57,6 +57,7 @@ int main(int argc, char **argv)
             code = 2;
         parse_code = parser_input(lex, &res);
     }
+
     /*
 
     struct token tok = lexer_pop(lex);
@@ -69,7 +70,7 @@ int main(int argc, char **argv)
 
     int code = 0;
 
-    */
+    */    
 
     lexer_free(lex);
     environment_free(env);

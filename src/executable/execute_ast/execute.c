@@ -69,7 +69,7 @@ int execute_assignment(struct ast *ast, struct environment *env)
         {
             if (strcmp("IFS", variable_name) == 0)
             {
-                if (setenv("IFS", " \t", 1) == -1)
+                if (setenv("IFS", "", 1) == -1)
                     goto error;
             }
             else

@@ -88,7 +88,15 @@
     - command: é&~]&~]}#@#@@@###a========##]~~]#&@~&@============_____=====D ; echo $a
     - command: //#^~^#\~#&~]&éa===========^^#@#~}#}&}@#@²#=========_____=====D ; echo $a
     - command: a=$; echo $a;
+    - command: a=$$$$$$$; echo $a;
     - command: b=kk; a=$b; echo $a;
     - command: b=kk; a=${b}; echo $a;
-    - command: echo $
+    - command: echo $; echo $?
+    - command: "echo \\$; echo \\$?"
+    - command: "a=$_à)\"\"çé~#^#~}{#@; echo $a;"
+    - command: "a=b; c=\\$a; echo \\$a;"
+    - command: "a=bbbbb$; c=\\$a; echo \\$a;"
+    - command: a=$UID$UID$UID; echo $a
+    - command: a=$a$a$a; echo $a
+    - command: a=1; b=2; c=$a$b$a$b; echo $c
 

@@ -376,7 +376,11 @@ static struct token parse_input_for_tok(struct lexer *lexer)
         string_append_char(lexer->current_word, lexer->current_char);
 
         if (find_mode(lexer))
-            return token_new(lexer);
+        {
+            struct token tok = token_new(lexer);
+            string_append_char(lexer->current_word, lexer->current_char);
+            return tok;
+        }
     }
 
     // rule 6
