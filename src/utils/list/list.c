@@ -95,5 +95,5 @@ void list_print(struct list *l)
         tmp = tmp->next;
     }
 
-    debug_printf(LOG_UTILS, "%s ]\n", tmp->current);
+    debug_printf(LOG_UTILS, "%s ]", tmp->current);
 }
