@@ -5,6 +5,8 @@
 
 #include "../../../logger/logger.h"
 #include "../../../utils/list/list.h"
+#include "../../environment/environment.h"
+#include "../../../utils/variables/variables.h"
 
 /**
  * @brief echo builtin
@@ -29,5 +31,13 @@ int builtin_true(struct list *list);
  * @return return 1
  */
 int builtin_false(struct list *list);
+
+/**
+ * @brief exit builtin
+ * 
+ * @param list Linked list of argument (exit -> ...) 
+ * @return int return code 
+ */
+int builtin_exit(struct list *list, struct environment *env);
 
 #endif /* ! BUILTINS_H */

@@ -41,3 +41,34 @@
     - command: "/bin/true"
     - command: "/bin/false"
     - command: "if /bin/true; then /bin/true; else /bin/false; fi"
+
+- category: exit
+  sub-category: exit
+  tests:
+    - command:  exit 0
+    - command:  exit 1
+    - command:  exit 2
+    - command:  exit 3
+    - command:  exit 4
+    - command:  exit -1
+    - command:  exit 256
+    - command:  exit -7
+    - command: |
+        for i in a b; do
+          exit $i
+        done
+    - command: |
+        if exit 0; then
+          exit 1
+        else
+          exit 2
+        fi
+    - command: |
+        while exit 0; do
+          exit 1
+        done
+    - command: |
+        until exit 0; do
+          exit 1
+        done
+

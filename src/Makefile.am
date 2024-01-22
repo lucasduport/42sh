@@ -22,6 +22,7 @@ AM_CFLAGS = -std=c99 -Werror -Wall -Wextra -Wvla -pedantic
 	logger/liblogger.a \
 	io_backend/libio_backend.a \
 	executable/environment/libenvironment.a \
+	executable/execute_ast/builtins/libbuiltins.a \
 	expansion/libexpansion.a \
 	utils/libutils.a
 
