@@ -40,14 +40,6 @@ void environment_free(struct environment *env);
 int check_env_variable(const char *name);
 
 /**
- * @brief Check if name is the name of a special var
- *
- * @param name The variable name
- * @return bool
- */
-int check_special_variable(const char *name);
-
-/**
  * @brief Set the $? in the environment
  *
  * @param env The environment
@@ -108,6 +100,7 @@ void set_number_variable(struct environment *env, int argc, char *argv[]);
  * @param argc
  * @param argv
  */
-void set_environment(struct environment *env, int argc, char *argv[]);
+// void set_environment(struct environment *env, int argc, char *argv[])
+void set_environment(struct environment *env);
 
 #endif /* ! ENVIRONMENT_H */

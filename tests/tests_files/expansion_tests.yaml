@@ -62,8 +62,21 @@
     - command: echo $OLDPWD; echo $?
     - command: PWD=kk; echo $PWD; echo $OLDPWD
     - command: PWD=$OLDPWD; echo $PWD; echo $?
-
-
-    
-
+    - command: "@=a; echo \\$@"
+    - command: "~#____\\=kk; echo $?"
+    - command: "IFS=b; echo \\$IFS; IFS=pp; echo \\$?"
+    - command: IFS=b; echo $IFS; IFS=pp; echo $?
+    - command: "\\$a=a"
+    - command: "__a=kk ; echo \\$__a"
+    - command: __=kk ; echo $__
+    - command: a==; echo $a
+    - command: a====================_____=====D ; echo $a
+    - command: a====================_____=====D ; echo $a
+    - command: a=============__@@@@###[{\['{^}']}]=======_____=====D ; echo $a
+    - command: é&~]&~]}#@#@@@###a========##]~~]#&@~&@============_____=====D ; echo $a
+    - command: //#^~^#\~#&~]&éa===========^^#@#~}#}&}@#@²#=========_____=====D ; echo $a
+    - command: a=$; echo $a;
+    - command: b=kk; a=$b; echo $a;
+    - command: b=kk; a=${b}; echo $a;
+    - command: echo $
 
