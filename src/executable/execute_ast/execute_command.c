@@ -13,7 +13,6 @@
  * @param arg Chained list of arguments
  * @return return value from execution of the command
  */
-
 static int execvp_wrapper(struct list *arg, struct environment *env)
 {
     // Because unused variable
@@ -83,8 +82,8 @@ int execute_command(struct ast *ast, struct environment *env)
 
     // First arg contains the command
     char *first_arg = list_get_n(tmp_arg, 0);
-
     int code = 0;
+    
     if (strcmp(first_arg, "echo") == 0)
         code = builtin_echo(tmp_arg);
 
@@ -93,11 +92,15 @@ int execute_command(struct ast *ast, struct environment *env)
 
     else if (strcmp(first_arg, "false") == 0)
         code = builtin_false(tmp_arg);
+
+    else if (strcmp(first_arg, "exit") == 0)
+        code = builtin_exit(tmp_arg, env);
+
     else
         code = execvp_wrapper(tmp_arg, env);
+
     fflush(stderr);
     fflush(stdout);
-
     // If we expand -> free tmp_arg
     if (ast->is_expand)
         list_destroy(tmp_arg);

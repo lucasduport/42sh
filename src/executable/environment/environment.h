@@ -6,6 +6,7 @@
 
 struct environment
 {
+    bool exit;
     struct variable *variables;
 };
 

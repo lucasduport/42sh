@@ -84,10 +84,10 @@ static struct token token_new(struct lexer *lexer)
     string_append_char(lexer->current_word, '\0');
 
     char *reserved_words[] = { "if",   "then",  "elif",  "else", "fi", "do",
-                               "done", "while", "until", "for",  "in", "!",
+                               "done", "while", "until", "for",  "in", "!", "{", "}",
                                ";",    "\n",    "|",     "&&",   "||", ";;",
-                               "\0",   "<",     ">",     "<<",   ">>", "<&",
-                               "&>",   "<>",    "<<-",   ">|" };
+                               "\0", "(", ")", "<",     ">",     "<<",   ">>", "<&",
+                               ">&",   "<>", ">|" };
 
     int family = 0;
     for (size_t i = 0; i < sizeof(reserved_words) / sizeof(char *); i++)
@@ -95,7 +95,7 @@ static struct token token_new(struct lexer *lexer)
         // debug_printf(LOG_LEX,"test '%s' == '%s'\n", reserved_words[i],
         //              lexer->current_word->data);
 
-        if (i == 12 || i == 19)
+        if (i == 14 || i == 23)
             family++;
 
         if (!strcmp(reserved_words[i], lexer->current_word->data))
@@ -144,7 +144,7 @@ static int is_valid_operator(struct lexer *lexer)
 {
     char *reserved_operators[] = { "&",  "&&", "(",  ")",  ";",   ";;",
                                    "\n", "|",  "||", "<",  ">",   ">|",
-                                   "<<", ">>", "<&", "&>", "<<-", "<>" };
+                                   ">>", "<&", ">&", "<>" };
 
     string_append_char(lexer->current_word, lexer->current_char);
 

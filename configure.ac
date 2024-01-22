@@ -48,6 +48,7 @@ AC_CONFIG_FILES([
                     src/utils/Makefile
                     src/executable/Makefile
                     src/executable/execute_ast/Makefile
+                    src/executable/execute_ast/builtins/Makefile
                     src/executable/environment/Makefile
                     tests/Makefile
                 ])

@@ -92,7 +92,7 @@ int execute_list(struct ast *ast, struct environment *env)
     int res = 0;
 
     // While there is no error on our part
-    while (tmp != NULL && res != -1 && res != 2)
+    while (tmp != NULL && res != -1 && res != 2 && !env->exit)
     {
         res = execute_ast(tmp, env);
         tmp = tmp->next;

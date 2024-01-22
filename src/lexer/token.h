@@ -20,6 +20,9 @@ enum token_type
     TOKEN_IN,
     TOKEN_NEG,
 
+    TOKEN_LEFT_BRACE, // {
+    TOKEN_RIGHT_BRACE, // }
+
     // ------- CONTROL OPERATORS -------
     TOKEN_SEMICOLONS, // ;
     TOKEN_NEWLINE, // \n
@@ -29,6 +32,9 @@ enum token_type
     TOKEN_DSEMI, // ;;
     TOKEN_EOF,
 
+    TOKEN_LEFT_PAR, // (
+    TOKEN_RIGHT_PAR, // )
+
     // ---- REDIRECTION OPERATORS ------
     TOKEN_LESS, // <
     TOKEN_GREAT, // >
@@ -37,7 +43,6 @@ enum token_type
     TOKEN_LESSAND, // <&
     TOKEN_GREATAND, // >&
     TOKEN_LESSGREAT, // <>
-    TOKEN_DLESSDASH, // <<-
     TOKEN_CLOBBER, // >|
 
     // ---------------------------------
