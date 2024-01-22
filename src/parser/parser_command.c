@@ -38,12 +38,12 @@ enum parser_status parser_command(struct lexer *lex, struct ast **res)
     }
     else
     {
-        if (peek.type == TOKEN_WORD)
+        if (peek.type == TOKEN_WORD && peek.family != TOKEN_FAM_ASSW)
         {
             struct token word = peek;
             lexer_pop(lex);
             peek = lexer_peek(lex);
-            if (peek.type == TOKEN_LEFTPAR)
+            if (peek.type == TOKEN_LEFT_PAR)
                 return parser_fundec(lex, res, &word);
             return parser_simple_command(lex, res, &word);
         }
@@ -82,7 +82,7 @@ enum parser_status parser_simple_command(struct lexer *lex, struct ast **res, st
     struct ast *tmp_command = ast_new(AST_COMMAND);
 
     if (w != NULL)
-        tmp_command->arg = list_create(peek.data);
+        tmp_command->arg = list_create(w->data);
     else
     {
         while (peek.family == TOKEN_FAM_IO_NUMBER || peek.family == TOKEN_FAM_REDIR
@@ -115,11 +115,11 @@ enum parser_status parser_simple_command(struct lexer *lex, struct ast **res, st
     }
 
     // Pop previous word
-    peek = lexer_pop(lex);
-    if (tmp_command->arg == NULL)
+    if (w == NULL)
+    {
+        peek = lexer_pop(lex);
         tmp_command->arg = list_create(peek.data);
-    else
-        list_append(&(tmp_command->arg), peek.data);
+    }
 
     peek = lexer_peek(lex);
     while (peek.family != TOKEN_FAM_OPERATOR)
@@ -169,12 +169,12 @@ enum parser_status parser_fundec(struct lexer *lex, struct ast **res, struct tok
     
     struct token peek = lexer_peek(lex);
     token_free(lexer_pop(lex));
-    if (peek.type != TOKEN_LEFTPAR)
+    if (peek.type != TOKEN_LEFT_PAR)
         goto error;
     
     peek = lexer_peek(lex);
     token_free(lexer_pop(lex));
-    if (peek.type != TOKEN_RIGHTPAR)
+    if (peek.type != TOKEN_RIGHT_PAR)
         goto error;
     
     skip_newline(lex);
