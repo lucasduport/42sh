@@ -159,7 +159,7 @@ enum parser_status parser_rule_for(struct lexer *lex, struct ast **res)
 
     // Check word
     peek = lexer_peek(lex);
-    if (peek.type != TOKEN_WORD)
+    if (peek.family != TOKEN_FAM_WORD && peek.family != TOKEN_FAM_RESERVED)
         goto error;
     lexer_pop(lex);
 
