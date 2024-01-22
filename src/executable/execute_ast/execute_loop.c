@@ -12,7 +12,7 @@ int execute_while(struct ast *ast, struct environment *env)
     }
 
     int ret_code = 0;
-    while (execute_ast(ast, env) == 0)
+    while (execute_ast(ast, env) == 0 && !env->exit)
     {
         debug_printf(LOG_EXEC, "[EXEC] In while loop\n");
         ret_code = execute_ast(ast->next, env);
@@ -33,7 +33,7 @@ int execute_until(struct ast *ast, struct environment *env)
     }
 
     int ret_code = 0;
-    while (execute_ast(ast, env) != 0)
+    while (execute_ast(ast, env) != 0 && !env->exit)
         ret_code = execute_ast(ast->next, env);
 
     return ret_code;
@@ -53,7 +53,7 @@ int execute_for(struct ast *ast, struct environment *env)
     if (for_cond_exp == NULL)
         return ret_code;
 
-    for (struct list *temp = for_cond_exp; temp != NULL; temp = temp->next)
+    for (struct list *temp = for_cond_exp; temp != NULL && !env->exit; temp = temp->next)
     {
         if (set_variable(&(env->variables), for_var, temp->current) == -1)
         {

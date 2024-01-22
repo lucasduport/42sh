@@ -43,3 +43,9 @@
     - command: echo -E 'This is ting escape characters\\tand \\ backslashes'"
     - command: echo -n -e -E Mixing options aes\\n'"
     - command: echo -e 'This is another\nt and \\n escaped newlines
+
+- category: errors
+  sub-category: redirection
+  tests:
+    - command: echo coucou | sjfirbguerj
+    - command: fbzrihgbzer | echo coucou

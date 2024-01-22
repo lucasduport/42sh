@@ -6,6 +6,7 @@
 
 struct environment
 {
+    bool exit;
     struct variable *variables;
 };
 
@@ -100,7 +101,6 @@ void set_number_variable(struct environment *env, int argc, char *argv[]);
  * @param argc
  * @param argv
  */
-// void set_environment(struct environment *env, int argc, char *argv[])
-void set_environment(struct environment *env);
+void set_environment(struct environment *env, int argc, char *argv[]);
 
 #endif /* ! ENVIRONMENT_H */

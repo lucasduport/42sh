@@ -26,18 +26,42 @@
         echo "Command with conditional execution:" && true || echo "This should not be printed"
     
     - command: |
-        echo Printing numbers from 1 to 5 using a for loop:
-        for i in 1 2 3 4 5; do
-          for i in 1 2 3 4 5; do
-            echo $i
-            caca
-            boudin
-            echo $i
-          done
-          echo $i
-          caca
-          boudin
-          echo $i
+        if true
+        then if true && false
+        then echo coucou
+        else echo bbbb
+        fi
+        else echo ca doit pas ecrire ca
+        fi
+
+    - command: |
+        if echo coucou | cat
+        then echo aahhh
+        fi |
+        if echo bbbb | cat
+        then echo bbbb
+        fi 
+    - command:
+        if
+        if true
+        then echo coucou fi
+        then echo ok;
+        else echo pas ok;
+        fi
+    
+    - command:
+        if echo coucou && false || true
+        then echo ok;
+        else echo pas ok;
+        fi
+    
+    - command:
+        if echo coucou
+        then echo ok
+        fi &&
+        if echo coucou
+        then echo ok
+        fi
 
 - category: scripts
   sub-category: redir
@@ -61,4 +85,30 @@
     - command: |
         for i in a b c
         do echo coucou
+        done
+      
+    - command: |
+        echo Printing numbers from 1 to 5 using a for loop:
+        for i in 1 2 3 4 5; do
+          for i in 1 2 3 4 5; do
+            echo $i
+            caca
+            boudin
+            echo $i
+          done
+          echo $i
+          caca
+          boudin
+          echo $i
+
+    - command: |
+        for i in a b c
+        do for i in a b c
+        do echo $i
+        done
+        echo $i
+        done
+    - command: |
+        for for in a b c
+        do echo $for
         done

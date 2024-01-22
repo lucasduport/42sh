@@ -167,10 +167,11 @@ void set_number_variable(struct environment *env, int argc, char *argv[])
     set_variable(&env->variables, "#", args_count);
 }
 
-
-// void set_environment(struct environment *env, int argc, char *argv[])
-void set_environment(struct environment *env)
+void set_environment(struct environment *env, int argc, char *argv[])
 {
+    (void)argc;
+    (void)argv;
+
     // set_number_variable(env, argc, argv);
 
     // set_star_variable(env);
