@@ -32,3 +32,7 @@
     - command: "rm test.txt; echo > test.txt >> test.txt coucou; cat test.txt"
     - command: "fbhfre > test.txt > coco.txt coucou; cat test.txt; cat coco.txt"
     - command: "fbhfre > test.txt 2> coco.txt coucou; cat test.txt"
+    - command: |
+        A="err.txt" 2>"$A" caca
+    - command: |
+        A="err.txt" 2>"$A"; echo a

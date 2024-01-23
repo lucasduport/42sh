@@ -3,6 +3,7 @@
 
 #include "../../utils/list/list.h"
 #include "../../utils/variables/variables.h"
+#include <stdbool.h>
 
 struct environment
 {
