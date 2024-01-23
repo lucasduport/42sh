@@ -99,6 +99,8 @@ int execute_command(struct ast *ast, struct environment *env)
     else if (strcmp(first_arg, "export") == 0)
         code = builtin_export(tmp_arg, env);
 
+    else if (strcmp(first_arg, "cd") == 0)
+        code = builtin_cd(tmp_arg);
     else
         code = execvp_wrapper(tmp_arg, env);
 

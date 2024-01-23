@@ -10,6 +10,7 @@
 #include "../../../expansion/expansion.h"
 
 /**
+ * @file echo.c
  * @brief echo builtin
  *
  * @param list Linked list of argument (echo -> ...)
@@ -18,6 +19,7 @@
 int builtin_echo(struct list *list);
 
 /**
+ * @file bool.c
  * @brief true builtin
  *
  * @param list Linked list (not used)
@@ -26,6 +28,7 @@ int builtin_echo(struct list *list);
 int builtin_true(struct list *list);
 
 /**
+ * @file bool.c
  * @brief false builtin
  *
  * @param list Linked list (not used)
@@ -48,5 +51,14 @@ int builtin_exit(struct list *list, struct environment *env);
  * @return int return code 
  */
 int builtin_export(struct list *list, struct environment *env);
+
+/**
+ * @file cd.c
+ * @brief cd builtin
+ * 
+ * @param list Linked list (cd -> ...)
+ * @return 0
+*/
+int builtin_cd(struct list *list);
 
 #endif /* ! BUILTINS_H */
