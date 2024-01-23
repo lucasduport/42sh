@@ -5,6 +5,7 @@ libbuiltins_a_SOURCES =  \
     bool.c \
     exit.c \
     export.c \
+    cd.c \
     builtins.h
 
 libbuiltins_a_CPPFLAGS = -I$(top_srcdir)/src
