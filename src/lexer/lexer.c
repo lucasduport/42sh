@@ -52,6 +52,29 @@ static int check_io_number(struct lexer *lexer)
     return lexer->current_char == '<' || lexer->current_char == '>';
 }
 
+static int check_special_variable(const char *name)
+{
+    char * special_name[] = {"UID", "RANDOM", "_",}; // + IFS
+
+    for (size_t i = 0; i < sizeof(special_name) / sizeof(char *); i++)
+    {
+        if (!strcmp(name, special_name[i]))
+            return 1;
+    }
+
+    char special_char[] = { '$', '?', '@', '*', '#', '!', '.'};
+
+    for (size_t i = 0; name[i] != '\0'; i++)
+    {
+        for (size_t j = 0; j < sizeof(special_char) / sizeof(char); j++)
+        {
+            if (name[i] == special_char[j])
+                return 1;
+        }
+    }
+    return 0;
+}
+
 /**
  * @brief Check if the current word could be an assignment word
  *
@@ -61,16 +84,32 @@ static int check_io_number(struct lexer *lexer)
  */
 static int check_assignment(struct lexer *lexer)
 {
-    if (lexer->current_word->data[0] == '=')
-        return 0;
-
     int contains_equal = 0;
     for (size_t i = 0; i < lexer->current_word->len; i++)
     {
         if (lexer->current_word->data[i] == '=')
             contains_equal++;
     }
-    return contains_equal == 1;
+
+    if (contains_equal >= 1)
+    {
+        char *word_cpy = strdup(lexer->current_word->data);
+        char *variable_name = strtok(word_cpy, "=");
+
+        int code = 0;
+
+        if (variable_name == NULL)
+            code = 0;
+
+        else if (check_special_variable(variable_name))
+            code = 0;
+        else
+            code = 1;
+
+        free(word_cpy);
+        return code;
+    }
+    return 0;
 }
 
 /**
@@ -337,7 +376,11 @@ static struct token parse_input_for_tok(struct lexer *lexer)
         string_append_char(lexer->current_word, lexer->current_char);
 
         if (find_mode(lexer))
-            return token_new(lexer);
+        {
+            struct token tok = token_new(lexer);
+            string_append_char(lexer->current_word, lexer->current_char);
+            return tok;
+        }
     }
 
     // rule 6

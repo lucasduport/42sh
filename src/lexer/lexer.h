@@ -3,6 +3,7 @@
 
 #include "../io_backend/io.h"
 #include "../utils/string/string.h"
+#include "../executable/environment/environment.h"
 #include "token.h"
 
 struct lexer

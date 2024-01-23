@@ -42,14 +42,6 @@ void environment_free(struct environment *env);
 int check_env_variable(const char *name);
 
 /**
- * @brief Check if name is the name of a special var
- *
- * @param name The variable name
- * @return bool
- */
-int check_special_variable(const char *name);
-
-/**
  * @brief Set the $? in the environment
  *
  * @param env The environment
