@@ -55,6 +55,7 @@ void skip_newline(struct lexer *lex);
  *
  *   simple_command
  * | shell command { redirection }
+ * | fundec { redirection }
  */
 enum parser_status parser_command(struct lexer *lex, struct ast **res);
 
@@ -75,6 +76,8 @@ enum parser_status parser_simple_command(struct lexer *lex, struct ast **res, st
  * | rule_while
  * | rule_until
  * | rule_for
+ * | '{' compund_list '}'
+ * | '(' compund_list ')'
  */
 enum parser_status parser_shell_command(struct lexer *lex, struct ast **res);
 
