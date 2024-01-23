@@ -54,15 +54,7 @@ static int check_io_number(struct lexer *lexer)
 
 static int check_special_variable(const char *name)
 {
-    char * special_name[] = {"UID", "RANDOM", "_",}; // + IFS
-
-    for (size_t i = 0; i < sizeof(special_name) / sizeof(char *); i++)
-    {
-        if (!strcmp(name, special_name[i]))
-            return 1;
-    }
-
-    char special_char[] = { '$', '?', '@', '*', '#', '!', '.'};
+    char special_char[] = { '$', '?', '@', '*', '#', '!', '.' };
 
     for (size_t i = 0; name[i] != '\0'; i++)
     {
@@ -123,10 +115,11 @@ static struct token token_new(struct lexer *lexer)
     string_append_char(lexer->current_word, '\0');
 
     char *reserved_words[] = { "if",   "then",  "elif",  "else", "fi", "do",
-                               "done", "while", "until", "for",  "in", "!", "{", "}",
-                               ";",    "\n",    "|",     "&&",   "||", ";;",
-                               "\0", "(", ")", "<",     ">",     "<<",   ">>", "<&",
-                               ">&",   "<>", ">|" };
+                               "done", "while", "until", "for",  "in", "!",
+                               "{",    "}",     ";",     "\n",   "|",  "&&",
+                               "||",   ";;",    "\0",    "(",    ")",  "<",
+                               ">",    "<<",    ">>",    "<&",   ">&", "<>",
+                               ">|" };
 
     int family = 0;
     for (size_t i = 0; i < sizeof(reserved_words) / sizeof(char *); i++)
@@ -181,9 +174,10 @@ static int first_char_op(struct lexer *lexer)
  */
 static int is_valid_operator(struct lexer *lexer)
 {
-    char *reserved_operators[] = { "&",  "&&", "(",  ")",  ";",   ";;",
-                                   "\n", "|",  "||", "<",  ">",   ">|",
-                                   ">>", "<&", ">&", "<>" };
+    char *reserved_operators[] = {
+        "&",  "&&", "(", ")",  ";",  ";;", "\n", "|",
+        "||", "<",  ">", ">|", ">>", "<&", ">&", "<>"
+    };
 
     string_append_char(lexer->current_word, lexer->current_char);
 

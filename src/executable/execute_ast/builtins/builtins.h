@@ -3,11 +3,10 @@
 
 #include <unistd.h>
 
+#include "../../../expansion/expansion.h"
 #include "../../../logger/logger.h"
 #include "../../../utils/list/list.h"
 #include "../../environment/environment.h"
-#include "../../../utils/variables/variables.h"
-#include "../../../expansion/expansion.h"
 
 /**
  * @brief echo builtin
@@ -35,17 +34,17 @@ int builtin_false(struct list *list);
 
 /**
  * @brief exit builtin
- * 
- * @param list Linked list of argument (exit -> ...) 
- * @return int return code 
+ *
+ * @param list Linked list of argument (exit -> ...)
+ * @return int return code
  */
 int builtin_exit(struct list *list, struct environment *env);
 
 /**
  * @brief export builtin
- * 
- * @param list Linked list of argument (export -> ...) 
- * @return int return code 
+ *
+ * @param list Linked list of argument (export -> ...)
+ * @return int return code
  */
 int builtin_export(struct list *list, struct environment *env);
 
