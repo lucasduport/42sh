@@ -369,6 +369,28 @@ static int expand_double_quotes(struct environment *env, char **str,
     return 2;
 }
 
+struct ast *expand_ast(struct ast *ast, struct environment *env, int *ret)
+{
+    if (ast == NULL)
+        return NULL;
+
+    struct ast *copy = ast_new(ast->type);
+    copy->arg = expansion(ast->arg, env, ret);
+    if (*ret == -1)
+    {
+        ast_free(copy);
+        return NULL;
+    }
+    copy->first_child = expand_ast(ast->first_child, env, ret);
+    if (*ret == -1)
+    {
+        ast_free(copy);
+        return NULL;
+    }
+    copy->is_expand = 1;
+    return copy;
+}
+
 char *expand_string(char *str, struct environment *env, int *ret)
 {
     if (str == NULL)
@@ -391,7 +413,7 @@ char *expand_string(char *str, struct environment *env, int *ret)
             i++;
         if (*ret == -1)
         {
-            fprintf(stderr, "Failed to expand %s\n", str);
+            fprintf(stderr, "Failed expand_variable %s\n", str);
             free(copy);
             return NULL;
         }

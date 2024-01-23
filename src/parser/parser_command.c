@@ -67,12 +67,22 @@ static void link_redir_command(struct ast **res, struct ast **tmp_redir,
                                struct ast **tmp_command)
 {
     if ((*tmp_assignment)->arg == NULL)
+    {
         ast_free(*tmp_assignment);
+        ast_add_child_to_child(tmp_redir, *tmp_command);
+        *res = *tmp_redir;
+    }
     else
-        ast_add_child_to_child(tmp_redir, *tmp_assignment);
-
-    ast_add_child_to_child(tmp_redir, *tmp_command);
-    *res = *tmp_redir;
+    {
+        if (*tmp_redir == NULL)
+            ast_add_child_to_child(tmp_assignment, *tmp_command);
+        else
+        {
+            ast_add_child_to_child(tmp_assignment, *tmp_redir);
+            (*tmp_redir)->first_child = *tmp_command;
+        }
+        *res = *tmp_assignment;
+    }
 }
 
 enum parser_status parser_simple_command(struct lexer *lex, struct ast **res, struct token *w)
@@ -98,7 +108,7 @@ enum parser_status parser_simple_command(struct lexer *lex, struct ast **res, st
         }
     }
 
-    // No word
+    // No command
     peek = lexer_peek(lex);
     if (w == NULL && peek.type != TOKEN_WORD)
     {
@@ -109,7 +119,10 @@ enum parser_status parser_simple_command(struct lexer *lex, struct ast **res, st
             token_free(lexer_pop(lex));
             return errorsc(tmp_redir, tmp_assignment, tmp_command);
         }
-        ast_add_child_to_child(&tmp_redir, tmp_assignment);
+        if (tmp_assignment->arg == NULL)
+            ast_free(tmp_assignment);
+        else
+            ast_add_child_to_child(&tmp_redir, tmp_assignment);
         ast_free(tmp_command);
         *res = tmp_redir;
         return PARSER_OK;
