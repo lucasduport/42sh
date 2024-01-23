@@ -55,11 +55,6 @@ int execute_assignment(struct ast *ast, struct environment *env)
             code = 0;
 
         // If it's environment variable
-        else if (check_env_variable(variable_name))
-        {
-            if (setenv(variable_name, variable_value, 1) == -1)
-                goto error;
-        }
         else
         {
             if (set_variable(&env->variables, variable_name, variable_value)
