@@ -1,6 +1,7 @@
 #ifndef VARIABLES_H
 #define VARIABLES_H
 
+#include "../../executable/environment/environment.h"
 #include "../../logger/logger.h"
 
 struct variable

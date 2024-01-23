@@ -3,6 +3,7 @@
 
 #include "../../utils/list/list.h"
 #include "../../utils/variables/variables.h"
+#include <stdbool.h>
 
 struct environment
 {
@@ -39,14 +40,6 @@ void environment_free(struct environment *env);
  * @return bool
  */
 int check_env_variable(const char *name);
-
-/**
- * @brief Check if name is the name of a special var
- *
- * @param name The variable name
- * @return bool
- */
-int check_special_variable(const char *name);
 
 /**
  * @brief Set the $? in the environment

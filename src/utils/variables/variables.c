@@ -42,7 +42,13 @@ int set_variable(struct variable **head, const char *name, char *value)
         }
         current = current->next;
     }
-
+    if (check_env_variable(name))
+    {
+        int ret = 0;
+        if (setenv(name, value, 1) == -1)
+            ret = -1;
+        return ret;
+    }
     // If the variable is not found, add it to the list
     return add_variable(head, name, value);
 }
@@ -58,9 +64,8 @@ char *get_value(const struct variable *head, const char *name)
         }
         current = current->next;
     }
-
     // Return NULL as a default value if the variable is not found
-    return NULL;
+    return getenv(name);
 }
 
 struct variable *dup_variables(struct variable *head)

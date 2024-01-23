@@ -26,23 +26,11 @@ void environment_free(struct environment *env)
 
 int check_env_variable(const char *name)
 {
-    char *reserved_env_var[] = { "OLDPWD", "PWD", "IFS" };
-
+    char *reserved_env_var[] = { "OLDPWD", "PWD", "IFS"}; // + IFS
+ 
     for (size_t i = 0; i < sizeof(reserved_env_var) / sizeof(char *); i++)
     {
         if (strcmp(name, reserved_env_var[i]) == 0)
-            return 1;
-    }
-    return 0;
-}
-
-int check_special_variable(const char *name)
-{
-    char *reserved_special_var[] = { "?", "@", "*", "#", "$", "UID", "RANDOM" };
-
-    for (size_t i = 0; i < sizeof(reserved_special_var) / sizeof(char *); i++)
-    {
-        if (strcmp(name, reserved_special_var[i]) == 0)
             return 1;
     }
     return 0;
@@ -187,6 +175,10 @@ void set_environment(struct environment *env, int argc, char *argv[])
     // set_number_variable(env, argc, argv);
 
     // set_star_variable(env);
+
+    set_variable(&env->variables, "#", "0");
+
+    //set_variable(&env->variables, "IFS", " \t\n");
 
     set_exit_variale(env, 0);
 

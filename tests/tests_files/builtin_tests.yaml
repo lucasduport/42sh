@@ -31,7 +31,7 @@
     - command: "if true; then true; else echo tests; fi"
     - command: "if true; then false; fi"
 
-- category: execvp
+- category: builtins
   sub-category: execvp
   tests:
     - command: "expr 5 + 3"
@@ -42,7 +42,7 @@
     - command: "/bin/false"
     - command: "if /bin/true; then /bin/true; else /bin/false; fi"
 
-- category: exit
+- category: builtins
   sub-category: exit
   tests:
     - command:  exit 0
@@ -71,4 +71,33 @@
         until exit 0; do
           exit 1
         done
+    - command: |
+        cat unexisting
+        exit
+    - command: |
+        cat unexisting
+        exit 1
+    - command: |
+        if cat unexisting; then
+          exit 1
+        else
+          exit 2
+        fi
+
+- category: builtins
+  sub-category: export
+  tests:
+    - command: |
+        export a=5
+        echo 'echo $a' > a.txt
+        bash a.txt
+    - command: |
+        export a=5
+        export b=6
+        echo $a $b
+    - command: |
+        b=9
+        export b
+        echo 'echo $b' > b.txt
+        bash b.txt
 

@@ -74,9 +74,29 @@
     - command: echo $OLDPWD; echo $?
     - command: PWD=kk; echo $PWD; echo $OLDPWD
     - command: PWD=$OLDPWD; echo $PWD; echo $?
-    
-
-
-    
-
+    - command: "@=a; echo \\$@"
+    - command: "~#____\\=kk; echo $?"
+    - command: "IFS=b; echo \\$IFS; IFS=pp; echo \\$?"
+    - command: IFS=b; echo $IFS; IFS=pp; echo $?
+    - command: "\\$a=a"
+    - command: "__a=kk ; echo \\$__a"
+    - command: __=kk ; echo $__
+    - command: a==; echo $a
+    - command: a====================_____=====D ; echo $a
+    - command: a====================_____=====D ; echo $a
+    - command: a=============__@@@@###[{\['{^}']}]=======_____=====D ; echo $a
+    - command: é&~]&~]}#@#@@@###a========##]~~]#&@~&@============_____=====D ; echo $a
+    - command: //#^~^#\~#&~]&éa===========^^#@#~}#}&}@#@²#=========_____=====D ; echo $a
+    - command: a=$; echo $a;
+    - command: a=$$$$$$$; echo $a;
+    - command: b=kk; a=$b; echo $a;
+    - command: b=kk; a=${b}; echo $a;
+    - command: echo $; echo $?
+    - command: "echo \\$; echo \\$?"
+    - command: "a=$_à)\"\"çé~#^#~}{#@; echo $a;"
+    - command: "a=b; c=\\$a; echo \\$a;"
+    - command: "a=bbbbb$; c=\\$a; echo \\$a;"
+    - command: a=$UID$UID$UID; echo $a
+    - command: a=$a$a$a; echo $a
+    - command: a=1; b=2; c=$a$b$a$b; echo $c
 
