@@ -6,7 +6,8 @@ enum parser_status parser_command(struct lexer *lex, struct ast **res)
 
     // Firsts of shell_command
     if (peek.type == TOKEN_IF || peek.type == TOKEN_WHILE
-        || peek.type == TOKEN_UNTIL || peek.type == TOKEN_FOR)
+        || peek.type == TOKEN_UNTIL || peek.type == TOKEN_FOR
+        || peek.type == TOKEN_LEFT_BRACE || peek.type == TOKEN_LEFT_PAR)
     {
         debug_printf(LOG_PARS, "[PARSER] Shell command - command\n");
 
@@ -122,7 +123,7 @@ enum parser_status parser_simple_command(struct lexer *lex, struct ast **res, st
     }
 
     peek = lexer_peek(lex);
-    while (peek.family != TOKEN_FAM_OPERATOR)
+    while (peek.family != TOKEN_FAM_OPERATOR && peek.type != TOKEN_RIGHT_BRACE)
     {
         if (peek.family == TOKEN_FAM_IO_NUMBER
             || peek.family == TOKEN_FAM_REDIR)
@@ -157,6 +158,37 @@ enum parser_status parser_shell_command(struct lexer *lex, struct ast **res)
 
     if (peek.type == TOKEN_FOR)
         return parser_rule_for(lex, res);
+    
+    if (peek.type == TOKEN_LEFT_PAR)
+    {
+        token_free(lexer_pop(lex));
+        if (parser_compound_list(lex, res) == PARSER_ERROR)
+            return PARSER_ERROR;
+        if (lexer_peek(lex).type != TOKEN_RIGHT_PAR)
+        {
+            token_free(lexer_pop(lex));
+            return PARSER_ERROR;
+        }
+        token_free(lexer_pop(lex));
+        struct ast *tmp_ast = ast_new(AST_SUBSHELL);
+        tmp_ast->first_child = *res;
+        *res = tmp_ast;
+        return PARSER_OK;
+    }
+    
+    if (peek.type == TOKEN_LEFT_BRACE)
+    {
+        token_free(lexer_pop(lex));
+        if (parser_compound_list(lex, res) == PARSER_ERROR)
+            return PARSER_ERROR;
+        if (lexer_peek(lex).type != TOKEN_RIGHT_BRACE)
+        {
+            token_free(lexer_pop(lex));
+            return PARSER_ERROR;
+        }
+        token_free(lexer_pop(lex));
+        return PARSER_OK;
+    }
 
     token_free(lexer_pop(lex));
     return PARSER_ERROR;

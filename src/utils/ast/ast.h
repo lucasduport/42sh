@@ -20,7 +20,8 @@ enum ast_type
     AST_NEG,
     AST_PIPE,
     AST_REDIR,
-    AST_ASSIGNMENT
+    AST_ASSIGNMENT,
+    AST_SUBSHELL
 };
 
 struct ast
