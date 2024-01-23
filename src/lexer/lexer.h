@@ -1,6 +1,7 @@
 #ifndef LEXER_H
 #define LEXER_H
 
+#include "../executable/environment/environment.h"
 #include "../io_backend/io.h"
 #include "../utils/string/string.h"
 #include "token.h"

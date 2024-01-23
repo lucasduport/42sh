@@ -48,8 +48,19 @@ int execute_assignment(struct ast *ast, struct environment *env)
     for (struct list *p = ast->arg; p != NULL; p = p->next)
     {
         // Set variable
+        char *cpy = strdup(p->current);
         char *variable_name = strtok(p->current, "=");
-        variable_value = expand_string(strtok(NULL, "="), env, &code);
+
+        char *val = strstr(cpy, "=");
+        val++;
+        // debug_printf(LOG_LEX, "[EXECUTE] Variable name: '%s'\n",
+        // variable_name); debug_printf(LOG_LEX, "[EXECUTE] Variable value:
+        // '%s'\n", variable_value);
+
+        // variable_value = expand_string(strtok(NULL, "="), env, &code);
+        variable_value = expand_string(val, env, &code);
+
+        free(cpy);
 
         if (variable_value == NULL)
             code = 0;
@@ -57,9 +68,12 @@ int execute_assignment(struct ast *ast, struct environment *env)
         // If it's environment variable
         else
         {
-            if (set_variable(&env->variables, variable_name, variable_value)
-                == -1)
+            if ((code = set_variable(env, variable_name, variable_value)) != 0)
+            {
+                env->exit = 1;
                 goto error;
+            }
+                
         }
         free(variable_value);
     }

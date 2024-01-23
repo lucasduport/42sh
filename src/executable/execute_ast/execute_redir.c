@@ -88,16 +88,13 @@ static struct redirection open_file(char *operator, char * filename)
 
     int index = 0;
     int default_io[] = { 1, -1, 0, -1, 1, 1, 1, -1, 0, 0 };
-    char *operators[] = {">>", NULL, "<>", NULL, ">", ">|", ">&", NULL, "<", "<&" };
-    int flags[] = 
-    {   O_WRONLY | O_CREAT | O_APPEND,
-        O_RDWR | O_CREAT | O_APPEND,
-        O_WRONLY | O_CREAT | O_TRUNC, 
-        O_RDONLY
-    };
-    
+    char *operators[] = { ">>", NULL, "<>", NULL, ">",
+                          ">|", ">&", NULL, "<",  "<&" };
+    int flags[] = { O_WRONLY | O_CREAT | O_APPEND, O_RDWR | O_CREAT | O_APPEND,
+                    O_WRONLY | O_CREAT | O_TRUNC, O_RDONLY };
+
     size_t i = 0;
-    for ( ; i < sizeof(operators) / sizeof(char *); i++)
+    for (; i < sizeof(operators) / sizeof(char *); i++)
     {
         if (operators[i] == NULL)
             index++;
@@ -111,7 +108,7 @@ static struct redirection open_file(char *operator, char * filename)
 
     if (i == 6 || i == 9)
         redir.word_fd = atoi(filename);
-    else    
+    else
         redir.word_fd = open(filename, flags[index], 0644);
 
     redir.io_number = default_io[i];
