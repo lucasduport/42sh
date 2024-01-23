@@ -359,7 +359,9 @@ static struct token parse_input_for_tok(struct lexer *lexer)
 
         struct token tok = token_new(lexer);
 
-        if (lexer->current_char != ' ' && lexer->current_char != '\t')
+        if (is_quote(lexer))
+            set_quote(lexer);
+        else if (lexer->current_char != ' ' && lexer->current_char != '\t')
             string_append_char(lexer->current_word, lexer->current_char);
 
         return tok;

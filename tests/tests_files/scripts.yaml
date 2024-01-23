@@ -112,3 +112,31 @@
         for for in a b c
         do echo $for
         done
+    
+    - command: |
+        for i in a b c
+        do echo $i; for j in d e f
+        do echo $j; continue 2
+        done
+        done
+    
+    - command: |
+        for i in a b c
+        do echo $i; for j in d e f
+        do echo $j; continue 4
+        done
+        done
+    
+    - command: |
+        for i in a b c
+        do echo $i; for j in d e f
+        do echo $j; break 2
+        done
+        done
+
+    - command: |
+        for i in a b c
+        do echo $i; for j in d e f
+        do echo $j; break 4
+        done
+        done

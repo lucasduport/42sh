@@ -11,6 +11,7 @@
 /** ERROR VALUE
  *  0    if successfull
  *  127  if there is wrong command
+ *  128  if there is wrong argument given to break or continue
  *  2    expansion error
  * -1    if there is an error on our part
  *  1    otherwise

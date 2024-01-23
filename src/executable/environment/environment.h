@@ -9,6 +9,9 @@ struct environment
 {
     bool exit;
     struct variable *variables;
+    int nb_break;
+    int nb_continue;
+    int nb_loop;
 };
 
 /**
