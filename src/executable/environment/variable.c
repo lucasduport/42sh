@@ -1,17 +1,6 @@
-#include "variables.h"
+#include "environment.h"
 
-#include <stdlib.h>
-#include <string.h>
-
-/**
- * @brief Add a new variable to the list
- *
- * @param head The head of the list
- * @param name The name of the variable
- * @param value The value of the variable
- * @return int 0 on success, -1 on error
- */
-static int add_variable(struct variable **head, const char *name, char *value)
+int add_variable(struct variable **head, const char *name, char *value)
 {
     struct variable *new_variable = calloc(1, sizeof(struct variable));
     if (new_variable == NULL)
@@ -29,9 +18,14 @@ static int add_variable(struct variable **head, const char *name, char *value)
     return 0;
 }
 
-int set_variable(struct variable **head, const char *name, char *value)
+int set_variable(struct environment *env, const char *name, char *value)
 {
-    struct variable *current = *head;
+    if (strcmp(name, "UID") == 0)
+    {
+        fprintf(stderr, "Cannot set UID: ");
+        return env->is_command ? 127 : 1;
+    }
+    struct variable *current = env->variables;
     while (current != NULL)
     {
         if (strcmp(current->name, name) == 0)
@@ -42,7 +36,8 @@ int set_variable(struct variable **head, const char *name, char *value)
         }
         current = current->next;
     }
-    if (check_env_variable(name))
+    // User can't set IFS as an environment variable
+    if (check_env_variable(name) && strcmp(name, "IFS") != 0)
     {
         int ret = 0;
         if (setenv(name, value, 1) == -1)
@@ -50,12 +45,14 @@ int set_variable(struct variable **head, const char *name, char *value)
         return ret;
     }
     // If the variable is not found, add it to the list
-    return add_variable(head, name, value);
+    return add_variable(&env->variables, name, value);
 }
 
-char *get_value(const struct variable *head, const char *name)
+char *get_value(struct environment *env, const char *name)
 {
-    const struct variable *current = head;
+    const struct variable *current = env->variables;
+    if (strcmp(name, "RANDOM") == 0)
+        set_random(env);
     while (current != NULL)
     {
         if (strcmp(current->name, name) == 0)

@@ -111,7 +111,7 @@ int execute_command(struct ast *ast, struct environment *env)
     // First arg contains the command
     char *first_arg = list_get_n(tmp_arg, 0);
     int code = 0;
-    
+
     if (strcmp(first_arg, "echo") == 0)
         code = builtin_echo(tmp_arg);
 
@@ -143,6 +143,6 @@ int execute_command(struct ast *ast, struct environment *env)
         list_destroy(tmp_arg);
     ast->is_expand = !ast->is_expand;
 
-    set_exit_variale(env, code);
+    set_exit_variable(env, code);
     return code;
 }

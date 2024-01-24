@@ -49,22 +49,26 @@ int execute_assignment(struct ast *ast, struct environment *env)
 
         char *val = strstr(cpy, "=");
         val++;
-        //debug_printf(LOG_LEX, "[EXECUTE] Variable name: '%s'\n", variable_name);
-        //debug_printf(LOG_LEX, "[EXECUTE] Variable value: '%s'\n", variable_value);
+        // debug_printf(LOG_LEX, "[EXECUTE] Variable name: '%s'\n",
+        // variable_name); debug_printf(LOG_LEX, "[EXECUTE] Variable value:
+        // '%s'\n", variable_value);
 
         variable_value = expand_string(val, env, &code);
 
         free(cpy);
 
         if (variable_value == NULL)
-            code = 0;   
+            code = 0;
 
         // If it's environment variable
         else
         {
-            if (set_variable(&env->variables, variable_name, variable_value)
-                == -1)
+            if ((code = set_variable(env, variable_name, variable_value)) != 0)
+            {
+                env->exit = 1;
                 goto error;
+            }
+                
         }
         free(variable_value);
     }

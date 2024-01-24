@@ -96,9 +96,10 @@ int execute_for(struct ast *ast, struct environment *env)
     if (for_cond_exp == NULL)
         return ret_code;
 
-    for (struct list *temp = for_cond_exp; temp != NULL && !env->exit; temp = temp->next)
+    for (struct list *temp = for_cond_exp; temp != NULL && !env->exit;
+         temp = temp->next)
     {
-        if (set_variable(&(env->variables), for_var, temp->current) == -1)
+        if (set_variable(env, for_var, temp->current) == -1)
         {
             debug_printf(LOG_EXEC, "[EXECUTE] Variables assignment failed\n");
             list_destroy(for_cond_exp);

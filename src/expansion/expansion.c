@@ -1,7 +1,18 @@
+#ifndef _POSIX_C_SOURCE
+#    define _POSIX_C_SOURCE 200809L
+#endif /* ! _POSIX_C_SOURCE */
+
 #include "expansion.h"
 
 #include <stddef.h>
+#include <string.h>
 
+/**
+ * @brief Check if a character is a special character
+ *
+ * @param c Character to check
+ * @return int 1 if special, 0 otherwise
+ */
 static int is_special_char(char c)
 {
     char special_char[] = { '?', '*', '$', '#', '@' };
@@ -22,8 +33,9 @@ static int is_special_char(char c)
 static int is_valid_char(char c)
 {
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_'
-        || (c >= '0' && c <= '9') || is_special_char(c);
+        || (c >= '0' && c <= '9');
 }
+
 /**
  * @brief Expand a variable
  *
@@ -161,25 +173,8 @@ static int expand_single_quotes(struct environment *env, char **str,
  * @param env Environment
  * @param str String to expand
  * @param index Index of the variable
- * @return int 0 if success, -1 otherwise
- */
-static int expand_cmd_substitution(struct environment *env, char **str,
-                                   size_t *index)
-{
-    // TODO: implement command substitution step 3
-    (void)env;
-    (void)str;
-    (void)index;
-    return 0;
-}
-
-/**
- * @brief Expands a variable as described in the SCL
- *
- * @param env Environment
- * @param str String to expand
- * @param index Index of the variable
- * @return int 0 if success, -1 otherwise
+ * @return int 0 if success, -1 otherwise    variables/variables.c \
+    variables/variables.h
  */
 static int expand_variable(struct environment *env, char **str, size_t *index)
 {
@@ -190,7 +185,8 @@ static int expand_variable(struct environment *env, char **str, size_t *index)
     *index += 1;
     for (; (*str)[*index] != '\0';)
     {
-        if (!is_valid_char((*str)[*index]))
+        if ((!is_valid_char((*str)[*index]) && !is_special_char((*str)[*index]))
+            || (is_special_char((*str)[*index]) && var_len > 0))
             break;
         else
         {
@@ -200,6 +196,8 @@ static int expand_variable(struct environment *env, char **str, size_t *index)
             // Remove the character from the string
             // Acts as a shift, or as an incrementation of i
             remove_at_n(str, *index);
+            if (var_name[var_len - 1] == '$')
+                break;
         }
     }
     if (var_name == NULL)
@@ -212,7 +210,7 @@ static int expand_variable(struct environment *env, char **str, size_t *index)
     if (check_env_variable(var_name))
         var_value = getenv(var_name);
     else
-        var_value = get_value(env->variables, var_name);
+        var_value = get_value(env, var_name);
 
     free(var_name);
 
@@ -280,7 +278,7 @@ static int expand_brace(struct environment *env, char **str, size_t *index)
             return 1;
         }
     }
-    char *var_value = get_value(env->variables, var_name);
+    char *var_value = get_value(env, var_name);
     free(var_name);
 
     // Remove the {
@@ -302,6 +300,15 @@ static int expand_brace(struct environment *env, char **str, size_t *index)
     // removes } char
     *index -= 1;
     remove_at_n(str, *index);
+    return 0;
+}
+
+static int expand_cmd_substitution(struct environment *env, char **str,
+                                   size_t *index)
+{
+    (void)env;
+    (void)str;
+    (void)index;
     return 0;
 }
 
@@ -448,7 +455,8 @@ struct list *expansion(struct list *arguments, struct environment *env,
                 if (*ret == 2)
                     fprintf(stderr,
                             "expansion: Unexpected EOF while looking for "
-                            "matching `%s'\n", current);
+                            "matching `%s'\n",
+                            current);
                 else if (*ret == 1)
                     fprintf(stderr, "expansion: Bad substitution\n");
                 p->current = current;

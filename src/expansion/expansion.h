@@ -4,7 +4,6 @@
 #include "../executable/environment/environment.h"
 #include "../utils/list/list.h"
 #include "../utils/ast/ast.h"
-#include "../utils/variables/variables.h"
 
 /**
  * @brief Try every expansions on a string

@@ -11,7 +11,7 @@ int builtin_export(struct list *list, struct environment *env)
     struct list *ass = list->next;
     char *variable_name = NULL;
     char *variable_value = NULL;
-    int code =0;
+    int code = 0;
     if (strchr(ass->current, '=') != NULL)
     {
         variable_name = strtok(ass->current, "=");
@@ -25,10 +25,10 @@ int builtin_export(struct list *list, struct environment *env)
     else
     {
         variable_name = ass->current;
-        variable_value = get_value(env->variables, variable_name);
+        variable_value = get_value(env, variable_name);
         if (variable_name != NULL)
             setenv(variable_name, variable_value, 1);
     }
-        
+
     return code;
 }
