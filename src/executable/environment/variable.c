@@ -36,8 +36,7 @@ int set_variable(struct environment *env, const char *name, char *value)
         }
         current = current->next;
     }
-    // User can't set IFS as an environment variable
-    if (check_env_variable(name) && strcmp(name, "IFS") != 0)
+    if (check_env_variable(name))
     {
         int ret = 0;
         if (setenv(name, value, 1) == -1)

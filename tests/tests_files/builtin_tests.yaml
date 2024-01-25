@@ -21,8 +21,10 @@
     - command: "echo -E 'This is a multiline\\nstring without interpreting escape characters\\tand \\ backslashes'"
     - command: "echo -n -e -E 'Mixing options and\\n multiline\\t strings with \\ backslashes\\n'"
     - command: echo -e 'This is another\nmultines \\n'
+    - command: |
+        echo ←{\#\#\\ŧ^#~\]{^]~\[]~##^]¹\\\¹}\¹\\\\@\¹#]@[^\{\\\^\^~\#¶\¶#~¶~é\\'"é'\'é\_\"\éé\é"\\\\"éé"é\é"é"é"é"é"\#\
 
-- category: builtins
+- category: builtins\
   sub-category: booleans
   tests:
     - command: "if echo; then true; else false; fi"
