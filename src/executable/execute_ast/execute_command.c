@@ -83,7 +83,7 @@ int execute_command(struct ast *ast, struct environment *env)
     // First arg contains the command
     char *first_arg = list_get_n(tmp_arg, 0);
     int code = 0;
-    
+
     if (strcmp(first_arg, "echo") == 0)
         code = builtin_echo(tmp_arg);
 
@@ -96,6 +96,8 @@ int execute_command(struct ast *ast, struct environment *env)
     else if (strcmp(first_arg, "exit") == 0)
         code = builtin_exit(tmp_arg, env);
 
+    else if (strcmp(first_arg, ".") == 0)
+        code = builtin_dot(tmp_arg, env);
     else
         code = execvp_wrapper(tmp_arg, env);
 

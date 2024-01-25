@@ -72,3 +72,31 @@
           exit 1
         done
 
+- category: dot
+  sub-category: dot
+  tests:
+    - command: |
+        echp 'echo kk; kk=pp' > script.sh
+        . ./script.sh
+    - command: . ./script.sh
+    - command: . script.sh
+    - command: . ./script.sh
+    - command: |
+        echo 'echo "Hello, world!"' > script.sh
+        . script.sh
+    - command: |
+        echo 'TEST_VAR="Test Value"' > script.sh
+        . script.sh
+        echo $TEST_VAR
+    - command: |
+        echo 'echo "Hello from sourced script!"' > script.sh
+        . script.sh
+    - command: |
+        echo 'echo "Success"' > script.sh
+        . script.sh && echo "Script succeeded"
+    - command: |
+        echo 'echo "Hello, world!"' > script.sh
+        . script.sh
+    - command: . . . . . . . . . . . .caca
+
+

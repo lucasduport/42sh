@@ -54,14 +54,6 @@ static int check_io_number(struct lexer *lexer)
 
 static int check_special_variable(const char *name)
 {
-    char * special_name[] = {"UID", "RANDOM", "_",}; // + IFS
-
-    for (size_t i = 0; i < sizeof(special_name) / sizeof(char *); i++)
-    {
-        if (!strcmp(name, special_name[i]))
-            return 1;
-    }
-
     char special_char[] = { '$', '?', '@', '*', '#', '!', '.'};
 
     for (size_t i = 0; name[i] != '\0'; i++)

@@ -53,9 +53,7 @@ int execute_assignment(struct ast *ast, struct environment *env)
 
         char *val = strstr(cpy, "=");
         val++;
-        //debug_printf(LOG_LEX, "[EXECUTE] Variable name: '%s'\n", variable_name);
-        //debug_printf(LOG_LEX, "[EXECUTE] Variable value: '%s'\n", variable_value);
-
+        
         //variable_value = expand_string(strtok(NULL, "="), env, &code);
         variable_value = expand_string(val, env, &code);
 
