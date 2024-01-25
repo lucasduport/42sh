@@ -33,6 +33,19 @@ void ast_add_child_to_child(struct ast **ast, struct ast *new_child)
     }
 }
 
+struct ast *ast_copy(struct ast *ast)
+{
+    if (ast == NULL)
+        return NULL;
+
+    struct ast *copy = ast_new(ast->type);
+    copy->arg = list_copy(ast->arg);
+    copy->next = ast_copy(ast->next);
+    copy->first_child = ast_copy(ast->first_child);
+    return copy;
+}
+
+
 void ast_free(struct ast *ast)
 {
     if (ast != NULL)

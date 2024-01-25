@@ -1,9 +1,9 @@
 lib_LIBRARIES = libenvironment.a
 
 libenvironment_a_SOURCES =  \
-     variable.c \
+    variable.c \
 	environment.c \
-    special_var.c \
+    special_variable.c \
     environment.h
 
 libenvironment_a_CPPFLAGS = -I$(top_srcdir)/src

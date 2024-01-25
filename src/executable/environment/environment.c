@@ -37,43 +37,6 @@ int check_env_variable(const char *name)
     return 0;
 }
 
-void set_number_variable(struct environment *env, int argc, char *argv[])
-{
-    int i = 0;
-    int loop = 1;
-
-    if (strcmp(argv[1], "-c") == 0)
-    {
-        env->is_command = 1;
-        if (argc <= 4)
-            loop = 0;
-        else
-            i = 4;
-    }
-    else
-    {
-        if (argc <= 2)
-            loop = 0;
-        else
-            i = 2;
-    }
-
-    int var_number = 1;
-    while (argv[i] != NULL && loop)
-    {
-        char var_name[20];
-        sprintf(var_name, "%d", var_number);
-        set_variable(env, var_name, argv[i]);
-        var_number++;
-        i++;
-    }
-
-    var_number--;
-    char args_count[20];
-    sprintf(args_count, "%d", var_number);
-    set_variable(env, "#", args_count);
-}
-
 void set_environment(struct environment *env, int argc, char *argv[])
 {
     (void)argc;
