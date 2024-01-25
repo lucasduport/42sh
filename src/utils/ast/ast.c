@@ -45,7 +45,6 @@ struct ast *ast_copy(struct ast *ast)
     return copy;
 }
 
-
 void ast_free(struct ast *ast)
 {
     if (ast != NULL)

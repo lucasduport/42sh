@@ -12,11 +12,13 @@
 
 #include "../../logger/logger.h"
 #include "../../utils/list/list.h"
+#include "../../utils/ast/ast.h"
 
 struct environment
 {
     bool exit;
     struct variable *variables;
+    struct function *functions;
     int nb_break;
     int nb_continue;
     int nb_loop;
@@ -65,6 +67,52 @@ int check_env_variable(const char *name);
  * @param argv
  */
 void set_environment(struct environment *env, int argc, char *argv[]);
+
+struct function
+{
+    char *name;
+    struct ast *body;
+    struct function *next;
+};
+
+/**
+ * @file function.c
+ * @brief Add a new function to the list
+ * 
+ * @param head Head of function's list
+ * @param name Name of the function
+ * @param body AST body of function
+*/
+int add_function(struct function **head, const char *name, struct ast *body);
+
+/**
+ * @file function.c
+ * @brief Set function int the environment and if it's not exist, add it
+ * 
+ * @param env Current environment
+ * @param name Name of the function
+ * @param body AST body of function
+*/
+int set_function(struct environment *env, const char *name, struct ast *body);
+
+/**
+ * @file function.c
+ * @brief Get back function, given its name
+ * 
+ * @param env Current environment
+ * @param name Name of the function
+ * 
+ * @return NULL if the name was not found
+*/
+struct ast *get_function(struct environment *env, const char *name);
+
+/**
+ * @file function.c
+ * @brief Duplicate a list of functions, including name and ast
+*/
+struct function *dup_functions(struct function *head);
+
+void free_functions(struct function *head);
 
 
 struct variable

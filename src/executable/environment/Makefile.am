@@ -4,6 +4,7 @@ libenvironment_a_SOURCES =  \
     variable.c \
 	environment.c \
     special_variable.c \
+    function.c \
     environment.h
 
 libenvironment_a_CPPFLAGS = -I$(top_srcdir)/src
