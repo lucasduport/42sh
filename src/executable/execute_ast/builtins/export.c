@@ -17,7 +17,7 @@ int builtin_export(struct list *list, struct environment *env)
         variable_name = strtok(ass->current, "=");
         variable_value = expand_string(strtok(NULL, "="), env, &code);
         if (code != 0)
-            return code;
+            return set_error_value(env, FAILED_EXPAND, code);
         if (variable_name != NULL && variable_value != NULL)
             setenv(variable_name, variable_value, 1);
         free(variable_value);

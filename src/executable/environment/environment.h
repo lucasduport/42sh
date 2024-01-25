@@ -14,9 +14,26 @@
 #include "../../utils/list/list.h"
 #include "../../utils/ast/ast.h"
 
+#define stop FILE_NOT_FOUND
+/**
+ * Don't forget to change the stop macro
+ * < don't stop, >= stop
+*/
+enum type_error
+{
+    NO_ERROR,
+    WRONG_COMMAND,
+    // Stop after
+    FILE_NOT_FOUND,
+    UNSETABLE_VARIABLE,
+    FAILED_EXPAND,
+    EXIT_BUILT,
+    OURSELF
+};
+
 struct environment
 {
-    bool exit;
+    enum type_error error;
     struct variable *variables;
     struct function *functions;
     int nb_break;
@@ -24,6 +41,7 @@ struct environment
     int nb_loop;
     bool is_command;
 };
+
 
 /**
  * @file environment.c
@@ -67,6 +85,14 @@ int check_env_variable(const char *name);
  * @param argv
  */
 void set_environment(struct environment *env, int argc, char *argv[]);
+
+/**
+ * @file environment.c
+ * @brief Set error attribut of environment
+ * 
+ * @return ret_code
+*/
+int set_error_value(struct environment *env, enum type_error type, int ret_code);
 
 struct function
 {

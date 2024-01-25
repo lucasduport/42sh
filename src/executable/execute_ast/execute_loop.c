@@ -36,16 +36,11 @@ int execute_while(struct ast *ast, struct environment *env)
 {
     env->nb_loop++;
     ast = ast->first_child;
-    debug_printf(LOG_EXEC, "[EXECUTE] In execute while\n");
     if (ast == NULL || ast->next == NULL)
-    {
-        debug_printf(LOG_EXEC,
-                     "[EXECUTE] Missing condition or do for 'while' node\n");
-        return -1;
-    }
+        return set_error_value(env, OURSELF, -1);
 
     int ret_code = 0;
-    while (execute_ast(ast, env) == 0 && !env->exit)
+    while (execute_ast(ast, env) == 0 && env->error < stop)
     {
         debug_printf(LOG_EXEC, "[EXEC] In while loop\n");
         ret_code = execute_ast(ast->next, env);
@@ -62,16 +57,11 @@ int execute_until(struct ast *ast, struct environment *env)
 {
     env->nb_loop++;
     ast = ast->first_child;
-    debug_printf(LOG_EXEC, "[EXECUTE] In execute until\n");
     if (ast == NULL || ast->next == NULL)
-    {
-        debug_printf(LOG_EXEC,
-                     "[EXECUTE] Missing condition or do for 'until' node\n");
-        return -1;
-    }
+        return set_error_value(env, OURSELF, -1);
 
     int ret_code = 0;
-    while (execute_ast(ast, env) != 0 && !env->exit)
+    while (execute_ast(ast, env) != 0 && env->error < stop)
     {
         ret_code = execute_ast(ast->next, env);
         if (check_break_continue(env) == 1)
@@ -86,24 +76,21 @@ int execute_for(struct ast *ast, struct environment *env)
     env->nb_loop++;
     char *for_var = ast->arg->current;
     if (for_var == NULL)
-    {
-        debug_printf(LOG_EXEC, "[EXECUTE] Missing condition\n");
-        return -1;
-    }
+        return set_error_value(env, OURSELF, -1);
 
     int ret_code = 0;
     struct list *for_cond_exp = expansion(ast->arg->next, env, &ret_code);
-    if (for_cond_exp == NULL)
-        return ret_code;
+    if (ret_code != 0)
+        return set_error_value(env, FAILED_EXPAND, ret_code);
 
-    for (struct list *temp = for_cond_exp; temp != NULL && !env->exit;
+    for (struct list *temp = for_cond_exp; temp != NULL && env->error < stop;
          temp = temp->next)
     {
         if (set_variable(env, for_var, temp->current) == -1)
         {
             debug_printf(LOG_EXEC, "[EXECUTE] Variables assignment failed\n");
             list_destroy(for_cond_exp);
-            return 2;
+            return set_error_value(env, FAILED_EXPAND, 2);
         }
 
         ret_code = execute_ast(ast->first_child, env);

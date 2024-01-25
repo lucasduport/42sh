@@ -1,1 +1,1 @@
-var="Follow God"
+var=\"Follow God\"

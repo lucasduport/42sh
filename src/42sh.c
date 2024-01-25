@@ -5,14 +5,14 @@
 int main(int argc, char **argv)
 {
     // create_logger("stdout");
-    // enable_log_type(LOG_LEX);
+    enable_log_type(LOG_LEX);
     // disable_log_type(LOG_LEX);
     // enable_all_logs();
     // disable_all_logs();
     // enable_log_type(LOG_PARS);
     // enable_log_type(LOG_AST);
-    enable_log_type(LOG_UTILS);
-    //enable_log_type(LOG_EXEC);
+    // enable_log_type(LOG_UTILS);
+    // enable_log_type(LOG_EXEC);
 
     // Initialise lexer
     struct lexer *lex = lexer_new(argc, argv);
@@ -50,7 +50,7 @@ int main(int argc, char **argv)
                 debug_printf(LOG_AST, "\n");
                 code = execute_ast(res, env);
                 ast_free(res);
-                if (env->exit)
+                if (env->error >= stop)
                     break;
             }
         }
