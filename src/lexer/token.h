@@ -49,6 +49,7 @@ enum token_type
     TOKEN_WORD,
 
     TOKEN_NULL,
+    TOKEN_ERROR
 };
 
 enum token_family

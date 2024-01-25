@@ -13,6 +13,23 @@
 #include "../../logger/logger.h"
 #include "../../utils/list/list.h"
 
+#define stop FILE_NOT_FOUND
+/**
+ * Don't forget to change the stop macro
+ * < don't stop, >= stop
+*/
+enum type_error
+{
+    NO_ERROR,
+    WRONG_COMMAND,
+    // Stop after
+    FILE_NOT_FOUND,
+    UNSETABLE_VARIABLE,
+    FAILED_EXPAND,
+    EXIT_BUILT,
+    OURSELF
+};
+
 struct variable
 {
     char *name;
@@ -22,13 +39,16 @@ struct variable
 
 struct environment
 {
-    bool exit;
+    enum type_error error;
     struct variable *variables;
     int nb_break;
     int nb_continue;
     int nb_loop;
     bool is_command;
 };
+
+
+int set_error_value(struct environment *env, enum type_error type, int ret_code);
 
 /**
  * @brief Creates a new environment

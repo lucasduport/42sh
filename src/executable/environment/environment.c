@@ -74,6 +74,12 @@ void set_number_variable(struct environment *env, int argc, char *argv[])
     set_variable(env, "#", args_count);
 }
 
+int set_error_value(struct environment *env, enum type_error type, int ret_code)
+{
+    env->error = type;
+    return ret_code;
+}
+
 void set_environment(struct environment *env, int argc, char *argv[])
 {
     (void)argc;

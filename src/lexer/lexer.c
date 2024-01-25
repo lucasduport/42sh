@@ -339,6 +339,9 @@ static struct token parse_input_for_tok(struct lexer *lexer)
         if (lexer->current_word->len == 0)
             string_append_char(lexer->current_word, lexer->current_char);
 
+        if (lexer->is_quoted)
+            return token_alloc(TOKEN_ERROR, TOKEN_FAM_WORD, lexer);
+        
         return token_new(lexer);
     }
 

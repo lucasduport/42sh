@@ -51,7 +51,7 @@ int parse_and_exec(char *file, struct environment *current_env)
                 debug_printf(LOG_AST, "\n");
                 code = execute_ast(res, env);
                 ast_free(res);
-                if (env->exit)
+                if (env->error == EXIT_BUILT)
                     break;
             }
         }
@@ -94,19 +94,11 @@ static int check_slash(char *name)
 
 int builtin_dot(struct list *list, struct environment *env)
 {
-    if (list == NULL)
-    {
-        debug_printf(LOG_EXEC, "[EXECUTE] Missing dot argument\n");
-        return 0;
-    }
+    if (list == NULL || list->next == NULL)
+        return set_error_value(env, FILE_NOT_FOUND, 2);
 
     char *file = list->next->current;
     debug_printf(LOG_UTILS,"DOT: %s\n", file);
-    if (file == NULL)
-    {
-        debug_printf(LOG_EXEC, "[EXECUTE] Missing dot argument\n");
-        return 0;
-    }
 
     int code = 0;
 
@@ -114,8 +106,7 @@ int builtin_dot(struct list *list, struct environment *env)
     if (stat(file, &sb) == 0 && S_ISDIR(sb.st_mode))
     {
         fprintf(stderr, "42sh: .: %s: is a directory\n", file);
-        env->exit = 1;
-        return 1;
+        return set_error_value(env, FILE_NOT_FOUND, 1);
     }
     else if (check_slash(file))
     {
@@ -124,10 +115,8 @@ int builtin_dot(struct list *list, struct environment *env)
             fprintf(stderr, "42sh: .: %s: file not found\n", file);
 
         if (code == 127)
-        {
-            env->exit = 1;
-            return 1;
-        }
+            return set_error_value(env, FILE_NOT_FOUND, 1);
+        
         return code;
     }
     else
@@ -148,6 +137,8 @@ int builtin_dot(struct list *list, struct environment *env)
             if (stat(file_path, &sb) == 0 && sb.st_mode & S_IRUSR)
             {
                 code = parse_and_exec(file_path, env);
+                if (code == 127)
+                    return set_error_value(env, FILE_NOT_FOUND, 1);
                 free(file_path);
                 parse = 1;
                 //debug_printf(LOG_EXEC, "[EXECUTE] File [%s] found\n", file_path);
@@ -159,9 +150,8 @@ int builtin_dot(struct list *list, struct environment *env)
         if (parse == 0)
         {
             fprintf(stderr, "42sh: .: %s: file not found\n", file);
-            env->exit = 1;
-            return 1;
+            return set_error_value(env, FILE_NOT_FOUND, 1);
         }
-        return code == 127 ? 1 : code;
+        return code;
     }
 }
