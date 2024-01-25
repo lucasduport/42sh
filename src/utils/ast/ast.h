@@ -14,12 +14,14 @@ enum ast_type
     AST_FOR,
     AST_COMMAND,
     AST_LIST,
+    AST_FUNC,
     AST_AND,
     AST_OR,
     AST_NEG,
     AST_PIPE,
     AST_REDIR,
-    AST_ASSIGNMENT
+    AST_ASSIGNMENT,
+    AST_SUBSHELL
 };
 
 struct ast

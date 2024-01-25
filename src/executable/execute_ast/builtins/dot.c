@@ -6,13 +6,12 @@
 #include "../../../lexer/lexer.h"
 #include "../../../parser/parser.h"
 #include "../execute.h"
-#include "../../../utils/variables/variables.h"
 
 int parse_and_exec(char *file, struct environment *current_env)
 {
     print_variables(current_env->variables);
 
-    debug_printf(LOG_EXEC, "-----------------------------------\n");
+    debug_printf(LOG_UTILS, "-----------------------------------\n");
     
     char *argv[] = { "42sh", file, NULL };
     int argc = 2;
@@ -24,14 +23,14 @@ int parse_and_exec(char *file, struct environment *current_env)
         if (argc > 2 && strlen(argv[2]) == 0)
             return 0;
 
-        debug_printf(LOG_MAIN, "[DOT] Failed initialize lexer\n");
-        return 2;
+        debug_printf(LOG_UTILS, "[DOT] Failed initialize lexer\n");
+        return 127;
     }
 
     struct environment *env = environment_new();
     if (env == NULL)
     {
-        debug_printf(LOG_MAIN, "[DOT] Failed initialize env\n");
+        debug_printf(LOG_UTILS, "[DOT] Failed initialize env\n");
         return 2;
     }
 
@@ -64,13 +63,14 @@ int parse_and_exec(char *file, struct environment *current_env)
     struct variable *vars = env->variables;
     while (vars != NULL)
     {
-        set_variable(&current_env->variables, vars->name, vars->value);
+        if (strcmp(vars->name, "UID") != 0)
+            set_variable(current_env, vars->name, vars->value);        
         vars = vars->next;
     }
 
     print_variables(env->variables);
 
-    debug_printf(LOG_EXEC, "-----------------------------------\n");
+    debug_printf(LOG_UTILS, "-----------------------------------\n");
     
     print_variables(current_env->variables);
 
@@ -101,6 +101,7 @@ int builtin_dot(struct list *list, struct environment *env)
     }
 
     char *file = list->next->current;
+    debug_printf(LOG_UTILS,"DOT: %s\n", file);
     if (file == NULL)
     {
         debug_printf(LOG_EXEC, "[EXECUTE] Missing dot argument\n");
@@ -109,12 +110,25 @@ int builtin_dot(struct list *list, struct environment *env)
 
     int code = 0;
 
-
-
-    if (check_slash(file))
+    struct stat sb;
+    if (stat(file, &sb) == 0 && S_ISDIR(sb.st_mode))
+    {
+        fprintf(stderr, "42sh: .: %s: is a directory\n", file);
+        env->exit = 1;
+        return 1;
+    }
+    else if (check_slash(file))
     {
         code = parse_and_exec(file, env);
-        return code == 2 ? 1 : code;
+        if (code == 127)
+            fprintf(stderr, "42sh: .: %s: file not found\n", file);
+
+        if (code == 127)
+        {
+            env->exit = 1;
+            return 1;
+        }
+        return code;
     }
     else
     {
@@ -142,11 +156,12 @@ int builtin_dot(struct list *list, struct environment *env)
             free(file_path);
             path_token = strtok(NULL, ":");
         }
-        if (!parse)
+        if (parse == 0)
         {
             fprintf(stderr, "42sh: .: %s: file not found\n", file);
+            env->exit = 1;
             return 1;
         }
-        return code;
+        return code == 127 ? 1 : code;
     }
 }

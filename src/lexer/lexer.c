@@ -115,10 +115,11 @@ static struct token token_new(struct lexer *lexer)
     string_append_char(lexer->current_word, '\0');
 
     char *reserved_words[] = { "if",   "then",  "elif",  "else", "fi", "do",
-                               "done", "while", "until", "for",  "in", "!", "{", "}",
-                               ";",    "\n",    "|",     "&&",   "||", ";;",
-                               "\0", "(", ")", "<",     ">",     "<<",   ">>", "<&",
-                               ">&",   "<>", ">|" };
+                               "done", "while", "until", "for",  "in", "!",
+                               "{",    "}",     ";",     "\n",   "|",  "&&",
+                               "||",   ";;",    "\0",    "(",    ")",  "<",
+                               ">",    "<<",    ">>",    "<&",   ">&", "<>",
+                               ">|" };
 
     int family = 0;
     for (size_t i = 0; i < sizeof(reserved_words) / sizeof(char *); i++)
@@ -140,7 +141,7 @@ static struct token token_new(struct lexer *lexer)
         return token_alloc(TOKEN_WORD, TOKEN_FAM_IO_NUMBER, lexer);
 
     if (check_assignment(lexer))
-        return token_alloc(TOKEN_WORD, TOKEN_FAM_ASSIGNMENT_W, lexer);
+        return token_alloc(TOKEN_WORD, TOKEN_FAM_ASSW, lexer);
 
     return token_alloc(TOKEN_WORD, TOKEN_FAM_WORD, lexer);
 }
@@ -173,9 +174,10 @@ static int first_char_op(struct lexer *lexer)
  */
 static int is_valid_operator(struct lexer *lexer)
 {
-    char *reserved_operators[] = { "&",  "&&", "(",  ")",  ";",   ";;",
-                                   "\n", "|",  "||", "<",  ">",   ">|",
-                                   ">>", "<&", ">&", "<>" };
+    char *reserved_operators[] = {
+        "&",  "&&", "(", ")",  ";",  ";;", "\n", "|",
+        "||", "<",  ">", ">|", ">>", "<&", ">&", "<>"
+    };
 
     string_append_char(lexer->current_word, lexer->current_char);
 
@@ -351,7 +353,9 @@ static struct token parse_input_for_tok(struct lexer *lexer)
 
         struct token tok = token_new(lexer);
 
-        if (lexer->current_char != ' ' && lexer->current_char != '\t')
+        if (is_quote(lexer))
+            set_quote(lexer);
+        else if (lexer->current_char != ' ' && lexer->current_char != '\t')
             string_append_char(lexer->current_word, lexer->current_char);
 
         return tok;

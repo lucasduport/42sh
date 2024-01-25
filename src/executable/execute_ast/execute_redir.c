@@ -88,16 +88,13 @@ static struct redirection open_file(char *operator, char * filename)
 
     int index = 0;
     int default_io[] = { 1, -1, 0, -1, 1, 1, 1, -1, 0, 0 };
-    char *operators[] = {">>", NULL, "<>", NULL, ">", ">|", ">&", NULL, "<", "<&" };
-    int flags[] = 
-    {   O_WRONLY | O_CREAT | O_APPEND,
-        O_RDWR | O_CREAT | O_APPEND,
-        O_WRONLY | O_CREAT | O_TRUNC, 
-        O_RDONLY
-    };
-    
+    char *operators[] = { ">>", NULL, "<>", NULL, ">",
+                          ">|", ">&", NULL, "<",  "<&" };
+    int flags[] = { O_WRONLY | O_CREAT | O_APPEND, O_RDWR | O_CREAT | O_APPEND,
+                    O_WRONLY | O_CREAT | O_TRUNC, O_RDONLY };
+
     size_t i = 0;
-    for ( ; i < sizeof(operators) / sizeof(char *); i++)
+    for (; i < sizeof(operators) / sizeof(char *); i++)
     {
         if (operators[i] == NULL)
             index++;
@@ -111,7 +108,7 @@ static struct redirection open_file(char *operator, char * filename)
 
     if (i == 6 || i == 9)
         redir.word_fd = atoi(filename);
-    else    
+    else
         redir.word_fd = open(filename, flags[index], 0644);
 
     redir.io_number = default_io[i];
@@ -123,12 +120,21 @@ int execute_redir(struct ast *ast, struct environment *env)
     if (ast->arg == NULL)
         return -1;
 
-    char *operator= ast->arg->current;
-    char *filename = ast->arg->next->current;
+    struct list *arg_expand = ast->arg;
+    if (!ast->is_expand)
+    {
+        int ret = 0;
+        arg_expand = expansion(ast->arg, env, &ret);
+        if (ret == -1)
+            return -1;
+    }
+
+    char *operator= arg_expand->current;
+    char *filename = arg_expand->next->current;
 
     struct redirection redir = open_file(operator, filename);
 
-    if (ast->arg->next->next != NULL)
+    if (arg_expand->next->next != NULL)
     {
         int fd = atoi(ast->arg->next->next->current);
         if (fcntl(fd, F_GETFD) != -1)
@@ -137,16 +143,12 @@ int execute_redir(struct ast *ast, struct environment *env)
 
     int save_fd = dup(redir.io_number);
     if (save_fd == -1)
-    {
-        debug_printf(LOG_EXEC, "redir: dup failed\n");
-        return -1;
-    }
-
+        goto error;
+    
     if (dup2(redir.word_fd, redir.io_number) == -1)
     {
-        debug_printf(LOG_EXEC, "redir: dup2 failed\n");
         close(save_fd);
-        return -1;
+        goto error;
     }
 
     int code = execute_ast(ast->first_child, env);
@@ -155,5 +157,13 @@ int execute_redir(struct ast *ast, struct environment *env)
     close(save_fd);
     close(redir.word_fd);
 
+    if (!ast->is_expand)
+        list_destroy(arg_expand);
     return code;
+
+error:
+    if (!ast->is_expand)
+        list_destroy(arg_expand);
+    debug_printf(LOG_EXEC, "redir: dup2 failed\n");
+    return -1; 
 }

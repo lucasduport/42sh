@@ -19,16 +19,16 @@ static enum parser_status sub_parse_then(struct lexer *lex,
     if (peek.type != TOKEN_THEN)
     {
         debug_printf(LOG_PARS, "[PARSER] Failed parse 'then' token\n");
-        return PARSER_UNEXPECTED_TOKEN;
+        return PARSER_ERROR;
     }
 
     struct ast *tmp_then = NULL;
 
-    if (parser_compound_list(lex, &tmp_then) == PARSER_UNEXPECTED_TOKEN)
+    if (parser_compound_list(lex, &tmp_then) == PARSER_ERROR)
     {
         debug_printf(LOG_PARS, "[PARSER] Failed parse 'then' list\n");
         ast_free(tmp_then);
-        return PARSER_UNEXPECTED_TOKEN;
+        return PARSER_ERROR;
     }
 
     // add brother at tmp_condition (and not res) because that is IF node that
@@ -53,11 +53,11 @@ static enum parser_status sub_parse_else(struct lexer *lex,
     if (peek.type == TOKEN_ELSE || peek.type == TOKEN_ELIF)
     {
         struct ast *tmp_else = NULL;
-        if (parser_else_clause(lex, &tmp_else) == PARSER_UNEXPECTED_TOKEN)
+        if (parser_else_clause(lex, &tmp_else) == PARSER_ERROR)
         {
             debug_printf(LOG_PARS, "[PARSER] Failed parse else_clause\n");
             ast_free(tmp_else);
-            return PARSER_UNEXPECTED_TOKEN;
+            return PARSER_ERROR;
         }
 
         ast_add_brother(tmp_condition, tmp_else);
@@ -78,21 +78,21 @@ enum parser_status parser_rule_if(struct lexer *lex, struct ast **res)
         struct ast *tmp_condition = NULL;
 
         if (parser_compound_list(lex, &tmp_condition)
-            == PARSER_UNEXPECTED_TOKEN)
+            == PARSER_ERROR)
         {
             ast_free(tmp_condition);
-            return PARSER_UNEXPECTED_TOKEN;
+            return PARSER_ERROR;
         }
 
         (*res)->first_child = tmp_condition;
 
         // PARSE THEN
-        if (sub_parse_then(lex, tmp_condition) == PARSER_UNEXPECTED_TOKEN)
-            return PARSER_UNEXPECTED_TOKEN;
+        if (sub_parse_then(lex, tmp_condition) == PARSER_ERROR)
+            return PARSER_ERROR;
 
         // PARSE ELSE (IF THERE IS)
-        if (sub_parse_else(lex, tmp_condition) == PARSER_UNEXPECTED_TOKEN)
-            return PARSER_UNEXPECTED_TOKEN;
+        if (sub_parse_else(lex, tmp_condition) == PARSER_ERROR)
+            return PARSER_ERROR;
 
         // PARSE FI
         peek = lexer_peek(lex);
@@ -103,7 +103,7 @@ enum parser_status parser_rule_if(struct lexer *lex, struct ast **res)
         }
     }
     token_free(lexer_pop(lex));
-    return PARSER_UNEXPECTED_TOKEN;
+    return PARSER_ERROR;
 }
 
 enum parser_status parser_else_clause(struct lexer *lex, struct ast **res)
@@ -124,25 +124,25 @@ enum parser_status parser_else_clause(struct lexer *lex, struct ast **res)
         struct ast *tmp_condition = NULL;
 
         if (parser_compound_list(lex, &tmp_condition)
-            == PARSER_UNEXPECTED_TOKEN)
+            == PARSER_ERROR)
         {
             ast_free(tmp_condition);
-            return PARSER_UNEXPECTED_TOKEN;
+            return PARSER_ERROR;
         }
 
         (*res)->first_child = tmp_condition;
 
         // PARSE THEN
-        if (sub_parse_then(lex, tmp_condition) == PARSER_UNEXPECTED_TOKEN)
-            return PARSER_UNEXPECTED_TOKEN;
+        if (sub_parse_then(lex, tmp_condition) == PARSER_ERROR)
+            return PARSER_ERROR;
 
         // PARSE ELSE (IF THERE IS)
-        if (sub_parse_else(lex, tmp_condition) == PARSER_UNEXPECTED_TOKEN)
-            return PARSER_UNEXPECTED_TOKEN;
+        if (sub_parse_else(lex, tmp_condition) == PARSER_ERROR)
+            return PARSER_ERROR;
 
         return PARSER_OK;
     }
 
     token_free(lexer_pop(lex));
-    return PARSER_UNEXPECTED_TOKEN;
+    return PARSER_ERROR;
 }

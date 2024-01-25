@@ -8,7 +8,7 @@
 enum parser_status
 {
     PARSER_OK,
-    PARSER_UNEXPECTED_TOKEN,
+    PARSER_ERROR,
     PARSER_EOF
 };
 
@@ -55,6 +55,7 @@ void skip_newline(struct lexer *lex);
  *
  *   simple_command
  * | shell command { redirection }
+ * | fundec { redirection }
  */
 enum parser_status parser_command(struct lexer *lex, struct ast **res);
 
@@ -62,9 +63,10 @@ enum parser_status parser_command(struct lexer *lex, struct ast **res);
  * @file parser_command.c
  * @brief Parse simple command grammar :
  *
- * WORD {element}
+ *   prefix { prefix }
+ * | { prefix } WORD { element }
  */
-enum parser_status parser_simple_command(struct lexer *lex, struct ast **res);
+enum parser_status parser_simple_command(struct lexer *lex, struct ast **res, struct token *w);
 
 /**
  * @file parser_command.c
@@ -74,8 +76,18 @@ enum parser_status parser_simple_command(struct lexer *lex, struct ast **res);
  * | rule_while
  * | rule_until
  * | rule_for
+ * | '{' compund_list '}'
+ * | '(' compund_list ')'
  */
 enum parser_status parser_shell_command(struct lexer *lex, struct ast **res);
+
+/**
+ * @file parser_command.c
+ * @brief Parse fundec grammar :
+ * 
+ * WORD '(' ')' {'\n'} shell_command
+*/
+enum parser_status parser_fundec(struct lexer *lex, struct ast **res, struct token *w);
 
 /**
  * @file parser_if.c

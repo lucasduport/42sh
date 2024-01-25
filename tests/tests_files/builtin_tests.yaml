@@ -31,7 +31,7 @@
     - command: "if true; then true; else echo tests; fi"
     - command: "if true; then false; fi"
 
-- category: execvp
+- category: builtins
   sub-category: execvp
   tests:
     - command: "expr 5 + 3"
@@ -42,7 +42,7 @@
     - command: "/bin/false"
     - command: "if /bin/true; then /bin/true; else /bin/false; fi"
 
-- category: exit
+- category: builtins
   sub-category: exit
   tests:
     - command:  exit 0
@@ -71,32 +71,57 @@
         until exit 0; do
           exit 1
         done
+    - command: |
+        cat unexisting
+        exit
+    - command: |
+        cat unexisting
+        exit 1
+    - command: |
+        if cat unexisting; then
+          exit 1
+        else
+          exit 2
+        fi
+
+- category: builtins
+  sub-category: export
+  tests:
+    - command: |
+        export a=5
+        echo 'echo $a' > a.txt
+        bash a.txt
+    - command: |
+        export a=5
+        export b=6
+        echo $a $b
+    - command: |
+        b=9
+        export b
+        echo 'echo $b' > b.txt
+        bash b.txt
 
 - category: dot
   sub-category: dot
   tests:
-    - command: |
-        echp 'echo kk; kk=pp' > script.sh
-        . ./script.sh
-    - command: . ./script.sh
-    - command: . script.sh
-    - command: . ./script.sh
-    - command: |
-        echo 'echo "Hello, world!"' > script.sh
-        . script.sh
-    - command: |
-        echo 'TEST_VAR="Test Value"' > script.sh
-        . script.sh
-        echo $TEST_VAR
-    - command: |
-        echo 'echo "Hello from sourced script!"' > script.sh
-        . script.sh
-    - command: |
-        echo 'echo "Success"' > script.sh
-        . script.sh && echo "Script succeeded"
-    - command: |
-        echo 'echo "Hello, world!"' > script.sh
-        . script.sh
+    - command: echo 'var=val; echo $var' > test.sh; . ./test.sh ;echo $var
+    - command: . ./test.sh
+    - command: . test.sh
+    - command: . src/
+    - command: . ./noperm.txt
+    - command: . noperm.txt
+    - command: . ./bintest.sh
+    - command: . bintest.sh
+    - command: echo 'echo "Hello, world!"' > script.sh; . ./script.sh;
+    - command: echo 'var="Praise God"' > script.sh; . script.sh; echo $var
+    - command: . ./script.sh; echo $var
+    - command: echo 'var="Devil In a New Dress"' > script2.sh; . script2.sh; echo $var;
+    - command: echo 'var="Follow God"' > script2.sh; . ./script2.sh; echo $Wonderful; echo $var
     - command: . . . . . . . . . . . .caca
+    #- command: | 
+    #    echo 'var=val; echo $var' > test.sh
+    #    . ./test.sh
+    #    echo $var
+
 
 

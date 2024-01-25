@@ -8,8 +8,7 @@ int builtin_exit(struct list *list, struct environment *env)
     {
         // If no argument, get return code of last command
         char *val;
-        if (env->variables != NULL
-            && (val = get_value(env->variables, "?")) != NULL)
+        if (env->variables != NULL && (val = get_value(env, "?")) != NULL)
             sscanf(val, "%d", &code);
     }
     else
