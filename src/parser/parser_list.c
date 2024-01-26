@@ -34,11 +34,14 @@ enum parser_status parser_list(struct lexer *lex, struct ast **res)
         ast_add_brother(*res, tmp_ast);
         peek = lexer_peek(lex);
     }
+
+    if (peek.type == TOKEN_ERROR)
+        return token_free(lexer_pop(lex)), PARSER_ERROR;
+
     struct ast *tmp = *res;
     *res = ast_new(AST_LIST);
     (*res)->first_child = tmp;
 
-    debug_printf(LOG_PARS, "[PARSER] Quit list\n");
     return PARSER_OK;
 }
 
@@ -51,7 +54,6 @@ enum parser_status parser_compound_list(struct lexer *lex, struct ast **res)
         peek = lexer_peek(lex);
     }
 
-    debug_printf(LOG_PARS, "[PARSER] Try parse first and_or - compund list\n");
     if (parser_and_or(lex, res) == PARSER_ERROR)
         return PARSER_ERROR;
 
@@ -89,6 +91,9 @@ enum parser_status parser_compound_list(struct lexer *lex, struct ast **res)
         ast_add_brother(*res, tmp_ast);
         peek = lexer_peek(lex);
     }
+
+    if (peek.type == TOKEN_ERROR)
+        return token_free(lexer_pop(lex)), PARSER_ERROR;
 
     struct ast *tmp = *res;
     *res = ast_new(AST_LIST);

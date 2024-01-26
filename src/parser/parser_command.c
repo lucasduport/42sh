@@ -3,9 +3,11 @@
 enum parser_status parser_command(struct lexer *lex, struct ast **res)
 {
     struct token peek = lexer_peek(lex);
+    if (peek.type == TOKEN_ERROR)
+        return token_free(lexer_pop(lex)), PARSER_ERROR;
 
     // Firsts of shell_command
-    if (peek.type == TOKEN_IF || peek.type == TOKEN_WHILE
+    else if (peek.type == TOKEN_IF || peek.type == TOKEN_WHILE
         || peek.type == TOKEN_UNTIL || peek.type == TOKEN_FOR
         || peek.type == TOKEN_LEFT_BRACE || peek.type == TOKEN_LEFT_PAR)
     {
@@ -52,79 +54,109 @@ enum parser_status parser_command(struct lexer *lex, struct ast **res)
     }
 }
 
-static enum parser_status errorsc(struct ast *tmp_redir,
-                                  struct ast *tmp_assignment,
-                                  struct ast *tmp_command)
+static enum parser_status errorsc(struct ast *redir,
+                                  struct ast *assignment,
+                                  struct ast *command)
 {
-    ast_free(tmp_redir);
-    ast_free(tmp_assignment);
-    ast_free(tmp_command);
+    ast_free(redir);
+    ast_free(assignment);
+    ast_free(command);
     return PARSER_ERROR;
 }
 
-static void link_redir_command(struct ast **res, struct ast **tmp_redir,
-                               struct ast **tmp_assignment,
-                               struct ast **tmp_command)
+/**
+ * @brief Parse prefix loop in simple_command
+*/
+static enum parser_status sub_prefix_loop(struct lexer *lex, struct ast **res, struct ast **assignment, struct ast **redir)
 {
-    if ((*tmp_assignment)->arg == NULL)
+    struct token peek = lexer_peek(lex);
+    while (peek.family == TOKEN_FAM_IO_NUMBER || peek.family == TOKEN_FAM_REDIR || peek.family == TOKEN_FAM_ASSW)
     {
-        ast_free(*tmp_assignment);
-        ast_add_child_to_child(tmp_redir, *tmp_command);
-        *res = *tmp_redir;
+        if (parser_prefix(lex, (peek.family == TOKEN_FAM_ASSW) ? assignment : res) == PARSER_ERROR)
+            return PARSER_ERROR;
+
+        if (peek.family != TOKEN_FAM_ASSW)
+            ast_add_child_to_child(redir, *res);
+        peek = lexer_peek(lex);
+    }
+    if (peek.type == TOKEN_ERROR)
+        return token_free(lexer_pop(lex)), PARSER_ERROR;
+    return PARSER_OK;
+}
+
+/**
+ * @brief Link correctly all trees if no command was parsing in simple command
+*/
+static enum parser_status sub_no_command(struct lexer *lex, struct ast **res, struct ast **assignment, struct ast **redir)
+{
+    *res = *redir;
+    // Minimum one prefix
+    if (*redir == NULL && (*assignment)->arg == NULL)
+        return token_free(lexer_pop(lex)), PARSER_ERROR;
+    
+    if ((*assignment)->arg == NULL)
+        ast_free(*assignment);
+    else
+        ast_add_child_to_child(redir, *assignment);
+    *res = *redir;
+    return PARSER_OK;
+}
+
+/**
+ * @brief Link all sub-trees at the end of simple_command
+*/
+static void link_redir_command(struct ast **res, struct ast **assignment,
+                               struct ast **redir, struct ast **command)
+{
+    // No assignment => redirection + command
+    if ((*assignment)->arg == NULL)
+    {
+        ast_free(*assignment);
+        ast_add_child_to_child(redir, *command);
+        *res = *redir;
     }
     else
     {
-        if (*tmp_redir == NULL)
-            ast_add_child_to_child(tmp_assignment, *tmp_command);
+        // No redirection => assignment + command
+        if (*redir == NULL)
+            ast_add_child_to_child(assignment, *command);
+        // Redirection => assignment + redirection + command
         else
         {
-            ast_add_child_to_child(tmp_assignment, *tmp_redir);
-            (*tmp_redir)->first_child = *tmp_command;
+            ast_add_child_to_child(assignment, *redir);
+            (*redir)->first_child = *command;
         }
-        *res = *tmp_assignment;
+        *res = *assignment;
     }
 }
 
 enum parser_status parser_simple_command(struct lexer *lex, struct ast **res, struct token *w)
 {
     struct token peek = lexer_peek(lex); 
-    struct ast *tmp_redir = NULL;
-    struct ast *tmp_assignment = ast_new(AST_ASSIGNMENT);
-    struct ast *tmp_command = ast_new(AST_COMMAND);
+    if (peek.type == TOKEN_ERROR)
+        return token_free(lexer_pop(lex)), PARSER_ERROR;
+        
+    struct ast *redir = NULL;
+    struct ast *assignment = ast_new(AST_ASSIGNMENT);
+    struct ast *command = ast_new(AST_COMMAND);
 
+    // Word or prefix loop
     if (w != NULL)
-        tmp_command->arg = list_create(w->data);
-    else
-    {
-        while (peek.family == TOKEN_FAM_IO_NUMBER || peek.family == TOKEN_FAM_REDIR
-            || peek.family == TOKEN_FAM_ASSW)
-        {
-            if (parser_prefix(lex, (peek.family == TOKEN_FAM_ASSW) ? &tmp_assignment : res) == PARSER_ERROR)
-                return errorsc(tmp_redir, tmp_assignment, tmp_command);
+        command->arg = list_create(w->data);
+    else if (sub_prefix_loop(lex, res, &assignment, &redir) == PARSER_ERROR)
+        return errorsc(redir, assignment, command);
 
-            if (peek.family != TOKEN_FAM_ASSW)
-                ast_add_child_to_child(&tmp_redir, *res);
-            peek = lexer_peek(lex);
-        }
-    }
+    peek = lexer_peek(lex);
+    if (peek.type == TOKEN_ERROR)
+        goto error;
 
     // No command
-    peek = lexer_peek(lex);
     if (w == NULL && peek.type != TOKEN_WORD)
     {
-        *res = tmp_redir;
-        // Minimum one prefix
-        if (tmp_redir == NULL && tmp_assignment->arg == NULL)
-        {
-            token_free(lexer_pop(lex));
-            return errorsc(tmp_redir, tmp_assignment, tmp_command);
-        }
-        if (tmp_assignment->arg == NULL)
-            ast_free(tmp_assignment);
-        else
-            ast_add_child_to_child(&tmp_redir, tmp_assignment);
-        ast_free(tmp_command);
-        *res = tmp_redir;
+        if (sub_no_command(lex, res, &assignment, &redir))
+            return errorsc(redir, assignment, command);
+        
+        ast_free(command);
         return PARSER_OK;
     }
 
@@ -132,28 +164,36 @@ enum parser_status parser_simple_command(struct lexer *lex, struct ast **res, st
     if (w == NULL)
     {
         peek = lexer_pop(lex);
-        tmp_command->arg = list_create(peek.data);
+        command->arg = list_create(peek.data);
     }
 
     peek = lexer_peek(lex);
-    while (peek.family != TOKEN_FAM_OPERATOR && peek.type != TOKEN_RIGHT_BRACE)
+    while (peek.family != TOKEN_FAM_OPERATOR && peek.type != TOKEN_RIGHT_BRACE && peek.type != TOKEN_ERROR)
     {
         if (peek.family == TOKEN_FAM_IO_NUMBER
             || peek.family == TOKEN_FAM_REDIR)
         {
             if (parser_element(lex, res) == PARSER_ERROR)
-                return errorsc(tmp_redir, tmp_assignment, tmp_command);
+                return errorsc(redir, assignment, command);
 
-            ast_add_child_to_child(&tmp_redir, *res);
+            ast_add_child_to_child(&redir, *res);
         }
         else
-            parser_element(lex, &tmp_command);
+            parser_element(lex, &command);
         peek = lexer_peek(lex);
     }
+    
+    if (peek.type == TOKEN_ERROR)
+        goto error;
 
     // Link redir and command
-    link_redir_command(res, &tmp_redir, &tmp_assignment, &tmp_command);
+    link_redir_command(res, &assignment, &redir, &command);
+
     return PARSER_OK;
+
+error:
+    token_free(lexer_pop(lex));
+    return errorsc(redir, assignment, command);
 }
 
 enum parser_status parser_shell_command(struct lexer *lex, struct ast **res)

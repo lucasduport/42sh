@@ -16,7 +16,7 @@ void print_token(struct token token)
                            "EOF",        "LEFT_PAR",    "RIGHT_PAR",  "LESS",
                            "GREAT",      "DLESS",       "DGREAT",     "LESSAND",
                            "GREATAND",   "LESSGREAT",   "CLOBBER",    "WORD",
-                           "NULL" };
+                           "NULL", "ERROR"};
 
     debug_printf(LOG_LEX,
                  "[TOKEN] Family: TOKEN_FAM_%s | Type: TOKEN_%s | Data: %s\n",
