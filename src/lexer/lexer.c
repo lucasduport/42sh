@@ -243,9 +243,10 @@ static void set_quote(struct lexer *lexer)
     {
         string_append_char(lexer->current_word, lexer->current_char);
         lexer->current_char = io_getchar();
-        debug_printf(LOG_LEX, "[LEXER] current_char: %c\n",
-                     lexer->current_char);
-        string_append_char(lexer->current_word, lexer->current_char);
+        if (lexer->current_char == '\0')
+            lexer->error = 1;    
+        else
+            string_append_char(lexer->current_word, lexer->current_char);
     }
     else
     {
@@ -274,14 +275,23 @@ static void skip_comment(struct lexer *lexer)
  *
  */
 static void check_special_behavior(struct lexer *lexer)
-{
-    if (lexer->is_quoted && lexer->current_char == lexer->current_quote)
+{  
+    if (lexer->is_quoted && lexer->current_char == '\\')
+    {
+        lexer->current_char = io_getchar();
+        if (lexer->current_char == '\0')
+            lexer->error = 1;           
+        else
+            string_append_char(lexer->current_word, lexer->current_char);
+    }
+
+    else if (lexer->is_quoted && lexer->current_char == lexer->current_quote)
     {
         debug_printf(LOG_LEX, "[LEXER] quit quote mode\n");
         lexer->is_quoted = 0;
     }
 
-    if (lexer->is_subshell && !lexer->is_quoted && lexer->current_char == ')')
+    else if (lexer->is_subshell && !lexer->is_quoted && lexer->current_char == ')')
     {
         debug_printf(LOG_LEX, "[LEXER] quit subshell mode\n");
         lexer->is_subshell = 0;
@@ -331,6 +341,9 @@ static int find_mode(struct lexer *lexer)
  */
 static struct token parse_input_for_tok(struct lexer *lexer)
 {
+    if (lexer->error)
+        return token_alloc(TOKEN_ERROR, TOKEN_FAM_WORD, lexer);
+        
     lexer->current_char = io_getchar();
 
     // rule 1
