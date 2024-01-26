@@ -3,6 +3,7 @@
 *.o
 *.gc*
 *.a
+*.sh
 *.txt
 autom4te.cache
 aclocal.m4

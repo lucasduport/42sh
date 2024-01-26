@@ -112,3 +112,9 @@
 
         IFS=b echo "$IFS"
 
+- category: expansion
+  sub-category: cmd_substitution
+  tests:
+    - command: "echo $(echo -n Hello World)"
+    - command: $(echo -n ec)'h'"o" "easy la $(/bin/echo -n quote)"
+    - command: a=6; echo $(echo -n $a; a=8; echo -n $a); echo $a

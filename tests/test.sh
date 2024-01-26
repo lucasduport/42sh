@@ -1,1 +1,0 @@
-var=val; echo $var
