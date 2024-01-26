@@ -264,8 +264,10 @@ static void set_quote(struct lexer *lexer)
  */
 static void skip_comment(struct lexer *lexer)
 {
-    while (lexer->current_char != '\n')
+    do
+    {
         lexer->current_char = io_getchar();
+    } while (lexer->current_char != '\n' && lexer->current_char != '\0');
 }
 
 /**
@@ -378,6 +380,9 @@ static struct token parse_input_for_tok(struct lexer *lexer)
             set_quote(lexer);
         else if (lexer->current_char != ' ' && lexer->current_char != '\t')
             string_append_char(lexer->current_word, lexer->current_char);
+        
+        if (is_valid_operator(lexer))
+            lexer->last_is_op = 1;
 
         return tok;
     }

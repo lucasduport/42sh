@@ -11,7 +11,7 @@ int main(int argc, char **argv)
     // disable_all_logs();
     // enable_log_type(LOG_PARS);
     // enable_log_type(LOG_AST);
-    enable_log_type(LOG_UTILS);
+    // enable_log_type(LOG_UTILS);
     // enable_log_type(LOG_EXEC);
 
     // Initialise lexer

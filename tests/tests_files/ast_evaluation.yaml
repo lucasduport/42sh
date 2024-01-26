@@ -46,5 +46,7 @@
 - command: ast_evaluation
   sub-category: function
   tests:
+    - command: fun () { echo coucou; }; fun
+    - command: fun () { echo coucou; }; fun; fun () { echo bbbbb; }; fun
     - command: fun () if true; then echo coucou; fi; fun
     - command: fun () if true; then echo coucou; fi; fun () if true; then echo aaaaa; fi; fun

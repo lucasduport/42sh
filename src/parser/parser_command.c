@@ -179,7 +179,7 @@ enum parser_status parser_simple_command(struct lexer *lex, struct ast **res,
     }
 
     peek = lexer_peek(lex);
-    while (peek.family != TOKEN_FAM_OPERATOR && peek.type != TOKEN_RIGHT_BRACE
+    while (peek.family != TOKEN_FAM_OPERATOR && peek.type != TOKEN_RIGHT_PAR
            && peek.type != TOKEN_ERROR)
     {
         if (peek.family == TOKEN_FAM_IO_NUMBER
