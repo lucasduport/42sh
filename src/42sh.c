@@ -58,19 +58,6 @@ int main(int argc, char **argv)
             code = 2;
     }
 
-    /*
-    struct token tok = lexer_pop(lex);
-    while (tok.type != TOKEN_EOF)
-    {
-        token_free(tok);
-        tok = lexer_pop(lex);
-    }
-    token_free(tok);
-
-    int code = 0;
-
-    */
-
     lexer_free(lex);
     environment_free(env);
     destroy_logger();

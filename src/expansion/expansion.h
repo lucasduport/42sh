@@ -2,7 +2,9 @@
 #define EXPANSION_H
 
 #include "../executable/environment/environment.h"
+#include "../executable/execute_ast/execute.h"
 #include "../utils/list/list.h"
+#include "../parser/parser.h"
 #include "../utils/ast/ast.h"
 
 /**
