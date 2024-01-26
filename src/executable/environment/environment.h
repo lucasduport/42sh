@@ -33,13 +33,13 @@ enum type_error
 
 struct environment
 {
-    enum type_error error;
     struct variable *variables;
     struct function *functions;
     int nb_break;
     int nb_continue;
     int nb_loop;
     bool is_command;
+    enum type_error error;
 };
 
 
@@ -128,7 +128,7 @@ int set_function(struct environment *env, const char *name, struct ast *body);
  * @param env Current environment
  * @param name Name of the function
  * 
- * @return NULL if the name was not found
+ * @return NULL if the name was not found (don't return a copy)
 */
 struct ast *get_function(struct environment *env, const char *name);
 

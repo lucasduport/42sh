@@ -49,3 +49,10 @@
   tests:
     - command: echo coucou | sjfirbguerj
     - command: fbzrihgbzer | echo coucou
+
+- category: errors
+  sub-category: functions
+  tests:
+    - command: fun () echo coucou; fun
+    - command: fun () { if echo coucou; then echo bbbb} ; fun
+    - command: echo coucou; fun () ; echo aahhhh

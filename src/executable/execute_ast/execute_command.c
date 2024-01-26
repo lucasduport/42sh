@@ -65,33 +65,6 @@ static int execvp_wrapper(struct list *arg, struct environment *env)
     return WEXITSTATUS(return_status);
 }
 
-int execute_subshell(struct ast *ast, struct environment *env)
-{
-    // Forks a new process and executes the ast in it
-    int pid = fork();
-    if (pid == -1)
-        return 2;
-    if (pid == 0)
-    {
-        // Child process
-        struct environment *child_env = dup_environment(env);
-        int code = execute_ast(ast->first_child, child_env);
-        // Set exit variable of the ast to the current environment
-        set_exit_variable(env, code);
-        environment_free(child_env);
-        _exit(code);
-    }
-    else
-    {
-        // Parent process
-        int return_status;
-        // Wait for child process to finish
-        waitpid(pid, &return_status, 0);
-        // Return child process return value
-        return WEXITSTATUS(return_status);
-    }
-}
-
 int execute_command(struct ast *ast, struct environment *env)
 {
     struct list *tmp_arg = ast->arg;
@@ -108,7 +81,11 @@ int execute_command(struct ast *ast, struct environment *env)
     char *first_arg = list_get_n(tmp_arg, 0);
     int code = 0;
 
-    if (strcmp(first_arg, "echo") == 0)
+    struct ast *f = get_function(env, first_arg);
+    if (f != NULL)
+        code = execute_ast(f, env);
+
+    else if (strcmp(first_arg, "echo") == 0)
         code = builtin_echo(tmp_arg);
 
     else if (strcmp(first_arg, "true") == 0)
@@ -144,4 +121,36 @@ int execute_command(struct ast *ast, struct environment *env)
 
     set_exit_variable(env, code);
     return code;
+}
+
+int execute_subshell(struct ast *ast, struct environment *env)
+{
+    // Forks a new process and executes the ast in it
+    int pid = fork();
+    if (pid == -1)
+        return 2;
+    if (pid == 0)
+    {
+        // Child process
+        struct environment *child_env = dup_environment(env);
+        int code = execute_ast(ast->first_child, child_env);
+        // Set exit variable of the ast to the current environment
+        set_exit_variable(env, code);
+        environment_free(child_env);
+        _exit(code);
+    }
+    else
+    {
+        // Parent process
+        int return_status;
+        // Wait for child process to finish
+        waitpid(pid, &return_status, 0);
+        // Return child process return value
+        return WEXITSTATUS(return_status);
+    }
+}
+
+int execute_function(struct ast *ast, struct environment *env)
+{
+    return set_function(env, ast->arg->current, ast->first_child); 
 }

@@ -39,6 +39,14 @@ int execute_command(struct ast *ast, struct environment *env);
 int execute_subshell(struct ast *ast, struct environment *env);
 
 /**
+ * @file execute_command.c
+ * @brief Set function (used when AST_FUNC is found)
+ * 
+ * @return -1 if failed; 0 otherwise
+*/
+int execute_function(struct ast *ast, struct environment *env);
+
+/**
  * @file execute_condition.c
  * @brief Execute if node
  *
