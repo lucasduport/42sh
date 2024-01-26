@@ -35,15 +35,18 @@ class TestShellScript(unittest.TestCase):
         if input_type == "file_b_n":
             with open(temp_file_path, 'a') as temp_file:
                 temp_file.write("\n")
-            
-        if input_type == "file":
-            result = subprocess.run(f"{binary} {temp_file_path}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=3)
-        elif input_type == "cmd_arg":
-            result = subprocess.run(f"{binary} -c \"{command}\"", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,  timeout=3)
-        elif input_type == "stdin":
-            result = subprocess.run(f"{binary} < {temp_file_path}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,  timeout=3)
-        elif input_type == "file_b_n":
-            result = subprocess.run(f"{binary} {temp_file_path} -n", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,  timeout=3)
+        
+        try:
+            if input_type == "file":
+                result = subprocess.run(f"{binary} {temp_file_path}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=3)
+            elif input_type == "cmd_arg":
+                result = subprocess.run(f"{binary} -c \"{command}\"", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,  timeout=3)
+            elif input_type == "stdin":
+                result = subprocess.run(f"{binary} < {temp_file_path}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,  timeout=3)
+            elif input_type == "file_b_n":
+                result = subprocess.run(f"{binary} {temp_file_path} -n", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,  timeout=3)
+        except subprocess.TimeoutExpired:
+            result = subprocess.CompletedProcess(args=[], returncode=69, stdout="Timeout expired", stderr="Timeout expired")
         
         # Delete the temporary file after execution
         os.remove(temp_file_path)
