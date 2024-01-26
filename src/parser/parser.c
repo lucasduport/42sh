@@ -10,7 +10,8 @@
 static void skip_to_end(struct lexer *lex)
 {
     struct token peek = lexer_peek(lex);
-    while (peek.type != TOKEN_NEWLINE && peek.type != TOKEN_EOF && peek.type != TOKEN_ERROR)
+    while (peek.type != TOKEN_NEWLINE && peek.type != TOKEN_EOF
+           && peek.type != TOKEN_ERROR)
     {
         token_free(lexer_pop(lex));
         peek = lexer_peek(lex);
@@ -34,7 +35,7 @@ enum parser_status parser_input(struct lexer *lex, struct ast **res)
 
     // parse_list works => there must be an EOF or NEWLINE.
     peek_type = (lexer_peek(lex)).type;
-    
+
     if (peek_type == TOKEN_ERROR)
         return token_free(lexer_pop(lex)), PARSER_ERROR;
 
@@ -60,7 +61,7 @@ enum parser_status parser_and_or(struct lexer *lex, struct ast **res)
         return PARSER_ERROR;
 
     // Check optional { ('&&' || '||') {'\n'} pipeline }
-    struct token peek = lexer_peek(lex); 
+    struct token peek = lexer_peek(lex);
     struct ast *tmp_final = *res;
     while (peek.type == TOKEN_AND_IF || peek.type == TOKEN_OR_IF)
     {
@@ -91,7 +92,7 @@ enum parser_status parser_and_or(struct lexer *lex, struct ast **res)
         peek = lexer_peek(lex);
     }
     *res = tmp_final;
-    
+
     if (peek.type == TOKEN_ERROR)
         return token_free(lexer_pop(lex)), PARSER_ERROR;
 

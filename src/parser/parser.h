@@ -66,7 +66,8 @@ enum parser_status parser_command(struct lexer *lex, struct ast **res);
  *   prefix { prefix }
  * | { prefix } WORD { element }
  */
-enum parser_status parser_simple_command(struct lexer *lex, struct ast **res, struct token *w);
+enum parser_status parser_simple_command(struct lexer *lex, struct ast **res,
+                                         struct token *w);
 
 /**
  * @file parser_command.c
@@ -84,10 +85,11 @@ enum parser_status parser_shell_command(struct lexer *lex, struct ast **res);
 /**
  * @file parser_command.c
  * @brief Parse fundec grammar :
- * 
+ *
  * WORD '(' ')' {'\n'} shell_command
-*/
-enum parser_status parser_fundec(struct lexer *lex, struct ast **res, struct token *w);
+ */
+enum parser_status parser_fundec(struct lexer *lex, struct ast **res,
+                                 struct token *w);
 
 /**
  * @file parser_if.c

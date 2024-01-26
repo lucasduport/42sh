@@ -14,7 +14,7 @@ int add_function(struct function **head, const char *name, struct ast *body)
 }
 
 int set_function(struct environment *env, const char *name, struct ast *body)
-{ 
+{
     struct function *current = env->functions;
     while (current != NULL)
     {

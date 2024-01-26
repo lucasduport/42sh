@@ -42,18 +42,18 @@ int builtin_exit(struct list *list, struct environment *env);
 
 /**
  * @brief dot builtin as described in the SCL
- * 
+ *
  * arguments: dot file
  * options: none
- * 
+ *
  * description: The dot builtin reads and executes commands from the file
  * specified by the file operand in the current shell environment.
- * 
- * 
+ *
+ *
  * @param list Linked list of argument (dot -> ...)
  * @return int return code
- * 
-*/
+ *
+ */
 int builtin_dot(struct list *list, struct environment *env);
 
 /**
@@ -66,12 +66,12 @@ int builtin_export(struct list *list, struct environment *env);
 
 /**
  * @brief exec 'continue' builtin
-*/
+ */
 int builtin_continue(struct list *arg, struct environment *env);
 
 /**
  * @brief exec 'break' builtin
-*/
+ */
 int builtin_break(struct list *arg, struct environment *env);
 
 #endif /* ! BUILTINS_H */

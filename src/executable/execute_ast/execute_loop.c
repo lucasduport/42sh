@@ -2,13 +2,13 @@
 
 /**
  * @brief Check if we need to break or continue in a loop
- * 
+ *
  * @param env Current environment
- * 
- * @return 
+ *
+ * @return
  *  0 -> nothing or continue
  *  1 -> break
-*/
+ */
 static int check_break_continue(struct environment *env)
 {
     if (env->nb_break > 0)
@@ -17,7 +17,7 @@ static int check_break_continue(struct environment *env)
         env->nb_loop -= 1;
         return 1;
     }
-        
+
     if (env->nb_continue == 1 || env->nb_loop == 1)
     {
         env->nb_continue = 0;
@@ -98,7 +98,6 @@ int execute_for(struct ast *ast, struct environment *env)
         // Check break and continue
         if (check_break_continue(env) == 1)
             break;
-        
     }
     list_destroy(for_cond_exp);
     return ret_code;

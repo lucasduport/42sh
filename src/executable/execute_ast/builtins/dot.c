@@ -12,7 +12,7 @@ int parse_and_exec(char *file, struct environment *current_env)
     print_variables(current_env->variables);
 
     debug_printf(LOG_UTILS, "-----------------------------------\n");
-    
+
     char *argv[] = { "42sh", file, NULL };
     int argc = 2;
 
@@ -48,7 +48,7 @@ int parse_and_exec(char *file, struct environment *current_env)
         {
             if (res != NULL)
             {
-                //ast_print(res);
+                // ast_print(res);
                 debug_printf(LOG_AST, "\n");
                 code = execute_ast(res, env);
                 ast_free(res);
@@ -65,14 +65,14 @@ int parse_and_exec(char *file, struct environment *current_env)
     while (vars != NULL)
     {
         if (strcmp(vars->name, "UID") != 0)
-            set_variable(current_env, vars->name, vars->value);        
+            set_variable(current_env, vars->name, vars->value);
         vars = vars->next;
     }
 
     print_variables(env->variables);
 
     debug_printf(LOG_UTILS, "-----------------------------------\n");
-    
+
     print_variables(current_env->variables);
 
     lexer_free(lex);
@@ -101,7 +101,7 @@ int builtin_dot(struct list *list, struct environment *env)
     }
 
     char *file = list->next->current;
-    debug_printf(LOG_UTILS,"DOT: %s\n", file);
+    debug_printf(LOG_UTILS, "DOT: %s\n", file);
 
     int code = 0;
 
@@ -136,7 +136,8 @@ int builtin_dot(struct list *list, struct environment *env)
             strcat(file_path, file);
 
             struct stat sb;
-            //debug_printf(LOG_EXEC, "[EXECUTE] Checking file [%s]\n", file_path);
+            // debug_printf(LOG_EXEC, "[EXECUTE] Checking file [%s]\n",
+            // file_path);
             if (stat(file_path, &sb) == 0 && sb.st_mode & S_IRUSR)
             {
                 code = parse_and_exec(file_path, env);
@@ -145,9 +146,11 @@ int builtin_dot(struct list *list, struct environment *env)
                 if (code == 127 || code == 2)
                 {
                     fprintf(stderr, "42sh: .: %s: file not found\n", file);
-                    return set_error_value(env, FILE_NOT_FOUND, (code == 127 ? 1 : 2));
+                    return set_error_value(env, FILE_NOT_FOUND,
+                                           (code == 127 ? 1 : 2));
                 }
-                //debug_printf(LOG_EXEC, "[EXECUTE] File [%s] found\n", file_path);
+                // debug_printf(LOG_EXEC, "[EXECUTE] File [%s] found\n",
+                // file_path);
                 break;
             }
             free(file_path);

@@ -80,8 +80,7 @@ enum parser_status parser_rule_if(struct lexer *lex, struct ast **res)
         // PARSE CONDITION
         struct ast *tmp_condition = NULL;
 
-        if (parser_compound_list(lex, &tmp_condition)
-            == PARSER_ERROR)
+        if (parser_compound_list(lex, &tmp_condition) == PARSER_ERROR)
         {
             ast_free(tmp_condition);
             return PARSER_ERROR;
@@ -126,8 +125,7 @@ enum parser_status parser_else_clause(struct lexer *lex, struct ast **res)
         // PARSE CONDITION
         struct ast *tmp_condition = NULL;
 
-        if (parser_compound_list(lex, &tmp_condition)
-            == PARSER_ERROR)
+        if (parser_compound_list(lex, &tmp_condition) == PARSER_ERROR)
         {
             ast_free(tmp_condition);
             return PARSER_ERROR;

@@ -118,16 +118,20 @@ static void ast_print_subshell(struct ast *ast)
     debug_printf(LOG_AST, "}");
 }
 
-print_ast_node printers[] = {
-    [AST_COMMAND] = ast_print_command,   [AST_LIST] = ast_print_list,
-    [AST_FUNC] = ast_print_function,
-    [AST_WHILE] = ast_print_while_until, [AST_UNTIL] = ast_print_while_until,
-    [AST_FOR] = ast_print_for,           [AST_IF] = ast_print_if,
-    [AST_NEG] = ast_print_neg,           [AST_AND] = ast_print_and_or,
-    [AST_OR] = ast_print_and_or,         [AST_PIPE] = ast_print_pipe,
-    [AST_REDIR] = ast_print_redir,       [AST_ASSIGNMENT] = ast_print_assignment,
-    [AST_SUBSHELL] = ast_print_subshell
-};
+print_ast_node printers[] = { [AST_COMMAND] = ast_print_command,
+                              [AST_LIST] = ast_print_list,
+                              [AST_FUNC] = ast_print_function,
+                              [AST_WHILE] = ast_print_while_until,
+                              [AST_UNTIL] = ast_print_while_until,
+                              [AST_FOR] = ast_print_for,
+                              [AST_IF] = ast_print_if,
+                              [AST_NEG] = ast_print_neg,
+                              [AST_AND] = ast_print_and_or,
+                              [AST_OR] = ast_print_and_or,
+                              [AST_PIPE] = ast_print_pipe,
+                              [AST_REDIR] = ast_print_redir,
+                              [AST_ASSIGNMENT] = ast_print_assignment,
+                              [AST_SUBSHELL] = ast_print_subshell };
 
 void ast_print(struct ast *ast)
 {

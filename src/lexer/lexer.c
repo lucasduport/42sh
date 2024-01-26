@@ -54,7 +54,7 @@ static int check_io_number(struct lexer *lexer)
 
 static int check_special_variable(const char *name)
 {
-    char special_char[] = { '$', '?', '@', '*', '#', '!', '.'};
+    char special_char[] = { '$', '?', '@', '*', '#', '!', '.' };
 
     for (size_t i = 0; name[i] != '\0'; i++)
     {
@@ -273,12 +273,12 @@ static void skip_comment(struct lexer *lexer)
  *
  */
 static void check_special_behavior(struct lexer *lexer)
-{  
+{
     if (lexer->is_quoted && lexer->current_char == '\\')
     {
         lexer->current_char = io_getchar();
         if (lexer->current_char == '\0')
-            lexer->error = 1;           
+            lexer->error = 1;
         else
             string_append_char(lexer->current_word, lexer->current_char);
     }
@@ -289,7 +289,8 @@ static void check_special_behavior(struct lexer *lexer)
         lexer->is_quoted = 0;
     }
 
-    else if (lexer->is_subshell && !lexer->is_quoted && lexer->current_char == ')')
+    else if (lexer->is_subshell && !lexer->is_quoted
+             && lexer->current_char == ')')
     {
         debug_printf(LOG_LEX, "[LEXER] quit subshell mode\n");
         lexer->is_subshell = 0;
@@ -344,7 +345,7 @@ static struct token parse_input_for_tok(struct lexer *lexer)
         lexer->error = 0;
         return token_alloc(TOKEN_ERROR, TOKEN_FAM_WORD, lexer);
     }
-        
+
     lexer->current_char = io_getchar();
 
     // rule 1
@@ -358,7 +359,7 @@ static struct token parse_input_for_tok(struct lexer *lexer)
             lexer->is_quoted = 0;
             return token_alloc(TOKEN_ERROR, TOKEN_FAM_WORD, lexer);
         }
-        
+
         return token_new(lexer);
     }
 

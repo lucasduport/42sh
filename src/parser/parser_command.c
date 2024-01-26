@@ -8,8 +8,8 @@ enum parser_status parser_command(struct lexer *lex, struct ast **res)
 
     // Firsts of shell_command
     else if (peek.type == TOKEN_IF || peek.type == TOKEN_WHILE
-        || peek.type == TOKEN_UNTIL || peek.type == TOKEN_FOR
-        || peek.type == TOKEN_LEFT_BRACE || peek.type == TOKEN_LEFT_PAR)
+             || peek.type == TOKEN_UNTIL || peek.type == TOKEN_FOR
+             || peek.type == TOKEN_LEFT_BRACE || peek.type == TOKEN_LEFT_PAR)
     {
         debug_printf(LOG_PARS, "[PARSER] Shell command - command\n");
 
@@ -54,8 +54,7 @@ enum parser_status parser_command(struct lexer *lex, struct ast **res)
     }
 }
 
-static enum parser_status errorsc(struct ast *redir,
-                                  struct ast *assignment,
+static enum parser_status errorsc(struct ast *redir, struct ast *assignment,
                                   struct ast *command)
 {
     ast_free(redir);
@@ -66,13 +65,18 @@ static enum parser_status errorsc(struct ast *redir,
 
 /**
  * @brief Parse prefix loop in simple_command
-*/
-static enum parser_status sub_prefix_loop(struct lexer *lex, struct ast **res, struct ast **assignment, struct ast **redir)
+ */
+static enum parser_status sub_prefix_loop(struct lexer *lex, struct ast **res,
+                                          struct ast **assignment,
+                                          struct ast **redir)
 {
     struct token peek = lexer_peek(lex);
-    while (peek.family == TOKEN_FAM_IO_NUMBER || peek.family == TOKEN_FAM_REDIR || peek.family == TOKEN_FAM_ASSW)
+    while (peek.family == TOKEN_FAM_IO_NUMBER || peek.family == TOKEN_FAM_REDIR
+           || peek.family == TOKEN_FAM_ASSW)
     {
-        if (parser_prefix(lex, (peek.family == TOKEN_FAM_ASSW) ? assignment : res) == PARSER_ERROR)
+        if (parser_prefix(lex,
+                          (peek.family == TOKEN_FAM_ASSW) ? assignment : res)
+            == PARSER_ERROR)
             return PARSER_ERROR;
 
         if (peek.family != TOKEN_FAM_ASSW)
@@ -86,14 +90,16 @@ static enum parser_status sub_prefix_loop(struct lexer *lex, struct ast **res, s
 
 /**
  * @brief Link correctly all trees if no command was parsing in simple command
-*/
-static enum parser_status sub_no_command(struct lexer *lex, struct ast **res, struct ast **assignment, struct ast **redir)
+ */
+static enum parser_status sub_no_command(struct lexer *lex, struct ast **res,
+                                         struct ast **assignment,
+                                         struct ast **redir)
 {
     *res = *redir;
     // Minimum one prefix
     if (*redir == NULL && (*assignment)->arg == NULL)
         return token_free(lexer_pop(lex)), PARSER_ERROR;
-    
+
     if ((*assignment)->arg == NULL)
         ast_free(*assignment);
     else
@@ -104,7 +110,7 @@ static enum parser_status sub_no_command(struct lexer *lex, struct ast **res, st
 
 /**
  * @brief Link all sub-trees at the end of simple_command
-*/
+ */
 static void link_redir_command(struct ast **res, struct ast **assignment,
                                struct ast **redir, struct ast **command)
 {
@@ -130,16 +136,17 @@ static void link_redir_command(struct ast **res, struct ast **assignment,
     }
 }
 
-enum parser_status parser_simple_command(struct lexer *lex, struct ast **res, struct token *w)
+enum parser_status parser_simple_command(struct lexer *lex, struct ast **res,
+                                         struct token *w)
 {
-    struct token peek = lexer_peek(lex); 
+    struct token peek = lexer_peek(lex);
     if (peek.type == TOKEN_ERROR)
     {
         if (w != NULL)
             token_free(*w);
         return token_free(lexer_pop(lex)), PARSER_ERROR;
     }
-        
+
     struct ast *redir = NULL;
     struct ast *assignment = ast_new(AST_ASSIGNMENT);
     struct ast *command = ast_new(AST_COMMAND);
@@ -159,7 +166,7 @@ enum parser_status parser_simple_command(struct lexer *lex, struct ast **res, st
     {
         if (sub_no_command(lex, res, &assignment, &redir))
             return errorsc(redir, assignment, command);
-        
+
         ast_free(command);
         return PARSER_OK;
     }
@@ -172,7 +179,8 @@ enum parser_status parser_simple_command(struct lexer *lex, struct ast **res, st
     }
 
     peek = lexer_peek(lex);
-    while (peek.family != TOKEN_FAM_OPERATOR && peek.type != TOKEN_RIGHT_BRACE && peek.type != TOKEN_ERROR)
+    while (peek.family != TOKEN_FAM_OPERATOR && peek.type != TOKEN_RIGHT_BRACE
+           && peek.type != TOKEN_ERROR)
     {
         if (peek.family == TOKEN_FAM_IO_NUMBER
             || peek.family == TOKEN_FAM_REDIR)
@@ -186,7 +194,7 @@ enum parser_status parser_simple_command(struct lexer *lex, struct ast **res, st
             parser_element(lex, &command);
         peek = lexer_peek(lex);
     }
-    
+
     if (peek.type == TOKEN_ERROR)
         goto error;
 
@@ -215,7 +223,7 @@ enum parser_status parser_shell_command(struct lexer *lex, struct ast **res)
 
     if (peek.type == TOKEN_FOR)
         return parser_rule_for(lex, res);
-    
+
     if (peek.type == TOKEN_LEFT_PAR)
     {
         token_free(lexer_pop(lex));
@@ -232,7 +240,7 @@ enum parser_status parser_shell_command(struct lexer *lex, struct ast **res)
         *res = tmp_ast;
         return PARSER_OK;
     }
-    
+
     if (peek.type == TOKEN_LEFT_BRACE)
     {
         token_free(lexer_pop(lex));
@@ -251,21 +259,22 @@ enum parser_status parser_shell_command(struct lexer *lex, struct ast **res)
     return PARSER_ERROR;
 }
 
-enum parser_status parser_fundec(struct lexer *lex, struct ast **res, struct token *w)
+enum parser_status parser_fundec(struct lexer *lex, struct ast **res,
+                                 struct token *w)
 {
     struct ast *tmp_res = ast_new(AST_FUNC);
     tmp_res->arg = list_create(w->data);
-    
+
     struct token peek = lexer_peek(lex);
     token_free(lexer_pop(lex));
     if (peek.type != TOKEN_LEFT_PAR)
         goto error;
-    
+
     peek = lexer_peek(lex);
     token_free(lexer_pop(lex));
     if (peek.type != TOKEN_RIGHT_PAR)
         goto error;
-    
+
     skip_newline(lex);
     enum parser_status code = parser_shell_command(lex, res);
     if (code == PARSER_ERROR)

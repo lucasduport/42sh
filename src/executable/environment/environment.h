@@ -11,14 +11,14 @@
 #include <unistd.h>
 
 #include "../../logger/logger.h"
-#include "../../utils/list/list.h"
 #include "../../utils/ast/ast.h"
+#include "../../utils/list/list.h"
 
 #define stop FILE_NOT_FOUND
 /**
  * Don't forget to change the stop macro
  * < don't stop, >= stop
-*/
+ */
 enum type_error
 {
     NO_ERROR,
@@ -41,7 +41,6 @@ struct environment
     int nb_loop;
     bool is_command;
 };
-
 
 /**
  * @file environment.c
@@ -71,7 +70,7 @@ void environment_free(struct environment *env);
 /**
  * @file environment.c
  * @param name The variable
- * 
+ *
  * @return bool
  */
 int check_env_variable(const char *name);
@@ -89,10 +88,11 @@ void set_environment(struct environment *env, int argc, char *argv[]);
 /**
  * @file environment.c
  * @brief Set error attribut of environment
- * 
+ *
  * @return ret_code
-*/
-int set_error_value(struct environment *env, enum type_error type, int ret_code);
+ */
+int set_error_value(struct environment *env, enum type_error type,
+                    int ret_code);
 
 struct function
 {
@@ -104,42 +104,41 @@ struct function
 /**
  * @file function.c
  * @brief Add a new function to the list
- * 
+ *
  * @param head Head of function's list
  * @param name Name of the function
  * @param body AST body of function
-*/
+ */
 int add_function(struct function **head, const char *name, struct ast *body);
 
 /**
  * @file function.c
  * @brief Set function int the environment and if it's not exist, add it
- * 
+ *
  * @param env Current environment
  * @param name Name of the function
  * @param body AST body of function
-*/
+ */
 int set_function(struct environment *env, const char *name, struct ast *body);
 
 /**
  * @file function.c
  * @brief Get back function, given its name
- * 
+ *
  * @param env Current environment
  * @param name Name of the function
- * 
+ *
  * @return NULL if the name was not found
-*/
+ */
 struct ast *get_function(struct environment *env, const char *name);
 
 /**
  * @file function.c
  * @brief Duplicate a list of functions, including name and ast
-*/
+ */
 struct function *dup_functions(struct function *head);
 
 void free_functions(struct function *head);
-
 
 struct variable
 {
@@ -150,7 +149,7 @@ struct variable
 
 /**
  * @file special_variable.c
- * 
+ *
  * @brief Set the $1..n in the environment
  * And set $#
  *
@@ -228,7 +227,7 @@ int add_variable(struct variable **head, const char *name, char *value);
  * @param env The environment to add the variable to
  * @param name The name of the variable
  * @param value The value of the variable
- * 
+ *
  * @return int 0 on success, -1 on error
  */
 int set_variable(struct environment *env, const char *name, char *value);
