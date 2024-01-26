@@ -1,1 +1,1 @@
-var=\"Follow God\"
+if then true echo kk

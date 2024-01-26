@@ -1,1 +1,1 @@
-var=\"Praise God\"; echo $var
+echo var=val
