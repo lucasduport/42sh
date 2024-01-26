@@ -131,5 +131,59 @@
         echo 'var2=val2; echo $var2; if then fi; echo $var2' > script4.txt
         . ./script4.txt; echo $var2
 
+- category: unset
+  sub-category: unset
+  tests:
+    - command: unset
+    - command: a=b; unset -vf a
+    - command: |
+        a=b
+        echo $a
+        unset -v a
+        echo $a
+    - command: unset -a badoption
+    - command: |
+        a=b
+        b=c
+        c=d
+        d=e
+        unset a b c d
+    - command: |
+        a=b
+        b=c
+        c=d
+        d=e
+        unset -f a b c d
+    - command: |
+        a=b
+        b=c
+        c=d
+        d=e
+        unset -v a b c d
+    - command: |
+        a=b
+        b=c
+        c=d
+        d=e
+        unset a UID c d
+    - command: |
+        echo 'hello () { echo "Hello!" }' > e.txt
+        . ./e.txt
+        hello
+        unset -f hello
+        hello
+    - command: |
+        a=a
+        b=g
+        unset a -f b
+        echo $a
+        echo $b
+    - command: |
+        a=b
+        b=c
+        unset -v a -f b
+        echo $b
+    - command: a=b; b=c; unset UID a b; echo $a; echo $b
+
 
 

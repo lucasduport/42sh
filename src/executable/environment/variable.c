@@ -84,6 +84,18 @@ struct variable *dup_variables(struct variable *head)
     return new_head;
 }
 
+int exist_variables(struct variable *head, const char *name)
+{
+    struct variable *current = head;
+    while (current != NULL)
+    {
+        if (strcmp(current->name, name) == 0)
+            return 1;
+        current = current->next;
+    }
+    return 0;
+}
+
 void free_variables(struct variable *head)
 {
     while (head != NULL)

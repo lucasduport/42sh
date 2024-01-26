@@ -64,4 +64,12 @@ int builtin_dot(struct list *list, struct environment *env);
  */
 int builtin_export(struct list *list, struct environment *env);
 
+/**
+ * @brief unset builtin
+ *
+ * @param list Linked list of argument (unset -> ...)
+ * @return int return code
+ */
+int builtin_unset(struct list *list, struct environment *env);
+
 #endif /* ! BUILTINS_H */

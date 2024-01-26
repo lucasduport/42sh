@@ -2,8 +2,6 @@
 
 enum parser_status parser_rule_while(struct lexer *lex, struct ast **res)
 {
-    debug_printf(LOG_PARS, "[PARSER] In while rule\n");
-
     struct token peek = lexer_peek(lex);
 
     if (peek.type != TOKEN_WHILE)
@@ -123,6 +121,9 @@ static enum parser_status sub_parse_for_nosemi(struct lexer *lex,
                                                struct ast *tmp_final)
 {
     struct token peek = lexer_peek(lex);
+    if (peek.type == TOKEN_ERROR)
+        goto error;
+    
     if (peek.type == TOKEN_IN)
     {
         token_free(lexer_pop(lex));
@@ -138,12 +139,15 @@ static enum parser_status sub_parse_for_nosemi(struct lexer *lex,
         if (peek.type != TOKEN_NEWLINE && peek.type != TOKEN_SEMICOLONS)
         {
             ast_free(tmp_final);
-            token_free(lexer_pop(lex));
-            return PARSER_ERROR;
+            goto error;
         }
         token_free(lexer_pop(lex));
     }
     return PARSER_OK;
+    
+error:
+    token_free(lexer_pop(lex));
+    return PARSER_ERROR;
 }
 
 enum parser_status parser_rule_for(struct lexer *lex, struct ast **res)

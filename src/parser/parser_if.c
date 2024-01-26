@@ -50,7 +50,10 @@ static enum parser_status sub_parse_else(struct lexer *lex,
                                          struct ast *tmp_condition)
 {
     struct token peek = lexer_peek(lex);
-    if (peek.type == TOKEN_ELSE || peek.type == TOKEN_ELIF)
+    if (peek.type == TOKEN_ERROR)
+        return token_free(lexer_pop(lex)), PARSER_ERROR;
+
+    else if (peek.type == TOKEN_ELSE || peek.type == TOKEN_ELIF)
     {
         struct ast *tmp_else = NULL;
         if (parser_else_clause(lex, &tmp_else) == PARSER_ERROR)

@@ -65,6 +65,13 @@ void ast_add_brother(struct ast *ast, struct ast *new_brother);
 void ast_add_child_to_child(struct ast **ast, struct ast *new_child);
 
 /**
+ * @brief Copy an AST, including its argument
+ *
+ * @param ast AST to copy
+ */
+struct ast *ast_copy(struct ast *ast);
+
+/**
  * @brief Recursively free the given ast
  *
  * @param parameter1 ast that we want to free
