@@ -123,7 +123,7 @@ static enum parser_status sub_parse_for_nosemi(struct lexer *lex,
     struct token peek = lexer_peek(lex);
     if (peek.type == TOKEN_ERROR)
         goto error;
-    
+
     if (peek.type == TOKEN_IN)
     {
         token_free(lexer_pop(lex));
@@ -144,7 +144,7 @@ static enum parser_status sub_parse_for_nosemi(struct lexer *lex,
         token_free(lexer_pop(lex));
     }
     return PARSER_OK;
-    
+
 error:
     token_free(lexer_pop(lex));
     return PARSER_ERROR;

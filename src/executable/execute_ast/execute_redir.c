@@ -89,7 +89,7 @@ static struct redirection open_file(char *operator, char * filename)
     int default_io[] = { 1, -1, 0, -1, 1, 1, 1, -1, 0, 0 };
     char *operators[] = { ">>", NULL, "<>", NULL, ">",
                           ">|", ">&", NULL, "<",  "<&" };
-    //FIXME J'ai delete le flag O_APPEND pour <>
+    // FIXME J'ai delete le flag O_APPEND pour <>
     int flags[] = { O_WRONLY | O_CREAT | O_APPEND, O_RDWR | O_CREAT,
                     O_WRONLY | O_CREAT | O_TRUNC, O_RDONLY };
 
@@ -144,7 +144,7 @@ int execute_redir(struct ast *ast, struct environment *env)
     int save_fd = dup(redir.io_number);
     if (save_fd == -1)
         goto error;
-    
+
     if (dup2(redir.word_fd, redir.io_number) == -1)
     {
         close(save_fd);
@@ -165,5 +165,5 @@ error:
     if (!ast->is_expand)
         list_destroy(arg_expand);
     debug_printf(LOG_EXEC, "redir: dup2 failed\n");
-    return -1; 
+    return -1;
 }

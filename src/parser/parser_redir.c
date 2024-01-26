@@ -28,17 +28,18 @@ enum parser_status parser_pipeline(struct lexer *lex, struct ast **res)
 
     // Parse optional { '|' {'\n'} command }
     peek = lexer_peek(lex);
-    
+
     while (peek.type == TOKEN_PIPE)
     {
         struct ast *tmp_pipe = ast_new(AST_PIPE);
-        token_free(lexer_pop(lex)); 
+        token_free(lexer_pop(lex));
 
         // Skip optional newline
         skip_newline(lex);
 
         peek = lexer_peek(lex);
-        if (peek.type == TOKEN_ERROR || parser_command(lex, res) == PARSER_ERROR)
+        if (peek.type == TOKEN_ERROR
+            || parser_command(lex, res) == PARSER_ERROR)
         {
             ast_free(tmp_pipe);
             ast_free(tmp_final);
@@ -84,8 +85,8 @@ enum parser_status parser_redirection(struct lexer *lex, struct ast **res)
     // Check redirection token
     struct token redir = lexer_peek(lex);
     if (redir.family != TOKEN_FAM_REDIR)
-        goto error; 
-    
+        goto error;
+
     lexer_pop(lex);
     // Check word token
     struct token word = lexer_peek(lex);

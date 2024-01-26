@@ -102,7 +102,7 @@ int execute_command(struct ast *ast, struct environment *env)
 
     else if (strcmp(first_arg, "continue") == 0)
         code = builtin_continue(tmp_arg, env);
-    
+
     else if (strcmp(first_arg, "break") == 0)
         code = builtin_break(tmp_arg, env);
 

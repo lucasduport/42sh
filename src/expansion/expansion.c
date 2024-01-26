@@ -296,7 +296,7 @@ static int expand_brace(struct environment *env, char **str, size_t *index)
 
 /**
  * @brief Fork our 42sh to execute a command and insert the output in the string
- * 
+ *
  * @param cmd Command to execute
  * @param current_env Environment to use
  * @return int  Return code of the command
@@ -326,7 +326,7 @@ static int main_bis(char *cmd, struct environment *current_env)
         {
             if (res != NULL)
             {
-                //ast_print(res);
+                // ast_print(res);
                 debug_printf(LOG_AST, "\n");
                 code = execute_ast(res, env);
                 ast_free(res);
