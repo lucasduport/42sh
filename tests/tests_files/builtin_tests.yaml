@@ -107,11 +107,11 @@
     - command: "."
     - command: ". test.sh; echo coucou"
     - command: |
-        echo 'echo var=val' > script.sh
-        . ./script.sh
+        echo 'echo var=val' > script.txt
+        . ./script.txt
     - command: |
-        echo 'if then true echo kk' > script2.sh
-        . ./script2.sh
+        echo 'if then true echo kk' > script2.txt
+        . ./script2.txt
     - command: ". bintest.sh"
     - command: ". bintest.sh; echo $CACA"
     - command: ". ./noperm.txt"
@@ -119,17 +119,17 @@
     - command: . tests_files
     - command: . . . . . . . . . . . .caca
     - command: |
-        echo 'var=val; echo $var' > script3.sh
-        . ./script3.sh; echo $var
-    - command: . ./script3.sh; echo $var; . ./script3.s; echo $var;
+        echo 'var=val; echo $var' > script3.txt
+        . ./script3.txt; echo $var
+    - command: . ./script3.sh; echo $var; . ./script3.txt; echo $var;
     - command: |
         echo $var2
-        echo 'var2=val2; echo $var2; if then fi' > script4.sh
-        . ./script4.sh; echo $var2
+        echo 'var2=val2; echo $var2; if then fi' > script4.txt
+        . ./script4.txt; echo $var2
     - command: |
         echo $var2
-        echo 'var2=val2; echo $var2; if then fi; echo $var2' > script4.sh
-        . ./script4.sh; echo $var2
+        echo 'var2=val2; echo $var2; if then fi; echo $var2' > script4.txt
+        . ./script4.txt; echo $var2
 
 
 
