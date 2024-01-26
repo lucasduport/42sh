@@ -1,0 +1,4 @@
+- category: wtf
+  sub-category: find double quote bugs
+  tests:
+  - command: echo quoi & echo feur

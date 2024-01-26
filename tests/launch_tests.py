@@ -15,9 +15,10 @@ class TestShellScript(unittest.TestCase):
         self.results = {}  # Dictionary to store test results
         self.total_success = 0
         self.total_fail = 0
+        self.failed_tests = []
 
     def setUp(self):
-        # Set up any common resources or configurations needed for tests
+        # Set up before each test
         pass
 
     def tearDown(self):
@@ -68,6 +69,7 @@ class TestShellScript(unittest.TestCase):
             print(colored(f"✘ {category} - {sub_category} - {input_type}: {command}", 'red'))
             self.results[category][sub_category]["fail"] += 1
         else:
+            
             #if verbose:
                 #print(colored(f"✔ {category} - {sub_category} - {input_type}: {command}", 'green'))
             self.results[category][sub_category]["success"] += 1
@@ -99,9 +101,17 @@ class TestShellScript(unittest.TestCase):
             self.results[category][sub_category] = {"success": 0, "fail": 0}
 
         for test_case in tests:
+            fails = self.results[category][sub_category]["fail"]
             for input_type in ["cmd_arg", "file", "stdin", "file_b_n"]:
                 test_function, test_args = self.create_test_from_case(test_case, yaml_data, input_type, verbose=verbose)
                 test_function(*test_args)
+            if fails != self.results[category][sub_category]["fail"]:
+                self.failed_tests.append({
+                "category": category,
+                "sub-category": sub_category,
+                "tests": [{"command": test_case.get("command", "")}]
+                })
+
 
     def print_category_summary(self, category):
         print(colored(f"******** {category} summary ********", 'cyan'))
@@ -160,6 +170,14 @@ class TestRunner:
             for category_data in test_data:
                 test_shell_script.run_category_tests(category_data, verbose=self.verbose)
         test_shell_script.print_summary()
+        try:
+            os.remove("failure.yaml")
+        except FileNotFoundError:
+            pass
+        if test_shell_script.total_fail > 0:
+            with open("failure.yaml", 'w') as failure_file:
+                yaml.dump(test_shell_script.failed_tests, failure_file)
+
 
 def get_print_colour(success_percentage):
     if success_percentage >= 90:
@@ -172,7 +190,7 @@ def get_print_colour(success_percentage):
 def load_test_files(directory):
     if not os.path.isdir(directory):
         return [directory]
-    test_files = [f for f in os.listdir(directory) if f.endswith('.yaml') or f.endswith('.yml')]
+    test_files = [f for f in os.listdir(directory) if f.endswith('.yaml')]
     return [os.path.join(directory, file) for file in test_files]
 
 def main():
@@ -185,6 +203,7 @@ def main():
 
     test_runner = TestRunner(test_files, verbose=args.verbose)
     test_runner.run_tests()
+
 
 if __name__ == '__main__':
     main()

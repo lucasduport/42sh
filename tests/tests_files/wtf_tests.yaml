@@ -24,3 +24,4 @@
     - command: echo '$`"\\\\'
     - command: echo "  zzézz\"  caca"
     - command: echo "    \"  caca"
+    - command: echo quoi & echo feur

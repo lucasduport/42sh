@@ -11,13 +11,15 @@ testsLogger_SOURCES = tests_logger.c
 testsLogger_LDADD = -lcriterion \
 			$(top_srcdir)/src/logger/liblogger.a \
 			$(top_srcdir)/src/utils/libutils.a
-			
+
+check-o:
+	python3 launch_tests.py --verbose failure.yaml
 
 check-local: $(check_PROGRAMS)
 	./testsIo
 	./testsLogger
 	rm -f *.txt
-	python3 launch_tests.py --verbose tests_files
+	python3 launch_tests.py tests_files
 
 clean-local:
 	rm -f $(check_PROGRAMS)
