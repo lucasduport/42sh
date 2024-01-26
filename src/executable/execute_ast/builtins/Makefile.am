@@ -6,6 +6,7 @@ libbuiltins_a_SOURCES =  \
 	echo.c \
     exit.c \
     export.c \
+    unset.c \
     stop_loop.c \
     builtins.h
 

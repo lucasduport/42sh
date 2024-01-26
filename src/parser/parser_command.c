@@ -276,11 +276,11 @@ enum parser_status parser_fundec(struct lexer *lex, struct ast **res,
         goto error;
 
     skip_newline(lex);
-    enum parser_status code = parser_shell_command(lex, res);
-    if (code == PARSER_ERROR)
+    if (parser_shell_command(lex,res) == PARSER_ERROR)
         goto error;
     tmp_res->first_child = *res;
     *res = tmp_res;
+    return PARSER_OK;
 
 error:
     ast_free(tmp_res);

@@ -54,7 +54,7 @@ static int check_io_number(struct lexer *lexer)
 
 static int check_special_variable(const char *name)
 {
-    char special_char[] = { '$', '?', '@', '*', '#', '!', '.' };
+    char special_char[] = { '$', '?', '@', '*', '#', '!', '.', '-', '+'};
 
     for (size_t i = 0; name[i] != '\0'; i++)
     {
@@ -457,7 +457,11 @@ struct lexer *lexer_new(int argc, char *argv[])
 struct token lexer_peek(struct lexer *lexer)
 {
     if (lexer->last_token.type != TOKEN_NULL)
+    {
+        /*if (lexer->last_token.family == TOKEN_FAM_OPERATOR)
+            lexer->last_is_op = 1;*/
         return lexer->last_token;
+    }
 
     struct token tok;
     if (lexer->is_newline)

@@ -24,7 +24,7 @@
     - command: |
         echo ←{\#\#\\ŧ^#~\]{^]~\[]~##^]¹\\\¹}\¹\\\\@\¹#]@[^\{\\\^\^~\#¶\¶#~¶~é\\'"é'\'é\_\"\éé\é"\\\\"éé"é\é"é"é"é"é"\#\
 
-- category: builtins\
+- category: builtins
   sub-category: booleans
   tests:
     - command: "if echo; then true; else false; fi"
@@ -103,7 +103,7 @@
         echo 'echo $b' > b.txt
         bash b.txt
 
-- category: dot
+- category: builtins
   sub-category: dot
   tests:
     - command: "."
@@ -132,6 +132,60 @@
         echo $var2
         echo 'var2=val2; echo $var2; if then fi; echo $var2' > script4.txt
         . ./script4.txt; echo $var2
+
+- category: builtins
+  sub-category: unset
+  tests:
+    - command: unset
+    - command: a=b; unset -vf a
+    - command: |
+        a=b
+        echo $a
+        unset -v a
+        echo $a
+    - command: unset -a badoption
+    - command: |
+        a=b
+        b=c
+        c=d
+        d=e
+        unset a b c d
+    - command: |
+        a=b
+        b=c
+        c=d
+        d=e
+        unset -f a b c d
+    - command: |
+        a=b
+        b=c
+        c=d
+        d=e
+        unset -v a b c d
+    - command: |
+        a=b
+        b=c
+        c=d
+        d=e
+        unset a UID c d
+    - command: |
+        a=a
+        b=g
+        unset a -f b
+        echo $a
+        echo $b
+    - command: |
+        a=b
+        b=c
+        unset -v a -f b
+        echo $b
+    - command: a=b; b=c; unset UID a b; echo $a; echo $b
+    - command: |
+        fun () {
+          echo hello
+        } 
+        unset -f hello
+        hello
 
 
 

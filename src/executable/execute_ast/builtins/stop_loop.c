@@ -1,11 +1,11 @@
 #include "builtins.h"
 
-int builtin_continue(struct list *arg, struct environment *env)
+int builtin_continue(struct list *list, struct environment *env)
 {
-    if (arg->next != NULL)
+    if (list->next != NULL)
     {
-        int n = atoi(arg->next->current);
-        if (n == 0 || arg->next->next != NULL)
+        int n = atoi(list->next->current);
+        if (n == 0 || list->next->next != NULL)
             return 128;
         env->nb_continue = n;
     }
@@ -14,12 +14,12 @@ int builtin_continue(struct list *arg, struct environment *env)
     return 0;
 }
 
-int builtin_break(struct list *arg, struct environment *env)
+int builtin_break(struct list *list, struct environment *env)
 {
-    if (arg->next != NULL)
+    if (list->next != NULL)
     {
-        int n = atoi(arg->next->current);
-        if (n == 0 || arg->next->next != NULL)
+        int n = atoi(list->next->current);
+        if (n == 0 || list->next->next != NULL)
             return 128;
         env->nb_break = n;
     }

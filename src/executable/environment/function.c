@@ -57,6 +57,40 @@ struct function *dup_functions(struct function *head)
     return new_head;
 }
 
+int exist_functions(struct function *head, const char *name)
+{
+    struct function *current = head;
+    while (current != NULL)
+    {
+        if (strcmp(current->name, name) == 0)
+            return 1;
+        current = current->next;
+    }
+    return 0;
+}
+
+void delete_function(struct function **head, char *name)
+{
+    struct function *p = *head;
+    struct function *prev = NULL;
+    while (p != NULL)
+    {
+        if (strcmp(p->name, name) == 0)
+        {
+            if (prev == NULL)
+                *head = p->next;
+            else
+                prev->next = p->next;
+            free(p->name);
+            ast_free(p->body);
+            free(p);
+            return;
+        }
+        prev = p;
+        p = p->next;
+    }
+}
+
 void free_functions(struct function *head)
 {
     while (head != NULL)

@@ -45,19 +45,28 @@ enum parser_status parser_list(struct lexer *lex, struct ast **res)
     return PARSER_OK;
 }
 
+static int is_follow_complist(struct token tok)
+{
+    enum token_type follows[] = { TOKEN_ELIF, TOKEN_ELSE,
+        TOKEN_THEN, TOKEN_FI, TOKEN_DONE, TOKEN_DO, TOKEN_RIGHT_BRACE,
+        TOKEN_RIGHT_PAR};
+    
+    for (size_t i = 0; i < 8; i++)
+    {
+        if (tok.type == follows[i])
+            return 1;
+    }
+    return 0;
+}
+
 enum parser_status parser_compound_list(struct lexer *lex, struct ast **res)
 {
-    struct token peek = lexer_peek(lex);
-    while (peek.type == TOKEN_NEWLINE)
-    {
-        token_free(lexer_pop(lex));
-        peek = lexer_peek(lex);
-    }
+    skip_newline(lex);
 
     if (parser_and_or(lex, res) == PARSER_ERROR)
         return PARSER_ERROR;
 
-    peek = lexer_peek(lex);
+    struct token peek = lexer_peek(lex);
 
     while (peek.type == TOKEN_SEMICOLONS || peek.type == TOKEN_NEWLINE)
     {
@@ -69,9 +78,7 @@ enum parser_status parser_compound_list(struct lexer *lex, struct ast **res)
 
         peek = lexer_peek(lex);
         debug_printf(LOG_PARS, "[PARSER] peek = %s\n", peek.data);
-        if (peek.type == TOKEN_ELSE || peek.type == TOKEN_ELIF
-            || peek.type == TOKEN_THEN || peek.type == TOKEN_FI
-            || peek.type == TOKEN_DONE || peek.type == TOKEN_DO)
+        if (is_follow_complist(peek))
         {
             struct ast *tmp = *res;
             *res = ast_new(AST_LIST);

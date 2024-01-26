@@ -33,13 +33,13 @@ enum type_error
 
 struct environment
 {
-    enum type_error error;
     struct variable *variables;
     struct function *functions;
     int nb_break;
     int nb_continue;
     int nb_loop;
     bool is_command;
+    enum type_error error;
 };
 
 /**
@@ -127,9 +127,9 @@ int set_function(struct environment *env, const char *name, struct ast *body);
  *
  * @param env Current environment
  * @param name Name of the function
- *
- * @return NULL if the name was not found
- */
+ * 
+ * @return NULL if the name was not found (don't return a copy)
+*/
 struct ast *get_function(struct environment *env, const char *name);
 
 /**
@@ -138,6 +138,29 @@ struct ast *get_function(struct environment *env, const char *name);
  */
 struct function *dup_functions(struct function *head);
 
+/**
+ * @file function.c
+ * @brief Check if a function exist in the list
+ * @param head Head of function's list
+ * @param name Name of the function
+*/
+int exist_functions(struct function *head, const char *name);
+
+/**
+ * @file function.c
+ * @brief Delete a function from the list
+ *
+ * @param head The head of the list
+ * @param name The name of the function to delete
+ */
+void delete_function(struct function **head, char *name);
+
+/**
+ * @file function.c
+ * @brief Free a list of functions
+ *
+ * @param head The head of the list
+ */
 void free_functions(struct function *head);
 
 struct variable
@@ -250,6 +273,14 @@ char *get_value(struct environment *env, const char *name);
  * @return struct variable* The new head of the list
  */
 struct variable *dup_variables(struct variable *head);
+
+/**
+ * @file variable.c
+ * @brief Check if a variable exist in the list
+ * @param head The head of the list
+ * @param name The name of the variable
+*/
+int exist_variables(struct variable *head, const char *name);
 
 /**
  * @file variable.c

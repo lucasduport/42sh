@@ -65,13 +65,22 @@ int builtin_dot(struct list *list, struct environment *env);
 int builtin_export(struct list *list, struct environment *env);
 
 /**
- * @brief exec 'continue' builtin
+ * @brief unset builtin
+ *
+ * @param list Linked list of argument (unset -> ...)
+ * @return int return code
  */
-int builtin_continue(struct list *arg, struct environment *env);
+int builtin_unset(struct list *list, struct environment *env);
+
+/**
+ * @brief continue builtin
+ *
+ */
+int builtin_continue(struct list *list, struct environment *env);
 
 /**
  * @brief exec 'break' builtin
  */
-int builtin_break(struct list *arg, struct environment *env);
+int builtin_break(struct list *list, struct environment *env);
 
 #endif /* ! BUILTINS_H */

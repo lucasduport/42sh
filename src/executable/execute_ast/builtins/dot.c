@@ -7,12 +7,17 @@
 #include "../../../parser/parser.h"
 #include "../execute.h"
 
+/**
+ * @brief Parse and execute a file
+ *
+ * Adapted version of the main function in src/42sh.c
+ * Copy the variables from the new environment to the current one
+ *
+ * @param file The file to parse and execute
+ * @param current_env The current environment
+ */
 int parse_and_exec(char *file, struct environment *current_env)
 {
-    print_variables(current_env->variables);
-
-    debug_printf(LOG_UTILS, "-----------------------------------\n");
-
     char *argv[] = { "42sh", file, NULL };
     int argc = 2;
 
@@ -59,7 +64,6 @@ int parse_and_exec(char *file, struct environment *current_env)
         else
             code = 2;
     }
-    debug_printf(LOG_UTILS, "code: %d\n", code);
 
     struct variable *vars = env->variables;
     while (vars != NULL)
@@ -69,17 +73,24 @@ int parse_and_exec(char *file, struct environment *current_env)
         vars = vars->next;
     }
 
-    print_variables(env->variables);
-
-    debug_printf(LOG_UTILS, "-----------------------------------\n");
-
-    print_variables(current_env->variables);
+    struct function *funcs = env->functions;
+    while (funcs != NULL)
+    {
+        set_function(current_env, funcs->name, funcs->body);
+        funcs = funcs->next;
+    }
 
     lexer_free(lex);
     environment_free(env);
     return code;
 }
 
+/**
+ * @brief Check if the file name contains a slash
+ *
+ * @param name The file name
+ * @return int 1 if the file name contains a slash, 0 otherwise
+ */
 static int check_slash(char *name)
 {
     size_t i = 0;

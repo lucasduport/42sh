@@ -16,12 +16,14 @@ struct environment *dup_environment(struct environment *env)
     print_variables(env->variables);
     struct environment *new_env = calloc(1, sizeof(struct environment));
     new_env->variables = dup_variables(env->variables);
+    new_env->functions = dup_functions(env->functions);
     return new_env;
 }
 
 void environment_free(struct environment *env)
 {
     free_variables(env->variables);
+    free_functions(env->functions);
     free(env);
 }
 
