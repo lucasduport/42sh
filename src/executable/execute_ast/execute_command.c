@@ -21,11 +21,7 @@ static int execvp_wrapper(struct list *arg, struct environment *env)
 
     int argc = 0;
     if (arg == NULL)
-    {
-        debug_printf(LOG_EXEC,
-                     "[EXECUTE] execvp_wrapper: argv allocation failed\n");
         return -1;
-    }
 
     int pid = fork();
     if (pid == -1)
@@ -41,11 +37,7 @@ static int execvp_wrapper(struct list *arg, struct environment *env)
         {
             argv = realloc(argv, sizeof(char *) * (argc + 2));
             if (argv == NULL)
-            {
-                debug_printf(LOG_EXEC,
-                             "[EXECUTE] execvp_wrapper: argv realloc failed\n");
                 return -1;
-            }
             argc++;
             argv[i] = arg->current;
             arg = arg->next;
@@ -73,7 +65,7 @@ int execute_command(struct ast *ast, struct environment *env)
         int return_code = 0;
         tmp_arg = expansion(ast->arg, env, &return_code);
         if (tmp_arg == NULL)
-            return set_error_value(env, FAILED_EXPAND, return_code);
+            return set_error(env, STOP, return_code);
     }
     ast->is_expand = !ast->is_expand;
 

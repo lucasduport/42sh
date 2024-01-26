@@ -92,6 +92,7 @@ int builtin_echo(struct list *list)
         p = p->next;
     }
 
+    // Display all argumentss
     while (p != NULL)
     {
         if (options->escape)

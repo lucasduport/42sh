@@ -36,13 +36,10 @@ int execute_while(struct ast *ast, struct environment *env)
 {
     env->nb_loop++;
     ast = ast->first_child;
-    if (ast == NULL || ast->next == NULL)
-        return set_error_value(env, OURSELF, -1);
 
     int ret_code = 0;
-    while (execute_ast(ast, env) == 0 && env->error < stop)
+    while (execute_ast(ast, env) == 0 && env->error != STOP)
     {
-        debug_printf(LOG_EXEC, "[EXEC] In while loop\n");
         ret_code = execute_ast(ast->next, env);
 
         // Check break and continue
@@ -57,11 +54,9 @@ int execute_until(struct ast *ast, struct environment *env)
 {
     env->nb_loop++;
     ast = ast->first_child;
-    if (ast == NULL || ast->next == NULL)
-        return set_error_value(env, OURSELF, -1);
-
+    
     int ret_code = 0;
-    while (execute_ast(ast, env) != 0 && env->error < stop)
+    while (execute_ast(ast, env) != 0 && env->error != STOP)
     {
         ret_code = execute_ast(ast->next, env);
         if (check_break_continue(env) == 1)
@@ -75,22 +70,18 @@ int execute_for(struct ast *ast, struct environment *env)
 {
     env->nb_loop++;
     char *for_var = ast->arg->current;
-    if (for_var == NULL)
-        return set_error_value(env, OURSELF, -1);
 
     int ret_code = 0;
     struct list *for_cond_exp = expansion(ast->arg->next, env, &ret_code);
     if (ret_code != 0)
-        return set_error_value(env, FAILED_EXPAND, ret_code);
+        return set_error(env, STOP, ret_code);
 
-    for (struct list *temp = for_cond_exp; temp != NULL && env->error < stop;
-         temp = temp->next)
+    for (struct list *tmp = for_cond_exp; tmp != NULL && env->error != STOP; tmp = tmp->next)
     {
-        if (set_variable(env, for_var, temp->current) == -1)
+        if (set_variable(env, for_var, tmp->current) == -1)
         {
-            debug_printf(LOG_EXEC, "[EXECUTE] Variables assignment failed\n");
             list_destroy(for_cond_exp);
-            return set_error_value(env, FAILED_EXPAND, 2);
+            return set_error(env, STOP, 2);
         }
 
         ret_code = execute_ast(ast->first_child, env);

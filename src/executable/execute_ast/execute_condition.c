@@ -3,8 +3,6 @@
 int execute_if(struct ast *ast, struct environment *env)
 {
     ast = ast->first_child;
-    if (ast == NULL || ast->next == NULL)
-        return set_error_value(env, OURSELF, -1);
 
     // If condition is met
     int res_cond = execute_ast(ast, env);
@@ -22,9 +20,6 @@ int execute_if(struct ast *ast, struct environment *env)
 
 int execute_and(struct ast *ast, struct environment *env)
 {
-    if (ast->first_child == NULL || ast->first_child->next == NULL)
-        return set_error_value(env, OURSELF, -1);
-
     int code_left = execute_ast(ast->first_child, env);
 
     // Failed with error or success but with return code 1
@@ -37,9 +32,6 @@ int execute_and(struct ast *ast, struct environment *env)
 
 int execute_or(struct ast *ast, struct environment *env)
 {
-    if (ast->first_child == NULL || ast->first_child->next == NULL)
-        return set_error_value(env, OURSELF, -1);
-
     int code_left = execute_ast(ast->first_child, env);
 
     // Failed with error or success but with return code 1

@@ -68,7 +68,7 @@ void set_environment(struct environment *env, int argc, char *argv[])
     // print_variables(env->variables);
 }
 
-int set_error_value(struct environment *env, enum type_error type, int ret_code)
+int set_error(struct environment *env, enum type_error type, int ret_code)
 {
     env->error = type;
     return ret_code;

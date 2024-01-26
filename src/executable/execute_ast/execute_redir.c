@@ -13,6 +13,7 @@
 
 /**
  * @brief Exec each part of pipe
+ * 
  * @param ast Current ast to execute
  * @param left 1 if it's left part of pipe 0 otherwise
  * @param fds_pipe Array that contain file descriptors of pipe
@@ -46,12 +47,6 @@ static int exec_fork(struct ast *ast, int is_left, int fds_pipe[2],
 
 int execute_pipe(struct ast *ast, struct environment *env)
 {
-    if (ast->first_child == NULL || ast->first_child->next == NULL)
-    {
-        env->error = OURSELF;
-        return -1;
-    }
-
     // Create pipe
     int fds_pipe[2];
     if (pipe(fds_pipe) == -1)
@@ -89,6 +84,7 @@ static struct redirection open_file(char *operator, char * filename)
     int default_io[] = { 1, -1, 0, -1, 1, 1, 1, -1, 0, 0 };
     char *operators[] = { ">>", NULL, "<>", NULL, ">",
                           ">|", ">&", NULL, "<",  "<&" };
+    
     // FIXME J'ai delete le flag O_APPEND pour <>
     int flags[] = { O_WRONLY | O_CREAT | O_APPEND, O_RDWR | O_CREAT,
                     O_WRONLY | O_CREAT | O_TRUNC, O_RDONLY };
@@ -117,16 +113,13 @@ static struct redirection open_file(char *operator, char * filename)
 
 int execute_redir(struct ast *ast, struct environment *env)
 {
-    if (ast->arg == NULL)
-        return set_error_value(env, OURSELF, -1);
-
     struct list *arg_expand = ast->arg;
     if (!ast->is_expand)
     {
         int ret = 0;
         arg_expand = expansion(ast->arg, env, &ret);
         if (ret != 0)
-            return set_error_value(env, FAILED_EXPAND, ret);
+            return set_error(env, STOP, ret);
     }
 
     char *operator= arg_expand->current;
@@ -165,5 +158,5 @@ error:
     if (!ast->is_expand)
         list_destroy(arg_expand);
     debug_printf(LOG_EXEC, "redir: dup2 failed\n");
-    return -1;
+    return set_error(env, STOP, -1);
 }

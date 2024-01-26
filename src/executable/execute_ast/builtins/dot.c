@@ -10,13 +10,10 @@
 /**
  * @brief Parse and execute a file
  *
- * Adapted version of the main function in src/42sh.c
- * Copy the variables from the new environment to the current one
- *
  * @param file The file to parse and execute
  * @param current_env The current environment
  */
-int parse_and_exec(char *file, struct environment *current_env)
+static int parse_and_exec(char *file, struct environment *current_env)
 {
     char *argv[] = { "42sh", file, NULL };
     int argc = 2;
@@ -57,7 +54,7 @@ int parse_and_exec(char *file, struct environment *current_env)
                 debug_printf(LOG_AST, "\n");
                 code = execute_ast(res, env);
                 ast_free(res);
-                if (env->error >= stop)
+                if (env->error == STOP)
                     break;
             }
         }
@@ -108,11 +105,10 @@ int builtin_dot(struct list *list, struct environment *env)
     if (list == NULL || list->next == NULL)
     {
         fprintf(stderr, "42sh: .: filename argument required");
-        return set_error_value(env, FILE_NOT_FOUND, 2);
+        return set_error(env, STOP, 2);
     }
 
     char *file = list->next->current;
-    debug_printf(LOG_UTILS, "DOT: %s\n", file);
 
     int code = 0;
 
@@ -120,7 +116,7 @@ int builtin_dot(struct list *list, struct environment *env)
     if (stat(file, &sb) == 0 && S_ISDIR(sb.st_mode))
     {
         fprintf(stderr, "42sh: .: %s: is a directory\n", file);
-        return set_error_value(env, FILE_NOT_FOUND, 1);
+        return set_error(env, STOP, 1);
     }
     else if (check_slash(file))
     {
@@ -128,9 +124,8 @@ int builtin_dot(struct list *list, struct environment *env)
         if (code == 127 || code == 2)
         {
             fprintf(stderr, "42sh: .: %s: file not found\n", file);
-            return set_error_value(env, FILE_NOT_FOUND, (code == 127 ? 1 : 2));
+            return set_error(env, STOP, (code == 127 ? 1 : 2));
         }
-        debug_printf(LOG_UTILS, "code: %d\n", code);
         return code;
     }
     else
@@ -147,8 +142,6 @@ int builtin_dot(struct list *list, struct environment *env)
             strcat(file_path, file);
 
             struct stat sb;
-            // debug_printf(LOG_EXEC, "[EXECUTE] Checking file [%s]\n",
-            // file_path);
             if (stat(file_path, &sb) == 0 && sb.st_mode & S_IRUSR)
             {
                 code = parse_and_exec(file_path, env);
@@ -157,11 +150,8 @@ int builtin_dot(struct list *list, struct environment *env)
                 if (code == 127 || code == 2)
                 {
                     fprintf(stderr, "42sh: .: %s: file not found\n", file);
-                    return set_error_value(env, FILE_NOT_FOUND,
-                                           (code == 127 ? 1 : 2));
+                    return set_error(env, STOP, (code == 127 ? 1 : 2));
                 }
-                // debug_printf(LOG_EXEC, "[EXECUTE] File [%s] found\n",
-                // file_path);
                 break;
             }
             free(file_path);
@@ -170,7 +160,7 @@ int builtin_dot(struct list *list, struct environment *env)
         if (parse == 0)
         {
             fprintf(stderr, "42sh: .: %s: file not found\n", file);
-            return set_error_value(env, FILE_NOT_FOUND, 1);
+            return set_error(env, STOP, 1);
         }
         return code;
     }

@@ -2,7 +2,7 @@
 
 int builtin_exit(struct list *list, struct environment *env)
 {
-    env->error = EXIT_BUILT;
+    env->error = STOP;
     int code = 0;
     if (list->next == NULL)
     {
@@ -16,12 +16,12 @@ int builtin_exit(struct list *list, struct environment *env)
         if (sscanf(list->next->current, "%d", &code) != 1)
         {
             fprintf(stderr, "exit: numeric argument required\n");
-            return set_error_value(env, EXIT_BUILT, 2);
+            return set_error(env, STOP, 2);
         }
         if (list->next->next != NULL)
         {
             fprintf(stderr, "exit: too many arguments\n");
-            return set_error_value(env, EXIT_BUILT, 2);
+            return set_error(env, STOP, 2);
         }
     }
     // Handle negative modulos

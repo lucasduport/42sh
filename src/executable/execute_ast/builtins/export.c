@@ -12,16 +12,21 @@ int builtin_export(struct list *list, struct environment *env)
     char *variable_name = NULL;
     char *variable_value = NULL;
     int code = 0;
+
     if (strchr(ass->current, '=') != NULL)
     {
         variable_name = strtok(ass->current, "=");
         variable_value = expand_string(strtok(NULL, "="), env, &code);
+        
         if (code != 0)
-            return set_error_value(env, FAILED_EXPAND, code);
+            return set_error(env, STOP, code);
+        
         if (variable_name != NULL && variable_value != NULL)
             setenv(variable_name, variable_value, 1);
+        
         free(variable_value);
     }
+
     else
     {
         variable_name = ass->current;
