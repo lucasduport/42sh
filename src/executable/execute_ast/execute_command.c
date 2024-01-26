@@ -104,6 +104,7 @@ int execute_command(struct ast *ast, struct environment *env)
 
     else if (strcmp(first_arg, ".") == 0)
         code = builtin_dot(tmp_arg, env);
+        
     else
         code = execvp_wrapper(tmp_arg, env);
 
