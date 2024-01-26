@@ -69,16 +69,16 @@ int exist_functions(struct function *head, const char *name)
     return 0;
 }
 
-void delete_functions(struct function *head, char *name)
+void delete_function(struct function **head, char *name)
 {
-    struct function *p = head;
+    struct function *p = *head;
     struct function *prev = NULL;
     while (p != NULL)
     {
         if (strcmp(p->name, name) == 0)
         {
             if (prev == NULL)
-                head = p->next;
+                *head = p->next;
             else
                 prev->next = p->next;
             free(p->name);

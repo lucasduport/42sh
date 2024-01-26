@@ -8,3 +8,19 @@
     - command: ^
     - command:
     - command: a
+- category: wtf
+  sub-category: find double quote bugs
+  tests:
+    - command: echo """"""""""\\""ola"
+    - command: echo """'""""'"""\\'""ola"'
+    - command: echo """'""""'""ola"'
+    - command: \\\\\\\\\\\echo ""''bug''
+    - command: echo \'\{\''''\{\}\}'"salut"
+    - command: echo '$ \\a \\b \\z \\ "'
+    - command: echo '$ \\a \\b \\z \\ "'\{"\}'"''"salut\""
+    - command: echo "salut"
+    - command: a=ho; 'e'""""""""'c'''"${a}" salut
+    - command: a=ho; 'e'""""""""'c'''"$a" salut
+    - command: echo '$`"\\\\'
+    - command: echo "  zzézz\"  caca"
+    - command: echo "    \"  caca"

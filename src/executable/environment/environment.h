@@ -33,13 +33,13 @@ enum type_error
 
 struct environment
 {
-    enum type_error error;
     struct variable *variables;
     struct function *functions;
     int nb_break;
     int nb_continue;
     int nb_loop;
     bool is_command;
+    enum type_error error;
 };
 
 /**
@@ -127,9 +127,9 @@ int set_function(struct environment *env, const char *name, struct ast *body);
  *
  * @param env Current environment
  * @param name Name of the function
- *
- * @return NULL if the name was not found
- */
+ * 
+ * @return NULL if the name was not found (don't return a copy)
+*/
 struct ast *get_function(struct environment *env, const char *name);
 
 /**
@@ -153,7 +153,7 @@ int exist_functions(struct function *head, const char *name);
  * @param head The head of the list
  * @param name The name of the function to delete
  */
-void delete_functions(struct function *head, char *name);
+void delete_function(struct function **head, char *name);
 
 /**
  * @file function.c

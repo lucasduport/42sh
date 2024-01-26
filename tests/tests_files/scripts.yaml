@@ -140,3 +140,31 @@
         do echo $j; break 4
         done
         done
+
+- category: scripts
+  sub-category: functions
+  tests:
+    - command: |
+        foo () {
+            bar () {
+                echo foobar
+            }
+        }
+        foo
+        bar
+    - command: |
+        foo () {
+            bar () {
+                echo foobar
+            }
+        }
+        change () {
+            bar () {
+                echo coucou
+            }
+        }
+        foo
+        bar
+        change
+        bar
+    

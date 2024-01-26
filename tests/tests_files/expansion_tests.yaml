@@ -76,8 +76,8 @@
     - command: PWD=$OLDPWD; echo $PWD; echo $?
     - command: "@=a; echo \\$@"
     - command: "~#____\\=kk; echo $?"
-    - command: "IFS=aaa echo \\$IFS; IFS=pp; echo \\$?"
-    - command: IFS=b; echo $IFS; IFS=pp; echo $?
+    - command: IFS=aaa echo "$IFS"; IFS=pp; echo \\$?
+    - command: IFS=b; echo "$IFS"; IFS=pp; echo '$?'
     - command: "\\$a=a"
     - command: "__a=kk ; echo \\$__a"
     - command: __=kk ; echo $__
@@ -106,4 +106,15 @@
         echo $UID
     - command: |
         UID=b; echo a; echo caca
+    - command: |
+        IFS=a
+        echo "$IFS"
 
+        IFS=b echo "$IFS"
+
+- category: expansion
+  sub-category: cmd_substitution
+  tests:
+    - command: "echo $(echo -n Hello World)"
+    - command: $(echo -n ec)'h'"o" "easy la $(/bin/echo -n quote)"
+    - command: a=6; echo $(echo -n $a; a=8; echo -n $a); echo $a

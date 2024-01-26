@@ -16,6 +16,7 @@ struct environment *dup_environment(struct environment *env)
     print_variables(env->variables);
     struct environment *new_env = calloc(1, sizeof(struct environment));
     new_env->variables = dup_variables(env->variables);
+    new_env->functions = dup_functions(env->functions);
     return new_env;
 }
 
@@ -28,7 +29,7 @@ void environment_free(struct environment *env)
 
 int check_env_variable(const char *name)
 {
-    char *reserved_env_var[] = { "OLDPWD", "PWD", "IFS" };
+    char *reserved_env_var[] = { "OLDPWD", "PWD" };
 
     for (size_t i = 0; i < sizeof(reserved_env_var) / sizeof(char *); i++)
     {
@@ -42,6 +43,8 @@ void set_environment(struct environment *env, int argc, char *argv[])
 {
     (void)argc;
     (void)argv;
+
+    set_variable(env, "IFS", " \t\n");
 
     // set_number_variable(env, argc, argv);
 

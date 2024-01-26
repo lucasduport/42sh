@@ -243,9 +243,8 @@ static void set_quote(struct lexer *lexer)
     {
         string_append_char(lexer->current_word, lexer->current_char);
         lexer->current_char = io_getchar();
-        debug_printf(LOG_LEX, "[LEXER] current_char: %c\n",
-                     lexer->current_char);
-        string_append_char(lexer->current_word, lexer->current_char);
+        if (lexer->current_char != '\0')
+            string_append_char(lexer->current_word, lexer->current_char);
     }
     else
     {
@@ -274,14 +273,23 @@ static void skip_comment(struct lexer *lexer)
  *
  */
 static void check_special_behavior(struct lexer *lexer)
-{
-    if (lexer->is_quoted && lexer->current_char == lexer->current_quote)
+{  
+    if (lexer->is_quoted && lexer->current_char == '\\')
+    {
+        lexer->current_char = io_getchar();
+        if (lexer->current_char == '\0')
+            lexer->error = 1;           
+        else
+            string_append_char(lexer->current_word, lexer->current_char);
+    }
+
+    else if (lexer->is_quoted && lexer->current_char == lexer->current_quote)
     {
         debug_printf(LOG_LEX, "[LEXER] quit quote mode\n");
         lexer->is_quoted = 0;
     }
 
-    if (lexer->is_subshell && !lexer->is_quoted && lexer->current_char == ')')
+    else if (lexer->is_subshell && !lexer->is_quoted && lexer->current_char == ')')
     {
         debug_printf(LOG_LEX, "[LEXER] quit subshell mode\n");
         lexer->is_subshell = 0;
@@ -331,6 +339,12 @@ static int find_mode(struct lexer *lexer)
  */
 static struct token parse_input_for_tok(struct lexer *lexer)
 {
+    if (lexer->error == 1)
+    {
+        lexer->error = 0;
+        return token_alloc(TOKEN_ERROR, TOKEN_FAM_WORD, lexer);
+    }
+        
     lexer->current_char = io_getchar();
 
     // rule 1
@@ -339,6 +353,12 @@ static struct token parse_input_for_tok(struct lexer *lexer)
         if (lexer->current_word->len == 0)
             string_append_char(lexer->current_word, lexer->current_char);
 
+        if (lexer->is_quoted)
+        {
+            lexer->is_quoted = 0;
+            return token_alloc(TOKEN_ERROR, TOKEN_FAM_WORD, lexer);
+        }
+        
         return token_new(lexer);
     }
 
@@ -436,7 +456,11 @@ struct lexer *lexer_new(int argc, char *argv[])
 struct token lexer_peek(struct lexer *lexer)
 {
     if (lexer->last_token.type != TOKEN_NULL)
+    {
+        /*if (lexer->last_token.family == TOKEN_FAM_OPERATOR)
+            lexer->last_is_op = 1;*/
         return lexer->last_token;
+    }
 
     struct token tok;
     if (lexer->is_newline)

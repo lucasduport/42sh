@@ -21,6 +21,8 @@
     - command: "echo -E 'This is a multiline\\nstring without interpreting escape characters\\tand \\ backslashes'"
     - command: "echo -n -e -E 'Mixing options and\\n multiline\\t strings with \\ backslashes\\n'"
     - command: echo -e 'This is another\nmultines \\n'
+    - command: |
+        echo ←{\#\#\\ŧ^#~\]{^]~\[]~##^]¹\\\¹}\¹\\\\@\¹#]@[^\{\\\^\^~\#¶\¶#~¶~é\\'"é'\'é\_\"\éé\é"\\\\"éé"é\é"é"é"é"é"\#\
 
 - category: builtins
   sub-category: booleans
@@ -101,7 +103,7 @@
         echo 'echo $b' > b.txt
         bash b.txt
 
-- category: dot
+- category: builtins
   sub-category: dot
   tests:
     - command: "."
@@ -131,7 +133,7 @@
         echo 'var2=val2; echo $var2; if then fi; echo $var2' > script4.txt
         . ./script4.txt; echo $var2
 
-- category: unset
+- category: builtins
   sub-category: unset
   tests:
     - command: unset
@@ -167,12 +169,6 @@
         d=e
         unset a UID c d
     - command: |
-        echo 'hello () { echo "Hello!" }' > e.txt
-        . ./e.txt
-        hello
-        unset -f hello
-        hello
-    - command: |
         a=a
         b=g
         unset a -f b
@@ -184,6 +180,12 @@
         unset -v a -f b
         echo $b
     - command: a=b; b=c; unset UID a b; echo $a; echo $b
+    - command: |
+        fun () {
+          echo hello
+        } 
+        unset -f hello
+        hello
 
 
 

@@ -70,7 +70,7 @@ static int unset_function(struct environment *env, char *name)
 {
     if (exist_functions(env->functions, name))
     {
-        delete_functions(env->functions, name);
+        delete_function(&env->functions, name);
     }
     return 0;
 }

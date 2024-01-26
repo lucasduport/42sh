@@ -1,12 +1,13 @@
 lib_LIBRARIES = libbuiltins.a
 
 libbuiltins_a_SOURCES =  \
-	echo.c \
     bool.c \
-    exit.c \
     dot.c \
+	echo.c \
+    exit.c \
     export.c \
     unset.c \
+    stop_loop.c \
     builtins.h
 
 libbuiltins_a_CPPFLAGS = -I$(top_srcdir)/src
