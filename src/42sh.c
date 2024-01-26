@@ -5,7 +5,7 @@
 int main(int argc, char **argv)
 {
     // create_logger("stdout");
-    // enable_log_type(LOG_LEX);
+    enable_log_type(LOG_LEX);
     // disable_log_type(LOG_LEX);
     // enable_all_logs();
     // disable_all_logs();
@@ -38,27 +38,27 @@ int main(int argc, char **argv)
     struct ast *res;
     int code = 0;
 
-    enum parser_status parse_code = parser_input(lex, &res);
+    enum parser_status parse_code = PARSER_OK;
     while (parse_code != PARSER_EOF)
     {
-        if (parse_code == PARSER_OK)
+        parse_code = parser_input(lex, &res);
+        if (parse_code == PARSER_OK || parse_code == PARSER_EOF)
         {
             if (res != NULL)
             {
+                //ast_print(res);
                 debug_printf(LOG_AST, "\n");
                 code = execute_ast(res, env);
                 ast_free(res);
-                if (env->exit)
+                if (env->error >= stop)
                     break;
             }
         }
         else
             code = 2;
-        parse_code = parser_input(lex, &res);
     }
 
     /*
-
     struct token tok = lexer_pop(lex);
     while (tok.type != TOKEN_EOF)
     {

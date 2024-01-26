@@ -95,16 +95,13 @@ static int exec_break(struct list *arg, struct environment *env)
 
 int execute_command(struct ast *ast, struct environment *env)
 {
-    if (ast->arg == NULL)
-        return 2;
-
     struct list *tmp_arg = ast->arg;
     if (!ast->is_expand)
     {
         int return_code = 0;
         tmp_arg = expansion(ast->arg, env, &return_code);
         if (tmp_arg == NULL)
-            return return_code;
+            return set_error_value(env, FAILED_EXPAND, return_code);
     }
     ast->is_expand = !ast->is_expand;
 
@@ -133,6 +130,8 @@ int execute_command(struct ast *ast, struct environment *env)
     else if (strcmp(first_arg, "break") == 0)
         code = exec_break(tmp_arg, env);
 
+    else if (strcmp(first_arg, ".") == 0)
+        code = builtin_dot(tmp_arg, env);
     else
         code = execvp_wrapper(tmp_arg, env);
 

@@ -99,6 +99,8 @@
     - command: a=$UID$UID$UID; echo $a
     - command: a=$a$a$a; echo $a
     - command: a=1; b=2; c=$a$b$a$b; echo $c
+    - command: RANDOM=11;
+    - command: UID=11; echo $?
     - command: UID=a; echo $UID
     - command: |
         echo $UID

@@ -37,7 +37,7 @@ enum parser_status parser_input(struct lexer *lex, struct ast **res)
     if (peek_type == TOKEN_EOF || peek_type == TOKEN_NEWLINE)
     {
         token_free(lexer_pop(lex));
-        return PARSER_OK;
+        return (peek_type == TOKEN_EOF) ? PARSER_EOF : PARSER_OK;
     }
 
     // If not.

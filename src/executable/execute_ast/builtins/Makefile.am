@@ -4,6 +4,7 @@ libbuiltins_a_SOURCES =  \
 	echo.c \
     bool.c \
     exit.c \
+    dot.c \
     export.c \
     builtins.h
 

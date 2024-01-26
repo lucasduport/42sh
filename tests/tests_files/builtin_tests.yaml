@@ -103,3 +103,29 @@
         echo 'echo $b' > b.txt
         bash b.txt
 
+- category: dot
+  sub-category: dot
+  tests:
+    - command: echo 'var=val; echo $var' > test.sh; . ./test.sh ;echo $var
+    - command: . ./test.sh
+    - command: . test.sh
+    - command: . src/
+    - command: . ./noperm.txt
+    - command: . noperm.txt
+    - command: . ./bintest.sh
+    - command: . bintest.sh
+    - command: |
+        echo 'echo \"Hello, world!\"' > script.sh;
+        . ./script.sh;
+    - command: echo 'var=\"Praise God\"; echo $var' > script.sh; . script.sh; echo $var
+    - command: . ./script.sh; echo $var
+    - command: echo 'var=\"Devil In a New Dress\"' > script2.sh; . script2.sh; echo $var;
+    - command: echo 'var=\"Follow God\"' > script2.sh; . ./script2.sh; echo $Wonderful; echo $var
+    - command: . . . . . . . . . . . .caca
+    #- command: | 
+    #    echo 'var=val; echo $var' > test.sh
+    #    . ./test.sh
+    #    echo $var
+
+
+

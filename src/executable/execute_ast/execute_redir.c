@@ -48,8 +48,7 @@ int execute_pipe(struct ast *ast, struct environment *env)
 {
     if (ast->first_child == NULL || ast->first_child->next == NULL)
     {
-        debug_printf(LOG_EXEC,
-                     "[EXECUTE] Missing left or right node for 'pipe' node\n");
+        env->error = OURSELF;
         return -1;
     }
 
@@ -90,7 +89,8 @@ static struct redirection open_file(char *operator, char * filename)
     int default_io[] = { 1, -1, 0, -1, 1, 1, 1, -1, 0, 0 };
     char *operators[] = { ">>", NULL, "<>", NULL, ">",
                           ">|", ">&", NULL, "<",  "<&" };
-    int flags[] = { O_WRONLY | O_CREAT | O_APPEND, O_RDWR | O_CREAT | O_APPEND,
+    //FIXME J'ai delete le flag O_APPEND pour <>
+    int flags[] = { O_WRONLY | O_CREAT | O_APPEND, O_RDWR | O_CREAT,
                     O_WRONLY | O_CREAT | O_TRUNC, O_RDONLY };
 
     size_t i = 0;
@@ -118,15 +118,15 @@ static struct redirection open_file(char *operator, char * filename)
 int execute_redir(struct ast *ast, struct environment *env)
 {
     if (ast->arg == NULL)
-        return -1;
+        return set_error_value(env, OURSELF, -1);
 
     struct list *arg_expand = ast->arg;
     if (!ast->is_expand)
     {
         int ret = 0;
         arg_expand = expansion(ast->arg, env, &ret);
-        if (ret == -1)
-            return -1;
+        if (ret != 0)
+            return set_error_value(env, FAILED_EXPAND, ret);
     }
 
     char *operator= arg_expand->current;
