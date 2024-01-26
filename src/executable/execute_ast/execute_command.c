@@ -93,6 +93,33 @@ static int exec_break(struct list *arg, struct environment *env)
     return 0;
 }
 
+int execute_subshell(struct ast *ast, struct environment *env)
+{
+    // Forks a new process and executes the ast in it
+    int pid = fork();
+    if (pid == -1)
+        return 2;
+    if (pid == 0)
+    {
+        // Child process
+        struct environment *child_env = dup_environment(env);
+        int code = execute_ast(ast->first_child, child_env);
+        // Set exit variable of the ast to the current environment
+        set_exit_variable(env, code);
+        environment_free(child_env);
+        _exit(code);
+    }
+    else
+    {
+        // Parent process
+        int return_status;
+        // Wait for child process to finish
+        waitpid(pid, &return_status, 0);
+        // Return child process return value
+        return WEXITSTATUS(return_status);
+    }
+}
+
 int execute_command(struct ast *ast, struct environment *env)
 {
     struct list *tmp_arg = ast->arg;
@@ -132,6 +159,7 @@ int execute_command(struct ast *ast, struct environment *env)
 
     else if (strcmp(first_arg, ".") == 0)
         code = builtin_dot(tmp_arg, env);
+
     else
         code = execvp_wrapper(tmp_arg, env);
 

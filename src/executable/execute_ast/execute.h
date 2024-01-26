@@ -29,6 +29,16 @@ typedef int (*exec_ast_node)(struct ast *ast, struct environment *env);
 int execute_command(struct ast *ast, struct environment *env);
 
 /**
+ * @file execute_command.c
+ * @brief Execute subshell node (command in parenthesis)
+ * 
+ * @param ast 'subshell' node
+ * @param env environment
+ * @return int return value from execution of the command
+ */
+int execute_subshell(struct ast *ast, struct environment *env);
+
+/**
  * @file execute_condition.c
  * @brief Execute if node
  *

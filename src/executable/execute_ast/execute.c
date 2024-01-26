@@ -18,7 +18,8 @@ exec_ast_node executes[] = { [AST_IF] = execute_if,
                              [AST_COMMAND] = execute_command,
                              [AST_NEG] = execute_neg,
                              [AST_ASSIGNMENT] = execute_assignment,
-                             [AST_FOR] = execute_for };
+                             [AST_FOR] = execute_for,
+                             [AST_SUBSHELL] = execute_subshell };
 
 int execute_assignment(struct ast *ast, struct environment *env)
 {
@@ -49,10 +50,11 @@ int execute_assignment(struct ast *ast, struct environment *env)
 
         char *val = strstr(cpy, "=");
         val++;
-        //debug_printf(LOG_LEX, "[EXECUTE] Variable name: '%s'\n", variable_name);
-        //debug_printf(LOG_LEX, "[EXECUTE] Variable value: '%s'\n", variable_value);
+        // debug_printf(LOG_LEX, "[EXECUTE] Variable name: '%s'\n",
+        // variable_name); debug_printf(LOG_LEX, "[EXECUTE] Variable value:
+        // '%s'\n", variable_value);
 
-        //variable_value = expand_string(strtok(NULL, "="), env, &code);
+        // variable_value = expand_string(strtok(NULL, "="), env, &code);
         variable_value = expand_string(val, env, &code);
 
         free(cpy);
@@ -68,7 +70,6 @@ int execute_assignment(struct ast *ast, struct environment *env)
                 env->error = UNSETABLE_VARIABLE;
                 goto error;
             }
-                
         }
         free(variable_value);
     }
@@ -83,7 +84,7 @@ int execute_assignment(struct ast *ast, struct environment *env)
     }
     if (ast->first_child != NULL)
         ast_free(child);
-    
+
     return code;
 
 error:
@@ -101,7 +102,8 @@ int execute_list(struct ast *ast, struct environment *env)
     int res = 0;
 
     // While there is no error on our part
-    while (tmp != NULL && env->error < stop && !env->nb_continue && !env->nb_break)
+    while (tmp != NULL && env->error < stop && !env->nb_continue
+           && !env->nb_break)
     {
         res = execute_ast(tmp, env);
         tmp = tmp->next;
