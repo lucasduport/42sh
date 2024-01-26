@@ -64,4 +64,14 @@ int builtin_dot(struct list *list, struct environment *env);
  */
 int builtin_export(struct list *list, struct environment *env);
 
+/**
+ * @brief exec 'continue' builtin
+*/
+int builtin_continue(struct list *arg, struct environment *env);
+
+/**
+ * @brief exec 'break' builtin
+*/
+int builtin_break(struct list *arg, struct environment *env);
+
 #endif /* ! BUILTINS_H */

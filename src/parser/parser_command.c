@@ -134,7 +134,11 @@ enum parser_status parser_simple_command(struct lexer *lex, struct ast **res, st
 {
     struct token peek = lexer_peek(lex); 
     if (peek.type == TOKEN_ERROR)
+    {
+        if (w != NULL)
+            token_free(*w);
         return token_free(lexer_pop(lex)), PARSER_ERROR;
+    }
         
     struct ast *redir = NULL;
     struct ast *assignment = ast_new(AST_ASSIGNMENT);

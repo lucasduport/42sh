@@ -243,9 +243,7 @@ static void set_quote(struct lexer *lexer)
     {
         string_append_char(lexer->current_word, lexer->current_char);
         lexer->current_char = io_getchar();
-        if (lexer->current_char == '\0')
-            lexer->error = 1;    
-        else
+        if (lexer->current_char != '\0')
             string_append_char(lexer->current_word, lexer->current_char);
     }
     else
@@ -341,8 +339,11 @@ static int find_mode(struct lexer *lexer)
  */
 static struct token parse_input_for_tok(struct lexer *lexer)
 {
-    if (lexer->error)
+    if (lexer->error == 1)
+    {
+        lexer->error = 0;
         return token_alloc(TOKEN_ERROR, TOKEN_FAM_WORD, lexer);
+    }
         
     lexer->current_char = io_getchar();
 
