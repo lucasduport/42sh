@@ -340,7 +340,10 @@ static struct token parse_input_for_tok(struct lexer *lexer)
             string_append_char(lexer->current_word, lexer->current_char);
 
         if (lexer->is_quoted)
+        {
+            lexer->is_quoted = 0;
             return token_alloc(TOKEN_ERROR, TOKEN_FAM_WORD, lexer);
+        }
         
         return token_new(lexer);
     }
