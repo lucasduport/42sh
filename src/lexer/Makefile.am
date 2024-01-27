@@ -1,6 +1,7 @@
 lib_LIBRARIES = liblexer.a
 
 liblexer_a_SOURCES =  \
+  lexer_tools.c \
   lexer.c \
   lexer.h \
   token.c \
