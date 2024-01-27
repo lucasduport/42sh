@@ -13,7 +13,7 @@
 
 /**
  * @brief Exec each part of pipe
- * 
+ *
  * @param ast Current ast to execute
  * @param left 1 if it's left part of pipe 0 otherwise
  * @param fds_pipe Array that contain file descriptors of pipe
@@ -84,7 +84,7 @@ static struct redirection open_file(char *operator, char * filename)
     int default_io[] = { 1, -1, 0, -1, 1, 1, 1, -1, 0, 0 };
     char *operators[] = { ">>", NULL, "<>", NULL, ">",
                           ">|", ">&", NULL, "<",  "<&" };
-    
+
     // FIXME J'ai delete le flag O_APPEND pour <>
     int flags[] = { O_WRONLY | O_CREAT | O_APPEND, O_RDWR | O_CREAT,
                     O_WRONLY | O_CREAT | O_TRUNC, O_RDONLY };

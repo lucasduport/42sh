@@ -54,3 +54,11 @@
     - command: fun () { echo $1; }; fun a
     - command: fun () { echo $1 $2; }; fun a; fun b c
     - command: fun () { echo $# $2; }; fun a; fun b c
+    - command: |
+        g () { echo $1; echo $4; }
+        f () { echo $1; g a b c; echo $1 }
+        f d e f g
+    - command: |
+        g () { a=$1; }
+        f () { echo $a; g wuw; echo $a }
+        f

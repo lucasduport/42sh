@@ -89,6 +89,28 @@ int exist_variables(struct variable *head, const char *name)
     return 0;
 }
 
+void delete_variable(struct variable **head, char *name)
+{
+    struct variable *p = *head;
+    struct variable *prev = NULL;
+    while (p != NULL)
+    {
+        if (strcmp(p->name, name) == 0)
+        {
+            if (prev == NULL)
+                *head = p->next;
+            else
+                prev->next = p->next;
+            free(p->name);
+            free(p->value);
+            free(p);
+            return;
+        }
+        prev = p;
+        p = p->next;
+    }
+}
+
 void free_variables(struct variable *head)
 {
     while (head != NULL)

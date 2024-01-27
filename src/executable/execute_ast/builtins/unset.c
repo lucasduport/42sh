@@ -13,9 +13,9 @@ struct option
 
 /**
  * @brief Check if name doesn't contain special char
- * 
+ *
  * @return 1 if contains, 0 otherwise
-*/
+ */
 static int check_special_name(const char *name)
 {
     char special_char[] = { '$', '?', '@', '*', '#', '!', '.', '-', '+' };
@@ -33,7 +33,7 @@ static int check_special_name(const char *name)
 
 /**
  * @brief Set the option struct for unset builtin
- * 
+ *
  * @param str
  * @param options
  */
@@ -49,10 +49,11 @@ static void parse_option(char *str, struct option *options)
 
 /**
  * @brief Unset a variable
- * 
+ *
  * @return 1 if it works, 0 otherwise
-*/
-static int unset_variable(struct environment *env, struct option *options, char *name)
+ */
+static int unset_variable(struct environment *env, struct option *options,
+                          char *name)
 {
     if (strcmp(name, "UID") == 0)
     {
@@ -79,7 +80,7 @@ static int unset_variable(struct environment *env, struct option *options, char 
 
 /**
  * @brief Unset a function
-*/
+ */
 static int unset_function(struct environment *env, char *name)
 {
     if (exist_functions(env->functions, name))
