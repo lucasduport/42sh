@@ -113,6 +113,9 @@ static struct redirection open_file(char *operator, char * filename)
 
 int execute_redir(struct ast *ast, struct environment *env)
 {
+    if (ast->first_child->type == AST_ASSIGNMENT)
+        return execute_ast(ast->first_child, env);
+
     struct list *arg_expand = ast->arg;
     if (!ast->is_expand)
     {
@@ -157,6 +160,6 @@ int execute_redir(struct ast *ast, struct environment *env)
 error:
     if (!ast->is_expand)
         list_destroy(arg_expand);
-    debug_printf(LOG_EXEC, "redir: dup2 failed\n");
-    return set_error(env, STOP, -1);
+    fprintf(stderr, "redir: dup2 failed\n");
+    return set_error(env, CONTINUE, 1);
 }

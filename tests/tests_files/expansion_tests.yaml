@@ -43,6 +43,10 @@
         \\
         '
         \" \" \' a b c d \\ | "
+    - command: echo "    \'  "
+    - command: echo '    \"   '
+    - command: echo "     \"   "
+    - command: echo '    \'   '
     - command: $`"\\
     
 

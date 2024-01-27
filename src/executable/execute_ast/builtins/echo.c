@@ -100,7 +100,7 @@ int builtin_echo(struct list *list, __attribute__((unused)) struct environment *
         else
             printf("%s", p->current);
         p = p->next;
-        if (p != NULL)
+        if (p != NULL && strlen(p->current) != 0)
             putchar(' ');
     }
 

@@ -330,8 +330,7 @@ static void skip_comment(struct lexer *lexer)
  */
 static void check_special_behavior(struct lexer *lexer)
 {
-    if (lexer->is_quoted && lexer->current_char == '\\'
-        && lexer->current_quote == '\"')
+    if (lexer->is_quoted && lexer->current_char == '\\')
     {
         lexer->current_char = io_getchar();
         if (lexer->current_char == '\0')
