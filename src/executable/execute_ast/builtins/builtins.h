@@ -15,7 +15,7 @@
  * @param list Linked list (not used)
  * @return return 0
  */
-int builtin_true(struct list *list);
+int builtin_true(struct list *list, struct environment *env);
 
 /**
  * @file bool.c
@@ -24,7 +24,7 @@ int builtin_true(struct list *list);
  * @param list Linked list (not used)
  * @return return 1
  */
-int builtin_false(struct list *list);
+int builtin_false(struct list *list, struct environment *env);
 
 /**
  * @file dot.c
@@ -43,7 +43,7 @@ int builtin_dot(struct list *list, struct environment *env);
  * @param list Linked list of argument (echo -> ...)
  * @return 0
  */
-int builtin_echo(struct list *list);
+int builtin_echo(struct list *list, struct environment *env);
 
 /**
  * @file exit.c

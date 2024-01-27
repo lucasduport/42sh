@@ -57,6 +57,9 @@ static int execvp_wrapper(struct list *arg, struct environment *env)
     return WEXITSTATUS(return_status);
 }
 
+exec_builtins builtins[] = {builtin_echo, builtin_true, builtin_false, builtin_exit, builtin_export,
+                builtin_continue, builtin_break, builtin_dot, builtin_unset};
+
 int execute_command(struct ast *ast, struct environment *env)
 {
     struct list *tmp_arg = ast->arg;
@@ -73,43 +76,37 @@ int execute_command(struct ast *ast, struct environment *env)
     char *first_arg = list_get_n(tmp_arg, 0);
     int code = 0;
 
+    // Check if it's a function
     struct ast *f = get_function(env, first_arg);
     if (f != NULL)
+    {
+        struct variable *tmp_var = dup_variables(env->variables);
+        set_number_variable(env, tmp_arg->next);
+
         code = execute_ast(f, env);
 
-    else if (strcmp(first_arg, "echo") == 0)
-        code = builtin_echo(tmp_arg);
+        free_variables(env->variables);
+        env->variables = tmp_var;
+        goto retour;
+    }
 
-    else if (strcmp(first_arg, "true") == 0)
-        code = builtin_true(tmp_arg);
+    // Check if it's builtin
+    char *builtins_name[] = {"echo", "true", "false", "exit", "export", "continue", "break", ".", "unset"};
+    for (int i = 0; i < 9; i++)
+    {
+        if (strcmp(first_arg, builtins_name[i]) == 0)
+        {
+            code = builtins[i](tmp_arg, env);
+            goto retour;
+        }
+    }
+    
+    // If it's neither a function nor a builtin
+    code = execvp_wrapper(tmp_arg, env);
 
-    else if (strcmp(first_arg, "false") == 0)
-        code = builtin_false(tmp_arg);
-
-    else if (strcmp(first_arg, "exit") == 0)
-        code = builtin_exit(tmp_arg, env);
-
-    else if (strcmp(first_arg, "export") == 0)
-        code = builtin_export(tmp_arg, env);
-
-    else if (strcmp(first_arg, "continue") == 0)
-        code = builtin_continue(tmp_arg, env);
-
-    else if (strcmp(first_arg, "break") == 0)
-        code = builtin_break(tmp_arg, env);
-
-    else if (strcmp(first_arg, ".") == 0)
-        code = builtin_dot(tmp_arg, env);
-
-    else if (strcmp(first_arg, "unset") == 0)
-        code = builtin_unset(tmp_arg, env);
-
-    else
-        code = execvp_wrapper(tmp_arg, env);
-
+retour:
     fflush(stderr);
     fflush(stdout);
-    // If we expand -> free tmp_arg
     if (ast->is_expand)
         list_destroy(tmp_arg);
     ast->is_expand = !ast->is_expand;

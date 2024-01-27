@@ -1,4 +1,8 @@
-- category: wtf
-  sub-category: find double quote bugs
+- category: ''
+  sub-category: function
   tests:
-  - command: echo quoi & echo feur
+  - command: fun () { echo $1 $2; }; fun a; fun b c
+- category: ''
+  sub-category: function
+  tests:
+  - command: fun () { echo $# $2; }; fun a; fun b c

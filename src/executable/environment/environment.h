@@ -163,14 +163,13 @@ struct variable
 /**
  * @file special_variable.c
  *
- * @brief Set the $1..n in the environment
- * And set $#
+ * @brief Set the $1..n in the environment and $#
  *
  * @param env The environment
  * @param argc
  * @param argv The list of arguments
  */
-void set_number_variable(struct environment *env, int argc, char *argv[]);
+void set_number_variable(struct environment *env, struct list *param);
 
 /**
  * @file special_variable.c

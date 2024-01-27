@@ -50,3 +50,7 @@
     - command: fun () { echo coucou; }; fun; fun () { echo bbbbb; }; fun
     - command: fun () if true; then echo coucou; fi; fun
     - command: fun () if true; then echo coucou; fi; fun () if true; then echo aaaaa; fi; fun
+    - command: fun () { echo coucou; fbeig; echo ahhh; }; fun; echo $?
+    - command: fun () { echo $1; }; fun a
+    - command: fun () { echo $1 $2; }; fun a; fun b c
+    - command: fun () { echo $# $2; }; fun a; fun b c

@@ -18,6 +18,7 @@
  */
 
 typedef int (*exec_ast_node)(struct ast *ast, struct environment *env);
+typedef int (*exec_builtins)(struct list *list, struct environment *env);
 
 /**
  * @file execute_commande.c
