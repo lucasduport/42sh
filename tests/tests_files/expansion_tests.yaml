@@ -1,6 +1,9 @@
 - category: expansion
   sub-category: single_quote
   tests:
+    - command: echo ''
+    - command: echo '\'
+    - command: ''
     - command: "echo 'Hello World'"
     - command: "echo 'Hello World' 'Hello World'"
     - command: "echo 'e\n''e\n'aa'b'"
@@ -14,10 +17,16 @@
   tests:
     - command: "\\echo"
     - command: "\\ls"
+    - command: "\\echo \\"
+    - command: "\\echo \\ \\"
+    - command: "\\echo \\ \\ \\"
+    - command: echo \\#\#\#""''''''
 
 - category: expansion
   sub-category: double_quote
   tests:
+    - command: echo ""
+    - command: ""
     - command: echo \"Hello World\"
     - command: echo \"Hello World\" \"Hello World\"
     - command: echo \"e\n\"\"e\n\"aa\"b\"
@@ -33,8 +42,7 @@
     - command: \\\'\\\\'\n
     - command: echo "aa\
     - command: echo "aa\b\cc"
-
-    # Traces:
+    - command: echo """"""""""""
     - command: echo '"\\\\'"\\
     - command: z="coucou les michtos"; echo $z
     - command: $ \\a \\b \\z \\ \"
@@ -112,8 +120,20 @@
         IFS=b echo "$IFS"
 
 - category: expansion
-  sub-category: cmd_substitution
+  sub-category: $()
   tests:
     - command: "echo $(echo -n Hello World)"
     - command: $(echo -n ec)'h'"o" "easy la $(/bin/echo -n quote)"
     - command: a=6; echo $(echo -n $a; a=8; echo -n $a); echo $a
+    - command: a=6; echo $(echo -n $a; a=8; echo -n $a); echo $a
+    - command: a=6; echo $(echo $(echo $(echo `echo baba`))); echo $a
+
+- category: expansion
+  sub-category: backticks
+  tests:
+    - command: "echo `echo -n Hello World`"
+    - command: |
+        `echo -n ec`'h'"o" "easy la `/bin/echo -n quote`"
+    - command: a=6; echo `echo -n ${a}; a=8; echo -n $a`; echo $a
+    - command: a=6; echo `echo -n $a; a=8; echo -n $a``; echo $a
+    - command: a=6; echo `echo `echo `echo $(echo baba)```; echo $a
