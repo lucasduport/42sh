@@ -1,0 +1,4 @@
+- category: expansion
+  sub-category: cmd_substitution
+  tests:
+  - command: echo ``echo coucou``
