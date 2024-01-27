@@ -29,10 +29,10 @@ int builtin_false(struct list *list, struct environment *env);
 /**
  * @file cd.c
  * @brief cd builtin
- * 
+ *
  * @param list Linked list (cd -> ...)
  * @return 0
-*/
+ */
 int builtin_cd(struct list *list, struct environment *env);
 
 /**

@@ -175,30 +175,29 @@ struct token token_new(struct lexer *lexer)
 }
 
 /**
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  *             - TOKEN RECOGNITION TOOLS -
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
-*/
-
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
 
 /**
  * @brief Check if the first char is an operator

@@ -172,10 +172,11 @@ void set_number_variable(struct environment *env, struct list *param);
 
 /**
  * @file special_variable.c
- * 
+ *
  * @brief Restore positional parameters after call to a function
-*/
-void restore_number_variable(struct variable *past_var, struct environment *env);
+ */
+void restore_number_variable(struct variable *past_var,
+                             struct environment *env);
 
 /**
  * @file special_variable.c
@@ -280,7 +281,7 @@ int exist_variables(struct variable *head, const char *name);
 /**
  * @file variable.c
  * @brief Delete a variable
-*/
+ */
 void delete_variable(struct variable **head, char *name);
 
 /**

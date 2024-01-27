@@ -65,7 +65,6 @@ int main(int argc, char **argv)
         tok = lexer_pop(lex);
         token_free(tok);
    } */
-   
 
     lexer_free(lex);
     environment_free(env);
