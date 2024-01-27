@@ -47,10 +47,10 @@ enum parser_status parser_list(struct lexer *lex, struct ast **res)
 
 static int is_follow_complist(struct token tok)
 {
-    enum token_type follows[] = { TOKEN_ELIF, TOKEN_ELSE,
-        TOKEN_THEN, TOKEN_FI, TOKEN_DONE, TOKEN_DO, TOKEN_RIGHT_BRACE,
-        TOKEN_RIGHT_PAR};
-    
+    enum token_type follows[] = { TOKEN_ELIF,        TOKEN_ELSE,     TOKEN_THEN,
+                                  TOKEN_FI,          TOKEN_DONE,     TOKEN_DO,
+                                  TOKEN_RIGHT_BRACE, TOKEN_RIGHT_PAR };
+
     for (size_t i = 0; i < 8; i++)
     {
         if (tok.type == follows[i])

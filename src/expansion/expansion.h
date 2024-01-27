@@ -14,7 +14,7 @@
  * @param env Current environment
  * @param ret Pointer on return value
  *
- * @return Copy of arguments list, expand
+ * @return Copy of string expanded
  */
 char *expand_string(char *str, struct environment *env, int *ret);
 

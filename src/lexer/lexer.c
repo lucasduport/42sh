@@ -79,7 +79,7 @@ static int check_io_number(struct lexer *lexer)
 
 static int check_special_variable(const char *name)
 {
-    char special_char[] = { '$', '?', '@', '*', '#', '!', '.', '-', '+'};
+    char special_char[] = { '$', '?', '@', '*', '#', '!', '.', '-', '+' };
 
     for (size_t i = 0; name[i] != '\0'; i++)
     {

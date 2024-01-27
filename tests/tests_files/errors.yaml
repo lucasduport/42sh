@@ -57,3 +57,11 @@
     - command: fun () { echo coucou }; fun
     - command: fun () { if echo coucou; then echo bbbb} ; fun
     - command: echo coucou; fun () ; echo aahhhh
+    - command: |
+        fun () {
+        echo $(echo baba`echo "coucou`echo)
+        }; fun
+    - command: |
+        fun () {
+        echo `echo baba`echo "coucou`echo"
+        }; fun
