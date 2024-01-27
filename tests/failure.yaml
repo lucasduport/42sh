@@ -6,6 +6,12 @@
   sub-category: function
   tests:
   - command: fun () { echo $# $2; }; fun a; fun b c
+- category: builtins
+  sub-category: export
+  tests:
+  - command: 'export a=5 b c= d=6 e=$(echo baba); echo $a $b $c $d $e
+
+      '
 - category: redirection
   sub-category: hard
   tests:
