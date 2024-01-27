@@ -20,7 +20,7 @@ struct string *string_create(void)
     return str;
 }
 
-void string_append_char(struct string *str, char c)
+void feed(struct string *str, char c)
 {
     if (str->len + 1 >= str->capacity)
     {

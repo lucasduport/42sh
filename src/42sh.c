@@ -4,14 +4,14 @@
 
 int main(int argc, char **argv)
 {
-    create_logger("stdout");
-    enable_log_type(LOG_LEX);
+    // create_logger("stdout");
+    // enable_log_type(LOG_LEX);
     // disable_log_type(LOG_LEX);
     // enable_all_logs();
     // disable_all_logs();
     // enable_log_type(LOG_PARS);
-    // enable_log_type(LOG_AST);
-    // enable_log_type(LOG_UTILS);
+    enable_log_type(LOG_AST);
+    enable_log_type(LOG_UTILS);
     // enable_log_type(LOG_EXEC);
 
     // Initialise lexer
@@ -35,10 +35,10 @@ int main(int argc, char **argv)
     set_environment(env, argc, argv);
 
     // Initialise variable used for parsing
-    // struct ast *res;
+    struct ast *res;
     int code = 0;
 
-    /*
+    
     enum parser_status parse_code = PARSER_OK;
     while (parse_code != PARSER_EOF)
     {
@@ -58,16 +58,15 @@ int main(int argc, char **argv)
         else
             code = 2;
     }
-    */
 
-   struct token tok = lexer_pop(lex);
-   while (tok.type != TOKEN_EOF)
-   {
-        tok = lexer_pop(lex);
+    /*struct token tok = lexer_pop(lex);
+    while (tok.type != TOKEN_EOF)
+    {
         token_free(tok);
-   }
+        tok = lexer_pop(lex);
+    }
    
-
+    token_free(tok);*/
     lexer_free(lex);
     environment_free(env);
     destroy_logger();

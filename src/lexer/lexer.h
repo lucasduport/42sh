@@ -11,6 +11,7 @@
 #include "../io_backend/io.h"
 #include "../logger/logger.h"
 #include "../utils/string/string.h"
+#include "../utils/stack/stack.h"
 #include "token.h"
 
 struct lexer
@@ -19,14 +20,11 @@ struct lexer
 
     struct string *current_word;
     char current_char;
-    char current_quote;
-    char current_subshell;
+
+    struct stack *mode_stack;
 
     int last_is_op;
-    int is_quoted;
-    int is_subshell;
     int is_newline;
-    int error;
 };
 
 // --------------------------- LEXER TOOLS ------------------------------------
@@ -59,7 +57,7 @@ int is_valid_operator(struct lexer *lexer);
  * @param lexer
  * @return int
  */
-int is_quote(struct lexer *lexer);
+int is_quote_char(struct lexer *lexer);
 
 /**
  * @file lexer_tools.c
@@ -68,18 +66,7 @@ int is_quote(struct lexer *lexer);
  * @param lexer
  * @return int
  */
-int is_subshell(struct lexer *lexer);
-
-/**
- * @file lexer_tools.c
- * @brief Update the quote state
- *
- * If the current quote is the same as the current char, the quote state is
- * updated.
- *
- * @param lexer
- */
-void set_quote(struct lexer *lexer);
+int is_sub_char(struct lexer *lexer);
 
 /**
  * @file lexer_tools.c
@@ -90,30 +77,6 @@ void set_quote(struct lexer *lexer);
  * @param lexer
  */
 void skip_comment(struct lexer *lexer);
-
-/**
- * @file lexer_tools.c
- * @brief Check if the lexer need to change one mode.
- *
- */
-void check_special_behavior(struct lexer *lexer);
-
-/**
- * @file lexer_tools.c
- * @brief Get the variable name
- *
- * @param lexer
- */
-void get_variable(struct lexer *lexer);
-
-/**
- * @file lexer_tools.c
- * @brief Find the current mode
- *
- * @param lexer
- * @return int
- */
-int find_mode(struct lexer *lexer);
 
 //
 //

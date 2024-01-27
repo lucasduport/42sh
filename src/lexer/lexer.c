@@ -106,7 +106,7 @@ static int check_assignment(struct lexer *lexer)
  */
 static struct token token_new(struct lexer *lexer)
 {
-    string_append_char(lexer->current_word, '\0');
+    feed(lexer->current_word, '\0');
 
     char *reserved_words[] = { "if",   "then",  "elif",  "else", "fi", "do",
                                "done", "while", "until", "for",  "in", "!",
@@ -146,11 +146,10 @@ static struct token token_new(struct lexer *lexer)
 static struct token process_rule_one(struct lexer *lexer)
 {
     if (lexer->current_word->len == 0)
-        string_append_char(lexer->current_word, lexer->current_char);
+        feed(lexer->current_word, lexer->current_char);
 
-    if (lexer->is_quoted)
+    if (!is_empty(lexer->mode_stack))
     {
-        lexer->is_quoted = 0;
         return token_alloc(TOKEN_ERROR, TOKEN_FAM_WORD, lexer);
     }
 
@@ -166,18 +165,13 @@ static struct token process_rule_three(struct lexer *lexer)
 
     struct token tok = token_new(lexer);
 
-    if (is_quote(lexer))
-        set_quote(lexer);
-    else if (lexer->current_char != ' ' && lexer->current_char != '\t'
-             && lexer->current_char != '#')
-        string_append_char(lexer->current_word, lexer->current_char);
-
-    if (lexer->current_char == '#')
-        skip_comment(lexer);
-    else if (first_char_op(lexer))
-        lexer->last_is_op = 1;
-
     return tok;
+}
+
+static int stack_quoted(struct lexer *lexer)
+{
+    enum quote_type q = stack_peek(lexer->mode_stack);
+    return q == DOUBLE_Q || q == SINGLE_Q;
 }
 
 /**
@@ -186,15 +180,38 @@ static struct token process_rule_three(struct lexer *lexer)
  * @param lexer
  * @return struct token
  */
-static struct token parse_input_for_tok(struct lexer *lexer)
+static struct token tokenizer(struct lexer *lexer)
 {
-    if (lexer->error == 1)
-    {
-        lexer->error = 0;
-        return token_alloc(TOKEN_ERROR, TOKEN_FAM_WORD, lexer);
-    }
-
     lexer->current_char = io_getchar();
+
+    // We tract backslash char by pushing it on the stack to process
+    // it when the next char i
+    if (stack_peek(lexer->mode_stack) == BACKSLASH)
+    {
+        stack_pop(&lexer->mode_stack);
+        if (lexer->current_char != '\'')
+        {
+            feed(lexer->current_word, lexer->current_char);
+            return tokenizer(lexer);
+        }
+    }
+    // We process dollar by pushing it and then we have either $( or ${
+    else if (stack_peek(lexer->mode_stack) == DOLLAR)
+    {
+        stack_pop(&lexer->mode_stack);
+        if (lexer->current_char == '(')
+        {
+            stack_push(&lexer->mode_stack, DOLLAR_PAR);
+            feed(lexer->current_word, lexer->current_char);
+            return tokenizer(lexer);
+        }
+        else if (lexer->current_char == '{')
+        {
+            stack_push(&lexer->mode_stack, DOLLAR_BRACE);
+            feed(lexer->current_word, lexer->current_char);
+            return tokenizer(lexer);
+        }
+    }
 
     // -------------------------------------------------------------------------
     // --------------------------------- RULE 1 --------------------------------
@@ -205,8 +222,9 @@ static struct token parse_input_for_tok(struct lexer *lexer)
     // -------------------------------------------------------------------------
     // --------------------------------- RULE 2 --------------------------------
     // -------------------------------------------------------------------------
-    else if (lexer->last_is_op && !lexer->is_quoted && is_valid_operator(lexer))
-        string_append_char(lexer->current_word, lexer->current_char);
+    else if (lexer->last_is_op && is_empty(lexer->mode_stack)
+             && is_valid_operator(lexer))
+        feed(lexer->current_word, lexer->current_char);
 
     // -------------------------------------------------------------------------
     // --------------------------------- RULE 3 --------------------------------
@@ -217,50 +235,90 @@ static struct token parse_input_for_tok(struct lexer *lexer)
     // -------------------------------------------------------------------------
     // --------------------------------- RULE 4 --------------------------------
     // -------------------------------------------------------------------------
-    else if (!lexer->is_quoted && is_quote(lexer))
-        set_quote(lexer);
+    else if (is_quote_char(lexer))
+    {
+        feed(lexer->current_word, lexer->current_char);
+        if (lexer->current_char == '\\')
+        {
+            // BACKLASH will allow next char to be escaped if needed
+            stack_push(&lexer->mode_stack, BACKSLASH);
+        }
+        // Open or close quoting mode
+        else if (lexer->current_char == '"')
+        {
+            if (stack_peek(lexer->mode_stack) == DOUBLE_Q)
+                stack_pop(&lexer->mode_stack);
+            else
+                stack_push(&lexer->mode_stack, DOUBLE_Q);
+        }
+        else if (lexer->current_char == '\'')
+        {
+            if (stack_peek(lexer->mode_stack) == SINGLE_Q)
+                stack_pop(&lexer->mode_stack);
+            else
+                stack_push(&lexer->mode_stack, SINGLE_Q);
+        }
+    }
 
     // -------------------------------------------------------------------------
     // --------------------------------- RULE 5 --------------------------------
     // -------------------------------------------------------------------------
-    else if (!lexer->is_quoted && !lexer->is_subshell && is_subshell(lexer))
+    else if (is_sub_char(lexer) && stack_peek(lexer->mode_stack) != SINGLE_Q)
     {
         // Append '$' or '`'
-        string_append_char(lexer->current_word, lexer->current_char);
-
-        if (find_mode(lexer))
+        feed(lexer->current_word, lexer->current_char);
+        if (lexer->current_char == '`')
         {
-            struct token tok = token_new(lexer);
-            string_append_char(lexer->current_word, lexer->current_char);
-            return tok;
+            if (stack_peek(lexer->mode_stack) == BACKTICK)
+                stack_pop(&lexer->mode_stack);
+            else
+                stack_push(&lexer->mode_stack, BACKTICK);
         }
+            
+        else
+            stack_push(&lexer->mode_stack, DOLLAR);
     }
 
     // -------------------------------------------------------------------------
     // --------------------------------- RULE 6 --------------------------------
     // -------------------------------------------------------------------------
-    else if (!lexer->is_quoted && !lexer->is_subshell && first_char_op(lexer))
+    else if (first_char_op(lexer))
     {
-        lexer->last_is_op = 1;
-
-        if (lexer->current_word->len != 0)
+        // Parentheses mode or nothing
+        if (stack_peek(lexer->mode_stack) == PAR || stack_peek(lexer->mode_stack) == EMPTY)
         {
-            struct token tok = token_new(lexer);
-            string_append_char(lexer->current_word, lexer->current_char);
+            // If the token is a right parenthese and peeek = ( => pop (closse)
+            if (stack_peek(lexer->mode_stack) == PAR && lexer->current_char == ')')
+                stack_pop(&lexer->mode_stack);
 
-            lexer->is_newline = lexer->current_char == '\n';
+            lexer->last_is_op = 1;
 
-            return tok;
+            if (lexer->current_word->len != 0)
+            {
+                struct token tok = token_new(lexer);
+                feed(lexer->current_word, lexer->current_char);
+
+                // lexer->is_newline = lexer->current_char == '\n';
+
+                return tok;
+            }
+            else
+                feed(lexer->current_word, lexer->current_char);
         }
         else
-            string_append_char(lexer->current_word, lexer->current_char);
+        {
+            // Quoting mode
+            feed(lexer->current_word, lexer->current_char);
+            // Close subshell
+            if (lexer->current_char == ')'&& stack_peek(lexer->mode_stack) == DOLLAR_PAR)
+                    stack_pop(&lexer->mode_stack);
+        }
     }
 
     // -------------------------------------------------------------------------
     // --------------------------------- RULE 7 --------------------------------
     // -------------------------------------------------------------------------
-    else if (!lexer->is_quoted && !lexer->is_subshell
-             && isblank(lexer->current_char))
+    else if ((stack_peek(lexer->mode_stack) == PAR || stack_peek(lexer->mode_stack) == EMPTY) && isblank(lexer->current_char))
     {
         if (lexer->current_word->len != 0)
             return token_new(lexer);
@@ -269,22 +327,26 @@ static struct token parse_input_for_tok(struct lexer *lexer)
     // -------------------------------------------------------------------------
     // --------------------------------- RULE 8 --------------------------------
     // -------------------------------------------------------------------------
-    else if (lexer->current_word->len != 0)
-    {
-        string_append_char(lexer->current_word, lexer->current_char);
-        check_special_behavior(lexer);
-    }
+    // else if (lexer->current_word->len != 0)
+    //{
+    //    feed(lexer->current_word, lexer->current_char);
+    //    check_special_behavior(lexer);
+    //}
 
     // -------------------------------------------------------------------------
     // --------------------------------- RULE 9 --------------------------------
     // -------------------------------------------------------------------------
-    else if (lexer->current_char == '#')
+    else if (!stack_quoted(lexer) && lexer->current_char == '#')
         skip_comment(lexer);
 
     else
-        string_append_char(lexer->current_word, lexer->current_char);
+    {
+        feed(lexer->current_word, lexer->current_char);
+        if (lexer->current_char == '}' && stack_peek(lexer->mode_stack) == DOLLAR_BRACE)
+            stack_pop(&lexer->mode_stack);
+    }
 
-    return parse_input_for_tok(lexer);
+    return tokenizer(lexer);
 }
 
 struct lexer *lexer_new(int argc, char *argv[])
@@ -318,7 +380,7 @@ struct token lexer_peek(struct lexer *lexer)
     }
     else
     {
-        tok = parse_input_for_tok(lexer);
+        tok = tokenizer(lexer);
         lexer->last_token = tok;
     }
 
@@ -334,11 +396,12 @@ struct token lexer_pop(struct lexer *lexer)
         return tok;
     }
 
-    return parse_input_for_tok(lexer);
+    return tokenizer(lexer);
 }
 
 void lexer_free(struct lexer *lexer)
 {
     string_destroy(lexer->current_word);
+    stack_destroy(lexer->mode_stack);
     free(lexer);
 }
