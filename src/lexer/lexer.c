@@ -79,7 +79,7 @@ static int check_io_number(struct lexer *lexer)
 
 static int check_special_variable(const char *name)
 {
-    char special_char[] = { '$', '?', '@', '*', '#', '!', '.', '-', '+'};
+    char special_char[] = { '$', '?', '@', '*', '#', '!', '.', '-', '+' };
 
     for (size_t i = 0; name[i] != '\0'; i++)
     {
@@ -175,30 +175,29 @@ struct token token_new(struct lexer *lexer)
 }
 
 /**
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  *             - TOKEN RECOGNITION TOOLS -
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
-*/
-
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
 
 /**
  * @brief Check if the first char is an operator
@@ -346,7 +345,7 @@ static void check_special_behavior(struct lexer *lexer)
     }
 
     else if (lexer->is_subshell && !lexer->is_quoted
-             && lexer->current_char == ')')
+             && lexer->current_char == lexer->current_subshell)
     {
         debug_printf(LOG_LEX, "[LEXER] quit subshell mode\n");
         lexer->is_subshell = 0;
@@ -364,28 +363,39 @@ static void get_variable(struct lexer *lexer)
 
 static int find_mode(struct lexer *lexer)
 {
-    lexer->current_char = io_getchar();
-
-    if (lexer->current_char == '{')
-        get_variable(lexer);
-    else if (lexer->current_char == '(')
-        lexer->is_subshell = 1;
-    else if (isblank(lexer->current_char))
-        return 1;
-    else if (first_char_op(lexer))
-        return 1;
-
-    if (lexer->current_char == '\0')
+    if (lexer->current_char == '`')
     {
-        lexer->last_token = (struct token){ .type = TOKEN_EOF,
-                                            .family = TOKEN_FAM_OPERATOR,
-                                            .data = NULL };
-
-        return 1;
+        lexer->is_subshell = 1;
+        lexer->current_subshell = '`';
+        return 0;
     }
+    else
+    {
+        lexer->current_char = io_getchar();
 
-    string_append_char(lexer->current_word, lexer->current_char);
-    return 0;
+        if (lexer->current_char == '{')
+            get_variable(lexer);
+        else if (lexer->current_char == '(')
+        {
+            lexer->is_subshell = 1;
+            lexer->current_subshell = ')';
+        }
+        else if (isblank(lexer->current_char))
+            return 1;
+        else if (first_char_op(lexer))
+            return 1;
+
+        if (lexer->current_char == '\0')
+        {
+            lexer->last_token = (struct token){ .type = TOKEN_EOF,
+                                                .family = TOKEN_FAM_OPERATOR,
+                                                .data = NULL };
+            return 1;
+        }
+
+        string_append_char(lexer->current_word, lexer->current_char);
+        return 0;
+    }
 }
 
 /**

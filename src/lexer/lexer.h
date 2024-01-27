@@ -13,6 +13,7 @@ struct lexer
     struct string *current_word;
     char current_char;
     char current_quote;
+    char current_subshell;
 
     int last_is_op;
     int is_quoted;
