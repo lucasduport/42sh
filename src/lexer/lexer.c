@@ -54,7 +54,7 @@ static int check_io_number(struct lexer *lexer)
 
 static int check_special_variable(const char *name)
 {
-    char special_char[] = { '$', '?', '@', '*', '#', '!', '.', '-', '+'};
+    char special_char[] = { '$', '?', '@', '*', '#', '!', '.', '-', '+' };
 
     for (size_t i = 0; name[i] != '\0'; i++)
     {
@@ -380,7 +380,7 @@ static struct token parse_input_for_tok(struct lexer *lexer)
             set_quote(lexer);
         else if (lexer->current_char != ' ' && lexer->current_char != '\t')
             string_append_char(lexer->current_word, lexer->current_char);
-        
+
         if (is_valid_operator(lexer))
             lexer->last_is_op = 1;
 

@@ -77,7 +77,8 @@ static void print_str_escape(char *str)
     }
 }
 
-int builtin_echo(struct list *list, __attribute__((unused)) struct environment *env)
+int builtin_echo(struct list *list,
+                 __attribute__((unused)) struct environment *env)
 {
     struct list *p = list->next;
 

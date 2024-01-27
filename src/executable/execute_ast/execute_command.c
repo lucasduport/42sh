@@ -57,8 +57,9 @@ static int execvp_wrapper(struct list *arg, struct environment *env)
     return WEXITSTATUS(return_status);
 }
 
-exec_builtins builtins[] = {builtin_echo, builtin_true, builtin_false, builtin_exit, builtin_export,
-                builtin_continue, builtin_break, builtin_dot, builtin_unset};
+exec_builtins builtins[] = { builtin_echo,  builtin_true,   builtin_false,
+                             builtin_exit,  builtin_export, builtin_continue,
+                             builtin_break, builtin_dot,    builtin_unset };
 
 int execute_command(struct ast *ast, struct environment *env)
 {
@@ -91,7 +92,8 @@ int execute_command(struct ast *ast, struct environment *env)
     }
 
     // Check if it's builtin
-    char *builtins_name[] = {"echo", "true", "false", "exit", "export", "continue", "break", ".", "unset"};
+    char *builtins_name[] = { "echo",     "true",  "false", "exit", "export",
+                              "continue", "break", ".",     "unset" };
     for (int i = 0; i < 9; i++)
     {
         if (strcmp(first_arg, builtins_name[i]) == 0)
@@ -100,7 +102,7 @@ int execute_command(struct ast *ast, struct environment *env)
             goto retour;
         }
     }
-    
+
     // If it's neither a function nor a builtin
     code = execvp_wrapper(tmp_arg, env);
 
@@ -144,5 +146,5 @@ int execute_subshell(struct ast *ast, struct environment *env)
 
 int execute_function(struct ast *ast, struct environment *env)
 {
-    return set_function(env, ast->arg->current, ast->first_child); 
+    return set_function(env, ast->arg->current, ast->first_child);
 }

@@ -14,7 +14,7 @@ Test(io_backend, basic)
 
 Test(io_backend, basic2)
 {
-    char *argv[] = { "./42sh", "-c", "echo"};
+    char *argv[] = { "./42sh", "-c", "echo" };
     io_abstraction(3, argv);
     for (int i = 0; i < 4; i++)
         io_getchar();
@@ -24,7 +24,7 @@ Test(io_backend, basic2)
 
 Test(io_backend, basic3)
 {
-    char *argv[] = { "./42sh"};
+    char *argv[] = { "./42sh" };
     io_abstraction(1, argv);
     io_close();
     cr_assert_eq(1, 1);
@@ -32,7 +32,7 @@ Test(io_backend, basic3)
 
 Test(io_backend, basic4)
 {
-    char *argv[] = { "./42sh", "script.sh"};
+    char *argv[] = { "./42sh", "script.sh" };
     io_abstraction(2, argv);
     cr_assert_eq(1, 1);
 }
