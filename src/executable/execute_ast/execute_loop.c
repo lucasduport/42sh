@@ -54,7 +54,7 @@ int execute_until(struct ast *ast, struct environment *env)
 {
     env->nb_loop++;
     ast = ast->first_child;
-    
+
     int ret_code = 0;
     while (execute_ast(ast, env) != 0 && env->error != STOP)
     {
@@ -76,7 +76,8 @@ int execute_for(struct ast *ast, struct environment *env)
     if (ret_code != 0)
         return set_error(env, STOP, ret_code);
 
-    for (struct list *tmp = for_cond_exp; tmp != NULL && env->error != STOP; tmp = tmp->next)
+    for (struct list *tmp = for_cond_exp; tmp != NULL && env->error != STOP;
+         tmp = tmp->next)
     {
         if (set_variable(env, for_var, tmp->current) == -1)
         {

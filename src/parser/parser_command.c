@@ -276,7 +276,7 @@ enum parser_status parser_fundec(struct lexer *lex, struct ast **res,
         goto error;
 
     skip_newline(lex);
-    if (parser_shell_command(lex,res) == PARSER_ERROR)
+    if (parser_shell_command(lex, res) == PARSER_ERROR)
         goto error;
     tmp_res->first_child = *res;
     *res = tmp_res;

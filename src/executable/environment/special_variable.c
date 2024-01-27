@@ -11,7 +11,7 @@ void set_number_variable(struct environment *env, struct list *param)
         param = param->next;
         nb_var++;
     }
-    
+
     char args_count[20];
     sprintf(args_count, "%d", nb_var);
     set_variable(env, "#", args_count);

@@ -450,7 +450,8 @@ static int expand_cmd_sub(struct environment *env, char **str, size_t *index)
         ret_code = 2;
         goto bye;
     }
-    insert_cmd_output(env, str, index, cmd);
+    if (cmd != NULL)
+        insert_cmd_output(env, str, index, cmd);
 
     // Remove the last delimiter
     remove_at_n(str, *index);
@@ -460,7 +461,8 @@ static int expand_cmd_sub(struct environment *env, char **str, size_t *index)
     *index -= 2;
 
 bye:
-    free(cmd);
+    if (cmd != NULL)
+        free(cmd);
     return ret_code;
 }
 

@@ -81,8 +81,7 @@ void set_environment(struct environment *env, int argc, char *argv[]);
  *
  * @return ret_code
  */
-int set_error(struct environment *env, enum type_error type,
-                    int ret_code);
+int set_error(struct environment *env, enum type_error type, int ret_code);
 
 struct function
 {
@@ -117,9 +116,9 @@ int set_function(struct environment *env, const char *name, struct ast *body);
  *
  * @param env Current environment
  * @param name Name of the function
- * 
+ *
  * @return NULL if the name was not found (don't return a copy)
-*/
+ */
 struct ast *get_function(struct environment *env, const char *name);
 
 /**
@@ -133,7 +132,7 @@ struct function *dup_functions(struct function *head);
  * @brief Check if a function exist in the list
  * @param head Head of function's list
  * @param name Name of the function
-*/
+ */
 int exist_functions(struct function *head, const char *name);
 
 /**
@@ -268,7 +267,7 @@ struct variable *dup_variables(struct variable *head);
  * @brief Check if a variable exist in the list
  * @param head The head of the list
  * @param name The name of the variable
-*/
+ */
 int exist_variables(struct variable *head, const char *name);
 
 /**
