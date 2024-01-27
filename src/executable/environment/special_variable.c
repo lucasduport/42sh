@@ -1,39 +1,19 @@
 #include "environment.h"
 
-void set_number_variable(struct environment *env, int argc, char *argv[])
+void set_number_variable(struct environment *env, struct list *param)
 {
-    int i = 0;
-    int loop = 1;
-
-    if (strcmp(argv[1], "-c") == 0)
-    {
-        env->is_command = 1;
-        if (argc <= 4)
-            loop = 0;
-        else
-            i = 4;
-    }
-    else
-    {
-        if (argc <= 2)
-            loop = 0;
-        else
-            i = 2;
-    }
-
-    int var_number = 1;
-    while (argv[i] != NULL && loop)
+    int nb_var = 0;
+    for (int i = 1; param != NULL; i++)
     {
         char var_name[20];
-        sprintf(var_name, "%d", var_number);
-        set_variable(env, var_name, argv[i]);
-        var_number++;
-        i++;
+        sprintf(var_name, "%d", i);
+        set_variable(env, var_name, param->current);
+        param = param->next;
+        nb_var++;
     }
-
-    var_number--;
+    
     char args_count[20];
-    sprintf(args_count, "%d", var_number);
+    sprintf(args_count, "%d", nb_var);
     set_variable(env, "#", args_count);
 }
 

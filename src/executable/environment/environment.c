@@ -46,8 +46,6 @@ void set_environment(struct environment *env, int argc, char *argv[])
 
     set_variable(env, "IFS", " \t\n");
 
-    // set_number_variable(env, argc, argv);
-
     // set_star_variable(env);
     if (argc >= 2 && strcmp(argv[1], "-c") == 0)
     {
@@ -68,7 +66,7 @@ void set_environment(struct environment *env, int argc, char *argv[])
     // print_variables(env->variables);
 }
 
-int set_error_value(struct environment *env, enum type_error type, int ret_code)
+int set_error(struct environment *env, enum type_error type, int ret_code)
 {
     env->error = type;
     return ret_code;

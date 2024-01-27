@@ -330,7 +330,7 @@ static int main_bis(char *cmd, struct environment *current_env)
                 debug_printf(LOG_AST, "\n");
                 code = execute_ast(res, env);
                 ast_free(res);
-                if (env->error >= stop)
+                if (env->error == STOP)
                     break;
             }
         }

@@ -24,9 +24,6 @@ exec_ast_node executes[] = { [AST_IF] = execute_if,
 
 int execute_assignment(struct ast *ast, struct environment *env)
 {
-    if (ast->arg == NULL)
-        return set_error_value(env, OURSELF, -1);
-
     char *variable_value = NULL;
     struct variable *var_before = NULL;
     int code = 0;
@@ -39,7 +36,7 @@ int execute_assignment(struct ast *ast, struct environment *env)
         var_before = dup_variables(env->variables);
         child = expand_ast(ast->first_child, env, &code);
         if (code != 0)
-            return set_error_value(env, FAILED_EXPAND, code);
+            return set_error(env, STOP, code);
     }
 
     // Do all assignments
@@ -51,11 +48,6 @@ int execute_assignment(struct ast *ast, struct environment *env)
 
         char *val = strstr(cpy, "=");
         val++;
-        // debug_printf(LOG_LEX, "[EXECUTE] Variable name: '%s'\n",
-        // variable_name); debug_printf(LOG_LEX, "[EXECUTE] Variable value:
-        // '%s'\n", variable_value);
-
-        // variable_value = expand_string(strtok(NULL, "="), env, &code);
         variable_value = expand_string(val, env, &code);
 
         free(cpy);
@@ -68,7 +60,7 @@ int execute_assignment(struct ast *ast, struct environment *env)
         {
             if ((code = set_variable(env, variable_name, variable_value)) != 0)
             {
-                env->error = UNSETABLE_VARIABLE;
+                env->error = STOP;
                 goto error;
             }
         }
@@ -103,7 +95,7 @@ int execute_list(struct ast *ast, struct environment *env)
     int res = 0;
 
     // While there is no error on our part
-    while (tmp != NULL && env->error < stop && !env->nb_continue
+    while (tmp != NULL && env->error != STOP && !env->nb_continue
            && !env->nb_break)
     {
         res = execute_ast(tmp, env);

@@ -4,13 +4,7 @@ int add_variable(struct variable **head, const char *name, char *value)
 {
     struct variable *new_variable = calloc(1, sizeof(struct variable));
     if (new_variable == NULL)
-    {
-        debug_printf(LOG_UTILS,
-                     "[VARIABLES] Error allocating memory for "
-                     "variable [%s=%s]\n",
-                     name, value);
         return -1;
-    }
     new_variable->name = strdup(name);
     new_variable->value = strdup(value);
     new_variable->next = *head;

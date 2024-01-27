@@ -1,0 +1,8 @@
+- category: ''
+  sub-category: function
+  tests:
+  - command: fun () { echo $1 $2; }; fun a; fun b c
+- category: ''
+  sub-category: function
+  tests:
+  - command: fun () { echo $# $2; }; fun a; fun b c

@@ -14,21 +14,11 @@
 #include "../../utils/ast/ast.h"
 #include "../../utils/list/list.h"
 
-#define stop FILE_NOT_FOUND
-/**
- * Don't forget to change the stop macro
- * < don't stop, >= stop
- */
 enum type_error
 {
     NO_ERROR,
-    WRONG_COMMAND,
-    // Stop after
-    FILE_NOT_FOUND,
-    UNSETABLE_VARIABLE,
-    FAILED_EXPAND,
-    EXIT_BUILT,
-    OURSELF
+    CONTINUE,
+    STOP
 };
 
 struct environment
@@ -91,7 +81,7 @@ void set_environment(struct environment *env, int argc, char *argv[]);
  *
  * @return ret_code
  */
-int set_error_value(struct environment *env, enum type_error type,
+int set_error(struct environment *env, enum type_error type,
                     int ret_code);
 
 struct function
@@ -173,14 +163,13 @@ struct variable
 /**
  * @file special_variable.c
  *
- * @brief Set the $1..n in the environment
- * And set $#
+ * @brief Set the $1..n in the environment and $#
  *
  * @param env The environment
  * @param argc
  * @param argv The list of arguments
  */
-void set_number_variable(struct environment *env, int argc, char *argv[]);
+void set_number_variable(struct environment *env, struct list *param);
 
 /**
  * @file special_variable.c
