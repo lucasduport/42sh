@@ -192,4 +192,17 @@
         hello
 
 
+  
+- category: builtins
+  sub-category: cd
+  tests:
+    - command: "cd tests_files; echo $PWD; echo $OLDPWD"
+    - command: "cd ; echo $PWD; echo $OLDPWD"
+    - command: "cd .. ; echo $PWD; echo $OLDPWD"
+    - command: "cd ../.. ; echo $PWD; echo $OLDPWD"
+    - command: "cd ../tests ; echo $PWD; echo $OLDPWD"
+    - command: "cd ~ ; echo $PWD; echo $OLDPWD"
+    - command: "cd tests_files; echo $PWD; echo $OLDPWD; cd -; echo $PWD; echo $OLDPWD"
+    - command: "cd /tmp ; echo $PWD; echo $OLDPWD"
+    - command: "cd sdfsfqdsf ; echo $PWD; echo $OLDPWD"
 

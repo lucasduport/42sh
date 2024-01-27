@@ -27,6 +27,15 @@ int builtin_true(struct list *list, struct environment *env);
 int builtin_false(struct list *list, struct environment *env);
 
 /**
+ * @file cd.c
+ * @brief cd builtin
+ * 
+ * @param list Linked list (cd -> ...)
+ * @return 0
+*/
+int builtin_cd(struct list *list, struct environment *env);
+
+/**
  * @file dot.c
  * @brief dot builtin as described in the SCL
  *
