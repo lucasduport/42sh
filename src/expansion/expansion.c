@@ -192,9 +192,7 @@ static int expand_variable(struct environment *env, char **str, size_t *index)
         }
     }
     if (var_name == NULL)
-    {
         return 0;
-    }
     var_name[var_len] = '\0';
     char *var_value;
 
@@ -430,9 +428,7 @@ static int expand_cmd_sub(struct environment *env, char **str, size_t *index)
             simple_quote = !simple_quote;
         else if ((*str)[*index] == del && !double_quote && !simple_quote
                  && !escaped)
-        {
             break;
-        }
         else
         {
             escaped = ((*str)[*index] == '\\' && !escaped);

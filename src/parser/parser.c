@@ -70,13 +70,8 @@ enum parser_status parser_and_or(struct lexer *lex, struct ast **res)
             ast_new((peek.type == TOKEN_AND_IF) ? AST_AND : AST_OR);
         token_free(lexer_pop(lex));
 
-        peek = lexer_peek(lex);
         // Pop optional newline
-        while (peek.type == TOKEN_NEWLINE)
-        {
-            token_free(lexer_pop(lex));
-            peek = lexer_peek(lex);
-        }
+        skip_newline(lex);
 
         if (parser_pipeline(lex, res) == PARSER_ERROR)
         {
@@ -111,7 +106,6 @@ enum parser_status parser_element(struct lexer *lex, struct ast **res)
 
         peek = lexer_pop(lex);
         list_append(&((*res)->arg), peek.data);
-        debug_printf(LOG_PARS, "[PARSER] Return element = %s\n", peek.data);
         return PARSER_OK;
     }
     token_free(lexer_pop(lex));
