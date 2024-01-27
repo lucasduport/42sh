@@ -53,8 +53,6 @@ void set_environment(struct environment *env, int argc, char *argv[])
     }
     set_variable(env, "#", "0");
 
-    // set_variable(&env->variables, "IFS", " \t\n");
-
     set_exit_variable(env, 0);
 
     set_dollar_dollar(env);
@@ -62,8 +60,6 @@ void set_environment(struct environment *env, int argc, char *argv[])
     set_random(env);
 
     set_uid(env);
-
-    // print_variables(env->variables);
 }
 
 int set_error(struct environment *env, enum type_error type, int ret_code)

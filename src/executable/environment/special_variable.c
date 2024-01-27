@@ -7,7 +7,7 @@ void set_number_variable(struct environment *env, struct list *param)
     int nb_past = 0;
     if (past_param != NULL)
         nb_past = atoi(past_param);
-    
+
     int nb_var = 0;
     // Set new_variable
     for (int i = 1; param != NULL; i++)
@@ -51,7 +51,7 @@ void restore_number_variable(struct variable *past_var, struct environment *env)
     int nb_past = 0;
     if (past_param != NULL)
         nb_past = atoi(past_param);
-    
+
     // Recover current number of parameters
     char *curr_param = get_value(env, "#");
     int nb_curr = 0;
@@ -73,7 +73,7 @@ void restore_number_variable(struct variable *past_var, struct environment *env)
         sprintf(var_name, "%d", i);
         set_variable(env, var_name, get_from_var(past_var, var_name));
     }
-    
+
     set_variable(env, "#", past_param);
 }
 
