@@ -62,7 +62,7 @@
     - command: "for hi in \"Hello World\"; do echo ${hi } ${hi[]}; done"
     - command: "for hi in \"Hello World\"; do echo ${ hi} ${hi}; done"
     - command: "for hi in \"Hello World\"; do echo ${hi} ${hi }; done"
-    - command: B=4 echo $B
+    - command: B=4 echo $B'\"
     - command: C=4; echo $C
     - command: for fruit in pomme poire pêche; do echo $fruit; done
     - command: A=4 B=$A; echo $B
