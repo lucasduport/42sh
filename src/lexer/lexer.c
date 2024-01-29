@@ -23,7 +23,7 @@ static struct token token_alloc(enum token_type type, enum token_family family,
 
     string_reset(lexer->current_word);
 
-    print_token(token);
+    // print_token(token);
     return token;
 }
 
@@ -159,7 +159,37 @@ static struct token process_rule_one(struct lexer *lexer)
 }
 
 /**
- *  if (lexer->last_is_op && !is_valid_operator(lexer))
+ * @brief Process rule 4
+ * Quote char
+*/
+static void process_rule_four(struct lexer *lexer)
+{
+    enum quote_type peek = stack_peek(lexer->mode_stack);
+
+    if (lexer->current_char == '\\' && peek != SINGLE_Q)
+        stack_push(&lexer->mode_stack, BACKSLASH);
+
+    // Open or close quoting mode
+    if (lexer->current_char == '"' && peek != SINGLE_Q)
+    {
+        if (stack_peek(lexer->mode_stack) == DOUBLE_Q)
+            stack_pop(&lexer->mode_stack);
+        else
+            stack_push(&lexer->mode_stack, DOUBLE_Q);
+    }
+
+    if (lexer->current_char == '\'' && peek != DOUBLE_Q)
+    {
+        if (stack_peek(lexer->mode_stack) == SINGLE_Q)
+            stack_pop(&lexer->mode_stack);
+        else
+            stack_push(&lexer->mode_stack, SINGLE_Q);
+    }
+}
+
+/**
+ * @brief Process rule 3
+ * last_is_op and concatenation with current doesn't make an operator
  */
 static struct token process_rule_three(struct lexer *lexer)
 {
@@ -171,6 +201,8 @@ static struct token process_rule_three(struct lexer *lexer)
         feed(lexer->current_word, lexer->current_char);
         if (first_char_op(lexer))
             lexer->last_is_op = 1;
+        else if (is_quote_char(lexer))
+            process_rule_four(lexer);
     }
 
     return tok;
@@ -246,32 +278,14 @@ static struct token tokenizer(struct lexer *lexer)
     else if (is_quote_char(lexer))
     {
         feed(lexer->current_word, lexer->current_char);
-        if (lexer->current_char == '\\')
-        {
-            // BACKLASH will allow next char to be escaped if needed
-            stack_push(&lexer->mode_stack, BACKSLASH);
-        }
-        // Open or close quoting mode
-        else if (lexer->current_char == '"')
-        {
-            if (stack_peek(lexer->mode_stack) == DOUBLE_Q)
-                stack_pop(&lexer->mode_stack);
-            else
-                stack_push(&lexer->mode_stack, DOUBLE_Q);
-        }
-        else if (lexer->current_char == '\'')
-        {
-            if (stack_peek(lexer->mode_stack) == SINGLE_Q)
-                stack_pop(&lexer->mode_stack);
-            else
-                stack_push(&lexer->mode_stack, SINGLE_Q);
-        }
+        process_rule_four(lexer);
     }
 
     // -------------------------------------------------------------------------
     // --------------------------------- RULE 5 --------------------------------
     // -------------------------------------------------------------------------
-    else if (is_sub_char(lexer) && stack_peek(lexer->mode_stack) != SINGLE_Q && stack_peek(lexer->mode_stack) != DOUBLE_Q)
+    else if (is_sub_char(lexer) && stack_peek(lexer->mode_stack) != SINGLE_Q
+             && stack_peek(lexer->mode_stack) != DOUBLE_Q)
     {
         // Append '$' or '`'
         feed(lexer->current_word, lexer->current_char);
@@ -282,7 +296,7 @@ static struct token tokenizer(struct lexer *lexer)
             else
                 stack_push(&lexer->mode_stack, BACKTICK);
         }
-            
+
         else
             stack_push(&lexer->mode_stack, DOLLAR);
     }
@@ -293,10 +307,12 @@ static struct token tokenizer(struct lexer *lexer)
     else if (first_char_op(lexer))
     {
         // Parentheses mode or nothing
-        if (stack_peek(lexer->mode_stack) == PAR || stack_peek(lexer->mode_stack) == EMPTY)
+        if (stack_peek(lexer->mode_stack) == PAR
+            || stack_peek(lexer->mode_stack) == EMPTY)
         {
             // If the token is a right parenthese and peeek = ( => pop (close)
-            if (stack_peek(lexer->mode_stack) == PAR && lexer->current_char == ')')
+            if (stack_peek(lexer->mode_stack) == PAR
+                && lexer->current_char == ')')
                 stack_pop(&lexer->mode_stack);
 
             lexer->last_is_op = 1;
@@ -318,23 +334,30 @@ static struct token tokenizer(struct lexer *lexer)
             enum quote_type peek = stack_peek(lexer->mode_stack);
             if (lexer->current_char == '(')
             {
-                if (peek == DOLLAR_PAR || peek == DOLLAR_BRACE || peek == BACKTICK)
+                if (peek == DOLLAR_PAR || peek == DOLLAR_BRACE
+                    || peek == BACKTICK)
                     stack_push(&lexer->mode_stack, PAR_IGNORE);
             }
 
             // Close subshell
-            else if (lexer->current_char == ')'&& (peek == DOLLAR_PAR || peek == PAR_IGNORE))
+            else if (lexer->current_char == ')'
+                     && (peek == DOLLAR_PAR || peek == PAR_IGNORE))
                 stack_pop(&lexer->mode_stack);
         }
     }
 
-    else if (!stack_quoted(lexer) && ((lexer->current_char == '#' && lexer->current_word->len == 0) || (lexer->current_word->len == 1 && lexer->current_word->data[0] == '#')))
+    else if (!stack_quoted(lexer)
+             && ((lexer->current_char == '#' && lexer->current_word->len == 0)
+                 || (lexer->current_word->len == 1
+                     && lexer->current_word->data[0] == '#')))
         return skip_comment(lexer);
 
     // -------------------------------------------------------------------------
     // --------------------------------- RULE 7 --------------------------------
     // -------------------------------------------------------------------------
-    else if ((stack_peek(lexer->mode_stack) == PAR || stack_peek(lexer->mode_stack) == EMPTY) && isblank(lexer->current_char))
+    else if ((stack_peek(lexer->mode_stack) == PAR
+              || stack_peek(lexer->mode_stack) == EMPTY)
+             && isblank(lexer->current_char))
     {
         if (lexer->current_word->len != 0)
             return token_new(lexer);
@@ -355,7 +378,8 @@ static struct token tokenizer(struct lexer *lexer)
     else
     {
         feed(lexer->current_word, lexer->current_char);
-        if (lexer->current_char == '}' && stack_peek(lexer->mode_stack) == DOLLAR_BRACE)
+        if (lexer->current_char == '}'
+            && stack_peek(lexer->mode_stack) == DOLLAR_BRACE)
             stack_pop(&lexer->mode_stack);
     }
 
