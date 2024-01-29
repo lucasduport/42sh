@@ -8,6 +8,7 @@ enum quote_type
     SINGLE_Q,
     DOLLAR_PAR,
     PAR,
+    PAR_IGNORE,
     DOLLAR,
     BACKTICK,
     DOLLAR_BRACE,

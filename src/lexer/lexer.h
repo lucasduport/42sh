@@ -24,7 +24,6 @@ struct lexer
     struct stack *mode_stack;
 
     int last_is_op;
-    int is_newline;
 };
 
 // --------------------------- LEXER TOOLS ------------------------------------
