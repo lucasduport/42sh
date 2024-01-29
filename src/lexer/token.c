@@ -4,7 +4,6 @@
 
 void print_token(struct token token)
 {
-    debug_printf(LOG_LEX, "[LEXER] token_type %d\n", token.type);
     char *token_fam[] = { "RESERVED",  "OPERATOR",     "REDIR",
                           "IO_NUMBER", "ASSIGNMENT_W", "WORD" };
 

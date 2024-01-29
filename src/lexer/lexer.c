@@ -167,7 +167,11 @@ static struct token process_rule_three(struct lexer *lexer)
 
     struct token tok = token_new(lexer);
     if (!isblank(lexer->current_char))
+    {
         feed(lexer->current_word, lexer->current_char);
+        if (first_char_op(lexer))
+            lexer->last_is_op = 1;
+    }
 
     return tok;
 }

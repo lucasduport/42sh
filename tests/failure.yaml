@@ -59,8 +59,3 @@
   sub-category: find double quote bugs
   tests:
   - command: echo '$`"\\\\'
-- category: scripts
-  sub-category: basic
-  tests:
-  - command: "if echo coucou | cat\nthen echo aahhh\nfi |\nif echo bbbb | cat\nthen\
-      \ echo bbbb\nfi \n"
