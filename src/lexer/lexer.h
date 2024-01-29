@@ -76,7 +76,7 @@ int is_sub_char(struct lexer *lexer);
  *
  * @param lexer
  */
-void skip_comment(struct lexer *lexer);
+struct token skip_comment(struct lexer *lexer);
 
 //
 //

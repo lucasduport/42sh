@@ -319,6 +319,9 @@ static struct token tokenizer(struct lexer *lexer)
         }
     }
 
+    else if (!stack_quoted(lexer) && ((lexer->current_char == '#' && lexer->current_word->len == 0) || (lexer->current_word->len == 1 && lexer->current_word->data[0] == '#')))
+        return skip_comment(lexer);
+
     // -------------------------------------------------------------------------
     // --------------------------------- RULE 7 --------------------------------
     // -------------------------------------------------------------------------
@@ -340,9 +343,6 @@ static struct token tokenizer(struct lexer *lexer)
     // -------------------------------------------------------------------------
     // --------------------------------- RULE 9 --------------------------------
     // -------------------------------------------------------------------------
-    else if (!stack_quoted(lexer) && lexer->current_char == '#' && lexer->current_word->len == 0)
-        skip_comment(lexer);
-
     else
     {
         feed(lexer->current_word, lexer->current_char);

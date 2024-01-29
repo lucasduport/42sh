@@ -56,11 +56,17 @@ int is_sub_char(struct lexer *lexer)
     return 0;
 }
 
-void skip_comment(struct lexer *lexer)
+struct token skip_comment(struct lexer *lexer)
 {
+    string_reset(lexer->current_word);
     while (lexer->current_char != '\n' && lexer->current_char != '\0')
         lexer->current_char = io_getchar();
     
+    struct token tok;
     if (lexer->current_char == '\n')
-        lexer->last_is_op = 1;
+        tok = (struct token){.type = TOKEN_NEWLINE, .family = TOKEN_FAM_OPERATOR, .data = NULL};
+    else
+        tok = (struct token){.type = TOKEN_EOF, .family = TOKEN_FAM_OPERATOR, .data = NULL};
+    
+    return tok;
 }
