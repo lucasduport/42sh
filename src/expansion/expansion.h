@@ -39,4 +39,13 @@ struct ast *expand_ast(struct ast *ast, struct environment *env, int *ret);
  */
 struct list *expansion(struct list *list, struct environment *env, int *ret);
 
+/**
+ * @brief Insert the output of a command in the string
+ *
+ * @param env  Environment
+ * @param str String to expand
+ * @param index Index where we actually are in the string
+ * @return int 0 if success, error code otherwise
+ */
+int expand_cmd_sub(struct environment *env, char **str, size_t *index);
 #endif /* ! EXPANSION_H */
