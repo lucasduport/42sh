@@ -1,7 +1,18 @@
-- category: expansion
-  sub-category: single_quote
+- category: builtins
+  sub-category: echo
   tests:
-  - command: echo '\'
+  - command: "echo \u2190{\\#\\#\\\\\u0167^#~\\]{^]~\\[]~##^]\xB9\\\\\\\xB9}\\\xB9\
+      \\\\\\\\@\\\xB9#]@[^\\{\\\\\\^\\^~\\#\xB6\\\xB6#~\xB6~\xE9\\\\'\"\xE9'\\'\xE9\
+      \\_\\\"\\\xE9\xE9\\\xE9\"\\\\\\\\\"\xE9\xE9\"\xE9\\\xE9\"\xE9\"\xE9\"\xE9\"\xE9\
+      \"\\#\\\n"
+- category: expansion
+  sub-category: double_quote
+  tests:
+  - command: echo "    \'  "
+- category: expansion
+  sub-category: double_quote
+  tests:
+  - command: echo '    \"   '
 - category: expansion
   sub-category: $()
   tests:
@@ -20,16 +31,39 @@
       }; fun
 
       '
-- category: errors
-  sub-category: functions
+- category: redirection
+  sub-category: hard
   tests:
-  - command: 'fun () {
-
-      echo `echo baba`echo "coucou`echo"
-
-      }; fun
+  - command: 'A="err.txt" 2>"$A" caca.txt
 
       '
+- category: redirection
+  sub-category: hard
+  tests:
+  - command: 'A="err.txt" 2>"$A"; echo a
+
+      '
+- category: wtf
+  sub-category: find double quote bugs
+  tests:
+  - command: echo """'""""'"""\\'""ola"'
+- category: wtf
+  sub-category: find double quote bugs
+  tests:
+  - command: echo '$ \\a \\b \\z \\ "'
+- category: wtf
+  sub-category: find double quote bugs
+  tests:
+  - command: echo '$ \\a \\b \\z \\ "'\{"\}'"''"salut\""
+- category: wtf
+  sub-category: find double quote bugs
+  tests:
+  - command: echo '$`"\\\\'
+- category: scripts
+  sub-category: basic
+  tests:
+  - command: "if echo coucou | cat\nthen echo aahhh\nfi |\nif echo bbbb | cat\nthen\
+      \ echo bbbb\nfi \n"
 - category: scripts
   sub-category: comments
   tests:

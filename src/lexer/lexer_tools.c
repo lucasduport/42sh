@@ -62,5 +62,5 @@ void skip_comment(struct lexer *lexer)
         lexer->current_char = io_getchar();
     
     if (lexer->current_char == '\n')
-        lexer->is_newline = 1;
+        lexer->last_is_op = 1;
 }

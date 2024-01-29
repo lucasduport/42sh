@@ -5,7 +5,7 @@
 int main(int argc, char **argv)
 {
     // create_logger("stdout");
-    // enable_log_type(LOG_LEX);
+    enable_log_type(LOG_LEX);
     // disable_log_type(LOG_LEX);
     // enable_all_logs();
     // disable_all_logs();

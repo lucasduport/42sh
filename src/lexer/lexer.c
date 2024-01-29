@@ -150,6 +150,8 @@ static struct token process_rule_one(struct lexer *lexer)
 
     if (!is_empty(lexer->mode_stack))
     {
+        stack_destroy(lexer->mode_stack);
+        lexer->mode_stack = NULL;
         return token_alloc(TOKEN_ERROR, TOKEN_FAM_WORD, lexer);
     }
 
@@ -161,9 +163,11 @@ static struct token process_rule_one(struct lexer *lexer)
  */
 static struct token process_rule_three(struct lexer *lexer)
 {
-    lexer->last_is_op = !(lexer->current_char != '\n');
+    lexer->last_is_op = 0;
 
     struct token tok = token_new(lexer);
+    if (!isblank(lexer->current_char))
+        feed(lexer->current_word, lexer->current_char);
 
     return tok;
 }
@@ -336,7 +340,7 @@ static struct token tokenizer(struct lexer *lexer)
     // -------------------------------------------------------------------------
     // --------------------------------- RULE 9 --------------------------------
     // -------------------------------------------------------------------------
-    else if (!stack_quoted(lexer) && lexer->current_char == '#')
+    else if (!stack_quoted(lexer) && lexer->current_char == '#' && lexer->current_word->len == 0)
         skip_comment(lexer);
 
     else
@@ -363,26 +367,10 @@ struct lexer *lexer_new(int argc, char *argv[])
 struct token lexer_peek(struct lexer *lexer)
 {
     if (lexer->last_token.type != TOKEN_NULL)
-    {
-        /*if (lexer->last_token.family == TOKEN_FAM_OPERATOR)
-            lexer->last_is_op = 1;*/
         return lexer->last_token;
-    }
 
-    struct token tok;
-    if (lexer->is_newline)
-    {
-        lexer->is_newline = 0;
-        tok = (struct token){ .type = TOKEN_NEWLINE,
-                              .family = TOKEN_FAM_OPERATOR,
-                              .data = NULL };
-        lexer->last_token = tok;
-    }
-    else
-    {
-        tok = tokenizer(lexer);
-        lexer->last_token = tok;
-    }
+    struct token tok = tokenizer(lexer);
+    lexer->last_token = tok;
 
     return tok;
 }
