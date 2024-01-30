@@ -569,6 +569,72 @@ struct list *expansion(struct list *arguments, struct environment *env,
     return copy;
 }
 
+// I am really sorry, I wish I did not do that but my function was over 40 lines
+// I add to find a solution, so I did
+struct too_much_arg
+{
+    char delim;
+    size_t first_char_cmd;
+    size_t last_char_cmd;
+    size_t *index;
+};
+
+/**
+ * @brief Process command substitution
+ *
+ * @param env Environment
+ * @param str String to expand
+ * @param index Index of the variable
+ * @return int 0 if success, -1 otherwise
+ */
+static int process_cmd_sub(struct environment *env, char **str, struct too_much_arg *args)
+{
+    int par = 0;
+    for (; (*str)[*args->index] != '\0';)
+    {
+        if ((*str)[*args->index] == args->delim)
+        {
+            if (par == 0)
+            {
+                args->last_char_cmd = *args->index;
+                break;
+            }
+            else
+                par--;
+        }
+        else if ((*str)[*args->index] == '(')
+            par++;
+        else if ((*str)[*args->index] == '$')
+        {
+            if ((*str)[*args->index + 1] == '(')
+            {
+                size_t dollar = *args->index;
+                *args->index += 1;
+                int code = expand_cmd_sub(env, str, args->index);
+                if (code != 0)
+                    return code;
+                remove_at_n(str, dollar);
+            }
+            else
+                *args->index += 1;
+        }
+        else if ((*str)[*args->index] == '\\')
+        {
+            return expand_brace(env, str, args->index);
+            if (escape_backlash(env, str, args->index) == -1)
+                return -1;
+        }
+        else if ((*str)[*args->index] == '`')
+        {
+            if (expand_cmd_sub(env, str, args->index) == -1)
+                return -1;
+        }
+        else
+            *args->index += 1;
+    }
+    return 0;
+}
+
 int expand_cmd_sub(struct environment *env, char **str, size_t *index)
 {
     // *index is at ( or `
@@ -576,61 +642,26 @@ int expand_cmd_sub(struct environment *env, char **str, size_t *index)
     // Determine which delimiter to look for
     char del = ((*str)[*index] == '(' ? ')' : '`');
     *index += 1;
-    size_t first_char_cmd = *index;
-    size_t last_char_cmd = *index;
-    int ret_code = 0;
-    int par = 0;
-    for (; (*str)[*index] != '\0';)
-    {
-        if ((*str)[*index] == del)
-        {
-            if (par == 0)
-            {
-                last_char_cmd = *index;
-                break;
-            }
-            else
-                par--;
-        }
-        else if ((*str)[*index] == '(')
-            par++;
-        else if ((*str)[*index] == '$')
-        {
-            if ((*str)[*index + 1] == '(')
-            {
-                size_t dollar = *index;
-                *index += 1;
-                int code = expand_cmd_sub(env, str, index);
-                if (code != 0)
-                    return code;
-                remove_at_n(str, dollar);
-            }
-            else
-                *index += 1;
-        }
-        else if ((*str)[*index] == '\\')
-        {
-            return expand_brace(env, str, index);
-            if (escape_backlash(env, str, index) == -1)
-                return -1;
-        }
-        else if ((*str)[*index] == '`')
-        {
-            if (expand_cmd_sub(env, str, index) == -1)
-                return -1;
-        }
-        else
-            *index += 1;
-    }
-    if (first_char_cmd != last_char_cmd)
+    struct too_much_arg args= {
+        .delim = del,
+        .first_char_cmd = *index,
+        .last_char_cmd = *index,
+        .index = index
+    };
+
+    int ret_code = process_cmd_sub(env, str, &args);
+    if (ret_code != 0)
+        return 0;
+    
+    if (args.first_char_cmd != args.last_char_cmd)
     {
         // Recreate command content with index
-        char *cmd = calloc(last_char_cmd - first_char_cmd + 1, sizeof(char));
-        strncpy(cmd, *str + first_char_cmd, last_char_cmd - first_char_cmd);
-        cmd[last_char_cmd - first_char_cmd] = '\0';
-        for (size_t i = first_char_cmd; i < *index; i++)
-            remove_at_n(str, first_char_cmd);
-        *index = first_char_cmd;
+        char *cmd = calloc(args.last_char_cmd - args.first_char_cmd + 1, sizeof(char));
+        strncpy(cmd, *str + args.first_char_cmd, args.last_char_cmd - args.first_char_cmd);
+        cmd[args.last_char_cmd - args.first_char_cmd] = '\0';
+        for (size_t i = args.first_char_cmd; i < *index; i++)
+            remove_at_n(str, args.first_char_cmd);
+        *index = args.first_char_cmd;
         insert_cmd_output(env, str, index, cmd);
         free(cmd);
     }
@@ -640,8 +671,6 @@ int expand_cmd_sub(struct environment *env, char **str, size_t *index)
 
     // Remove the first delimiter
     remove_at_n(str, first_del);
-    *index -= 1;
-    if (*index != 0)
-        *index -= 1;
+    *index = (*index - 1 == 0)? *index -1 : *index -2;
     return ret_code;
 }

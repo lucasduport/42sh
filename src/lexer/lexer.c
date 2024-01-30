@@ -100,6 +100,9 @@ static int check_comment(struct lexer *lexer)
 
 struct token tokenizer(struct lexer *lexer)
 {
+    if (lexer->last_is_op && strncmp(lexer->current_word->data, "\n", 1) == 0)
+        return process_rule_three(lexer, 0);
+
     lexer->current_char = io_getchar();
 
     // ---------------------------- PREPROCESS ---------------------------
@@ -117,7 +120,7 @@ struct token tokenizer(struct lexer *lexer)
 
     // ---------------------------- RULE 3 ---------------------------
     else if (lexer->last_is_op && !is_valid_operator(lexer))
-        return process_rule_three(lexer);
+        return process_rule_three(lexer, 1);
 
     // ---------------------------- RULE 4 ---------------------------
     else if (is_quote_char(lexer))

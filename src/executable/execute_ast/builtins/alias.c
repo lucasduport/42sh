@@ -24,18 +24,14 @@ static int set_alias(struct variable **list_aliases, char *name, char *value)
             // Remove actual value
             free(it->value);
             if (value != NULL)
-            {
                 it->value = strdup(value);
-            }
             else
-            {
                 it->value = NULL;
-            }
             return 0;
         }
     }
 
-    // If the alias is not found, add it to the list
+    // If the alias was not found, add it to the list
     return add_variable(list_aliases, name, value);
 }
 

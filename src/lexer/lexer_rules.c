@@ -48,12 +48,12 @@ struct token process_rule_one(struct lexer *lexer)
     return token_new(lexer);
 }
 
-struct token process_rule_three(struct lexer *lexer)
+struct token process_rule_three(struct lexer *lexer, int ok)
 {
     lexer->last_is_op = 0;
 
     struct token tok = token_new(lexer);
-    if (!isblank(lexer->current_char))
+    if (ok && !isblank(lexer->current_char))
     {
         feed(lexer->current_word, lexer->current_char);
         if (first_char_op(lexer))

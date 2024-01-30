@@ -5,9 +5,7 @@
  *
  * @param env Current environment
  *
- * @return
- *  0 -> nothing or continue
- *  1 -> break
+ * @return 0 if nothing or continue, 1 if break
  */
 static int check_break_continue(struct environment *env)
 {

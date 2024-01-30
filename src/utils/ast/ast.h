@@ -80,6 +80,4 @@ struct ast *ast_copy(struct ast *ast);
  */
 void ast_free(struct ast *ast);
 
-typedef void (*print_ast_node)(struct ast *ast);
-
 #endif /* !AST_H */

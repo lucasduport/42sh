@@ -47,7 +47,7 @@ struct token process_rule_one(struct lexer *lexer);
  * @brief Process rule 3
  *   last_is_op and concatenation with current doesn't make an operator
  */
-struct token process_rule_three(struct lexer *lexer);
+struct token process_rule_three(struct lexer *lexer, int ok);
 
 /**
  * @file lexer_rules.c

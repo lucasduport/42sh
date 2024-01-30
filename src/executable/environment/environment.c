@@ -40,6 +40,9 @@ int check_env_variable(const char *name)
     return 0;
 }
 
+/**
+ * @brief Initialize pwd at the beginning of execution
+*/
 static void init_pwd()
 {
     char *pwds[] = { "OLDPWD", "PWD" };
@@ -67,9 +70,8 @@ void set_environment(struct environment *env, int argc, char *argv[])
     set_variable(env, "IFS", " \t\n");
 
     if (argc >= 2 && strcmp(argv[1], "-c") == 0)
-    {
         env->is_command = 1;
-    }
+    
     set_variable(env, "#", "0");
 
     set_exit_variable(env, 0);
