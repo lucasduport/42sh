@@ -599,11 +599,20 @@ int expand_cmd_sub(struct environment *env, char **str, size_t *index)
             par++;
         else if ((*str)[*index] == '$')
         {
-            if (expand_dollar(env, str, index) == -1)
-                return -1;
+            if ((*str)[*index + 1] == '(')
+            {
+                size_t dollar = *index;
+                *index += 1;
+                int code = expand_cmd_sub(env, str, index);
+                if (code != 0)
+                    return code;
+                remove_at_n(str, dollar);
+            }
+            else
+                *index += 1;
         }
         else if ((*str)[*index] == '\\')
-        {
+        {        return expand_brace(env, str, index);
             if (escape_backlash(env, str, index) == -1)
                 return -1;
         }

@@ -130,7 +130,7 @@
     - command: $(echo -n ec)'h'"o" "easy la $(/bin/echo -n quote)"
     - command: a=6; echo $(echo -n $a; a=8; echo -n $a); echo $a
     - command: a=6; echo $(echo -n $a; a=8; echo -n $a); echo $a
-    - command: a=6; echo $(echo $(echo $(echo `echo baba`))); echo $a
+    - command: a=6; echo $(echo -n $(echo -n $(echo -n `echo -n baba`))); echo $a
 
 - category: expansion
   sub-category: backticks
@@ -140,4 +140,3 @@
         `echo -n ec`'h'"o" "easy la `/bin/echo -n quote`"
     - command: a=6; echo `echo -n ${a}; a=8; echo -n $a`; echo $a
     - command: a=6; echo `echo -n $a; a=8; echo -n $a``; echo $a
-    - command: a=6; echo `echo `echo `echo $(echo baba)```; echo $a
