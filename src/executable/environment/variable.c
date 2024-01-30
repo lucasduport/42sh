@@ -66,12 +66,7 @@ struct variable *dup_variables(struct variable *head)
     {
         add_variable(&new_head, current->name, current->value);
         if (new_head == NULL)
-        {
-            debug_printf(LOG_UTILS,
-                         "[VARIABLES] Error duplicating variable [%s=%s]\n",
-                         current->name, current->value);
             return NULL;
-        }
         current = current->next;
     }
     return new_head;
@@ -120,17 +115,5 @@ void free_variables(struct variable *head)
         free(temp->name);
         free(temp->value);
         free(temp);
-    }
-}
-
-void print_variables(struct variable *head)
-{
-    struct variable *p = head;
-    while (p != NULL)
-    {
-        debug_printf(LOG_UTILS, "[VAR NAME] %s\n", p->name);
-        debug_printf(LOG_UTILS, "[VAR VALUE] %s\n", p->value);
-        debug_printf(LOG_UTILS, "next\n");
-        p = p->next;
     }
 }

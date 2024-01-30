@@ -292,12 +292,4 @@ void delete_variable(struct variable **head, char *name);
  */
 void free_variables(struct variable *head);
 
-/**
- * @file variable.c
- * @brief Debug function that prints the var list
- *
- * @param head The head of the list
- */
-void print_variables(struct variable *head);
-
 #endif /* ! ENVIRONMENT_H */
