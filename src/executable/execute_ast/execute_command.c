@@ -60,7 +60,7 @@ static int execvp_wrapper(struct list *arg, struct environment *env)
 exec_builtins builtins[] = { builtin_echo,  builtin_true,   builtin_false,
                              builtin_exit,  builtin_export, builtin_continue,
                              builtin_break, builtin_dot,    builtin_unset,
-                             builtin_alias , builtin_unalias};
+                             builtin_alias, builtin_unalias };
 
 int execute_command(struct ast *ast, struct environment *env)
 {
@@ -92,21 +92,21 @@ int execute_command(struct ast *ast, struct environment *env)
         goto goodbye;
     }
 
+    // If it's an alias, replace its value in the current string
+    alias_expansion(env->aliases, &tmp_arg->current);
+
     // Check if it's builtin
-    char *builtins_name[] = { "echo",   "true",     "false", "exit",
-                              "export", "continue", "break", ".",
-                              "unset",  "alias",  "unalias", NULL };
+    char *builtins_name[] = { "echo",   "true",     "false",   "exit",
+                              "export", "continue", "break",   ".",
+                              "unset",  "alias",    "unalias", NULL };
     for (int i = 0; builtins_name[i] != NULL; i++)
     {
-        if (strcmp(first_arg, builtins_name[i]) == 0)
+        if (strcmp(tmp_arg->current, builtins_name[i]) == 0)
         {
             code = builtins[i](tmp_arg, env);
             goto goodbye;
         }
     }
-
-    // If it's an alias, replace its value in the current string
-    alias_expansion(env->aliases, &tmp_arg->current);
 
     // If it's neither a function nor a builtin
     code = execvp_wrapper(tmp_arg, env);

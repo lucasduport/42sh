@@ -6,7 +6,8 @@ int add_variable(struct variable **head, const char *name, char *value)
     if (new_variable == NULL)
         return -1;
     new_variable->name = strdup(name);
-    new_variable->value = strdup(value);
+    if (value != NULL)
+        new_variable->value = strdup(value);
     new_variable->next = *head;
     *head = new_variable;
     return 0;

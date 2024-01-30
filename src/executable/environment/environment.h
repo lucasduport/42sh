@@ -27,7 +27,7 @@ struct environment
     struct function *functions;
 
     struct variable *aliases;
-    struct variable *future_aliases;
+    struct variable *add_aliases;
 
     int nb_break;
     int nb_continue;

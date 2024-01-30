@@ -23,7 +23,14 @@ static int set_alias(struct variable **list_aliases, char *name, char *value)
         {
             // Remove actual value
             free(it->value);
-            it->value = strdup(value);
+            if (value != NULL)
+            {
+                it->value = strdup(value);
+            }
+            else
+            {
+                it->value = NULL;
+            }
             return 0;
         }
     }
@@ -33,103 +40,53 @@ static int set_alias(struct variable **list_aliases, char *name, char *value)
 }
 
 /**
- * @brief Print an alias
+ * @brief Check if an alias exists in the list
  *
- * @param env  Environment
- * @param alias Name of the alias to print
- *
- * @return -1 if the alias was not found, 0 otherwise
+ * @param list_aliases List of aliases
+ * @param name Name of the alias to check
+ * @return int 1 if the alias exists, 0 otherwise
  */
-static int print_alias(struct environment *env, char *alias)
+static int alias_exists(struct variable *list_aliases, char *name)
 {
-    // Search in future aliases in priority
-    for (struct variable *it = env->future_aliases; it != NULL; it = it->next)
+    for (struct variable *it = list_aliases; it != NULL; it = it->next)
     {
-        if (strcmp(it->name, alias) == 0)
-        {
-            printf("%s='%s'\n", it->name, it->value);
-            return 0;
-        }
+        if (strcmp(it->name, name) == 0)
+            return 1;
     }
-
-    // Otherwise search in current aliases
-    for (struct variable *it = env->aliases; it != NULL; it = it->next)
-    {
-        if (strcmp(it->name, alias) == 0)
-        {
-            printf("%s='%s'\n", it->name, it->value);
-            return 0;
-        }
-    }
-    return -1;
-}
-
-/**
- * @brief Print all aliases in alphabetical order, including future aliases
- *  If an alias is in current and future lists, we write the value in future
- * list
- *
- * @param env Environment
- */
-static void print_aliases(struct environment *env)
-{
-    struct variable *head = NULL;
-    for (struct variable *it = env->aliases; it != NULL; it = it->next)
-        set_alias(&head, it->name, it->value);
-
-    for (struct variable *it = env->future_aliases; it != NULL; it = it->next)
-        set_alias(&head, it->name, it->value);
-
-    for (struct variable *it = head; it != NULL; it = it->next)
-        printf("%s='%s'\n", it->name, it->value);
-
-    free_variables(head);
+    return 0;
 }
 
 int builtin_alias(struct list *list, struct environment *env)
 {
-    // Only alias word
-    if (list->next == NULL)
+    // Set all aliases
+    int ret_code = 0;
+    for (struct list *it = list->next; it != NULL; it = it->next)
     {
-        print_aliases(env);
-        return 0;
-    }
-    else
-    {
-        // Set all aliases
-        int ret_code = 0;
-        for (struct list *it = list->next; it != NULL; it = it->next)
+        char *cpy = strdup(it->current);
+        char *name = strtok(cpy, "=");
+        if (name == NULL)
         {
-            char *cpy = strdup(it->current);
-            char *name = strtok(cpy, "=");
-            if (name == NULL)
-            {
-                ret_code = 1;
-                free(cpy);
-                continue;
-            }
-
-            char *value = strtok(NULL, "");
-            // If there is no value, juste print it
-            if (value == NULL)
-            {
-                if (print_alias(env, name) == -1)
-                {
-                    fprintf(stderr, "alias: %s: not found\n", name);
-                    ret_code = 1;
-                }
-            }
-            else
-                set_alias(&env->future_aliases, name, value);
+            ret_code = 1;
             free(cpy);
+            continue;
         }
-        return ret_code;
+
+        char *value = strtok(NULL, "");
+        // If there is no value, juste print it
+        if (value == NULL)
+        {
+            ret_code = 1;
+        }
+        else
+            set_alias(&env->add_aliases, name, value);
+        free(cpy);
     }
+    return ret_code;
 }
 
 /**
  * @brief Delete an alias
- * 
+ *
  * @param env  Environment
  * @param name  Name of the alias to delete
  * @return int  0 if the alias was deleted, -1 otherwise
@@ -137,29 +94,8 @@ int builtin_alias(struct list *list, struct environment *env)
 static int delete_alias(struct environment *env, char *name)
 {
     int code = -1;
-    struct variable *current = env->future_aliases;
+    struct variable *current = env->aliases;
     struct variable *previous = NULL;
-    while (current != NULL)
-    {
-        if (strcmp(current->name, name) == 0)
-        {
-            if (previous != NULL)
-                previous->next = current->next;
-            else
-                env->future_aliases = current->next;
-
-            free(current->name);
-            free(current->value);
-            free(current);
-            code = 0;
-            break;
-        }
-        previous = current;
-        current = current->next;
-    }
-
-    current = env->aliases;
-    previous = NULL;
     while (current != NULL)
     {
         if (strcmp(current->name, name) == 0)
@@ -193,7 +129,10 @@ int builtin_unalias(struct list *arguments, struct environment *env)
         int ret = 0;
         for (struct list *it = arguments->next; it != NULL; it = it->next)
         {
-            if (delete_alias(env, it->current) == -1)
+            if (alias_exists(env->aliases, it->current)
+                || alias_exists(env->add_aliases, it->current))
+                set_alias(&env->add_aliases, it->current, NULL);
+            else
             {
                 fprintf(stderr, "unalias: %s: not found\n", it->current);
                 ret = 1;
@@ -205,25 +144,36 @@ int builtin_unalias(struct list *arguments, struct environment *env)
 
 void update_aliases(struct environment *env)
 {
-    struct variable *f = env->future_aliases;
+    struct variable *f = env->add_aliases;
     while (f != NULL)
     {
-        set_alias(&env->aliases, f->name, f->value);
+        if (f->value == NULL)
+            delete_alias(env, f->name);
+        else
+            set_alias(&env->aliases, f->name, f->value);
         f = f->next;
     }
-    free_variables(env->future_aliases);
-    env->future_aliases = NULL;
+    free_variables(env->add_aliases);
+    env->add_aliases = NULL;
 }
 
 void alias_expansion(struct variable *alias, char **string)
 {
-    for (struct variable *it = alias; it != NULL; it = it->next)
+    char *base_string = strdup(*string);
+    bool was_replaced = true;
+    do
     {
-        if (strcmp(it->name, *string) == 0)
+        was_replaced = false;
+        for (struct variable *it = alias; it != NULL; it = it->next)
         {
-            *string = realloc(*string, (strlen(it->value) + 1) * sizeof(char));
-            strcpy(*string, it->value);
-            return;
+            if (strcmp(it->name, *string) == 0)
+            {
+                *string =
+                    realloc(*string, (strlen(it->value) + 1) * sizeof(char));
+                strcpy(*string, it->value);
+                was_replaced = true;
+            }
         }
-    }
+    } while (was_replaced && strcmp(base_string, *string) != 0);
+    free(base_string);
 }

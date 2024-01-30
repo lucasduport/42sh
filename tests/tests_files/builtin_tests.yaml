@@ -194,19 +194,34 @@
 - category: builtins
   sub-category: alias
   tests:
-    - command: alias caca
-    - command: alias flav=goat; alias flav
+    - command: alias flav=goat; flav
     - command: |
-        alias flav=goat popo pupupo coco=malade
-        alias flav pupu coco
+        alias flav=goat
+        flav
+    - command: |
+        alias flav=goat coco=malade
+        flav
+        pupupo
+        coco
     - command: |
         unalias flav
-        alias flav
         alias papi=papadepapa
         unalias hello papi world
-        alias papi
+        papi
     - command: |
         alias coco=echo
         coco Hello World
         unalias coco
         coco Hello World
+    - command: |
+        alias frag=echo baba=frag
+        baba hello world
+    - command: |
+        alias frag=echo baba=frag; unalias baba; baba hello world
+    - command: |
+        alias cocacola=echo; cocacola hello world
+    - command: |
+        alias coco=echo; coco hello world
+    - command: |
+        alias coco=echo; coco hello world; unalias coco; coco hello world
+
