@@ -126,6 +126,7 @@
 - category: expansion
   sub-category: $()
   tests:
+    - command: echo $()
     - command: "echo $(echo -n Hello World)"
     - command: $(echo -n ec)'h'"o" "easy la $(/bin/echo -n quote)"
     - command: a=6; echo $(echo -n $a; a=8; echo -n $a); echo $a
@@ -135,6 +136,8 @@
 - category: expansion
   sub-category: backticks
   tests:
+    - command: |
+        echo ``
     - command: "echo `echo -n Hello World`"
     - command: |
         `echo -n ec`'h'"o" "easy la `/bin/echo -n quote`"

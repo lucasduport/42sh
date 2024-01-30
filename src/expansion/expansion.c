@@ -624,7 +624,7 @@ int expand_cmd_sub(struct environment *env, char **str, size_t *index)
         else
             *index += 1;
     }
-    if (first_char_cmd + 1 != last_char_cmd)
+    if (first_char_cmd != last_char_cmd)
     {
         // Recreate command content with index
         char *cmd = calloc(last_char_cmd - first_char_cmd + 1, sizeof(char));
@@ -642,6 +642,8 @@ int expand_cmd_sub(struct environment *env, char **str, size_t *index)
 
     // Remove the first delimiter
     remove_at_n(str, first_del);
-    *index -= 2;
+    *index -= 1;
+    if (*index != 0)
+        *index -= 1;
     return ret_code;
 }
