@@ -22,9 +22,15 @@ struct stack
 };
 
 void stack_push(struct stack **s, enum quote_type q);
+
 enum quote_type stack_pop(struct stack **s);
+
 enum quote_type stack_peek(struct stack *s);
+
 int stack_destroy(struct stack *s);
+
 int is_empty(struct stack *s);
+
+int stack_quoted(struct stack *s);
 
 #endif /* !STACK_H */
