@@ -7,7 +7,9 @@ libutils_a_SOURCES =  \
     list/list.c \
     list/list.h \
     string/string.c \
-    string/string.h
+    string/string.h \
+    stack/stack.c \
+    stack/stack.h
 
 libutils_a_CPPFLAGS = -I$(top_srcdir)/src
 

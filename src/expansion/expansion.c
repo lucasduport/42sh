@@ -400,69 +400,6 @@ static void insert_cmd_output(struct environment *env, char **str,
 }
 
 /**
- * @brief Insert the output of a command in the string
- *
- * @param env  Environment
- * @param str String to expand
- * @param index Index where we actually are in the string
- * @return int 0 if success, error code otherwise
- */
-static int expand_cmd_sub(struct environment *env, char **str, size_t *index)
-{
-    // *index is at ( or `
-    size_t first_del = *index;
-    // DEtermine which delimiter to look for
-    char del = ((*str)[*index] == '(' ? ')' : '`');
-    *index += 1;
-    bool double_quote = 0;
-    bool simple_quote = 0;
-    bool escaped = false;
-    char *cmd = NULL;
-    size_t cmd_len = 0;
-    int ret_code = 0;
-    for (; (*str)[*index] != '\0';)
-    {
-        if ((*str)[*index] == '\"' && !simple_quote && !escaped)
-            double_quote = !double_quote;
-        else if ((*str)[*index] == '\'' && !double_quote && !escaped)
-            simple_quote = !simple_quote;
-        else if ((*str)[*index] == del && !double_quote && !simple_quote
-                 && !escaped)
-            break;
-        else
-        {
-            escaped = ((*str)[*index] == '\\' && !escaped);
-            // Remove the character from the string and add it to the command
-            cmd = realloc(cmd, cmd_len + 2);
-            cmd[cmd_len] = (*str)[*index];
-            cmd[++cmd_len] = '\0';
-            remove_at_n(str, *index);
-        }
-    }
-    // If we reached the end of the string, it means that the command
-    // substitution is not closed
-    if ((*str)[*index] == '\0')
-    {
-        ret_code = 2;
-        goto bye;
-    }
-    if (cmd != NULL)
-        insert_cmd_output(env, str, index, cmd);
-
-    // Remove the last delimiter
-    remove_at_n(str, *index);
-
-    // Remove the first delimiter
-    remove_at_n(str, first_del);
-    *index -= 2;
-
-bye:
-    if (cmd != NULL)
-        free(cmd);
-    return ret_code;
-}
-
-/**
  * @brief Redirect $ expansion to the right function
  *
  * @param env Environment
@@ -631,4 +568,69 @@ struct list *expansion(struct list *arguments, struct environment *env,
         p = p->next;
     }
     return copy;
+}
+
+int expand_cmd_sub(struct environment *env, char **str, size_t *index)
+{
+    // *index is at ( or `
+    size_t first_del = *index;
+    // Determine which delimiter to look for
+    char del = ((*str)[*index] == '(' ? ')' : '`');
+    *index += 1;
+    size_t first_char_cmd = *index;
+    size_t last_char_cmd = *index;
+    int ret_code = 0;
+    int par = 0;
+    for (; (*str)[*index] != '\0';)
+    {
+        if ((*str)[*index] == del)
+        {
+            if (par == 0)
+            {
+                last_char_cmd = *index;
+                break;
+            }
+            else
+                par--;
+        }
+        else if ((*str)[*index] == '(')
+            par++;
+        else if ((*str)[*index] == '$')
+        {
+            if (expand_dollar(env, str, index) == -1)
+                return -1;
+        }
+        else if ((*str)[*index] == '\\')
+        {
+            if (escape_backlash(env, str, index) == -1)
+                return -1;
+        }
+        else if ((*str)[*index] == '`')
+        {
+            if (expand_cmd_sub(env, str, index) == -1)
+                return -1;
+        }
+        else
+            *index += 1;
+    }
+    if (first_char_cmd + 1 != last_char_cmd)
+    {
+        // Recreate command content with index
+        char *cmd = calloc(last_char_cmd - first_char_cmd + 1, sizeof(char));
+        strncpy(cmd, *str + first_char_cmd, last_char_cmd - first_char_cmd);
+        cmd[last_char_cmd - first_char_cmd] = '\0';
+        for (size_t i = first_char_cmd; i < *index; i++)
+            remove_at_n(str, first_char_cmd);
+        *index = first_char_cmd;
+        insert_cmd_output(env, str, index, cmd);
+        free(cmd);
+    }
+
+    // Remove the last delimiter
+    remove_at_n(str, *index);
+
+    // Remove the first delimiter
+    remove_at_n(str, first_del);
+    *index -= 2;
+    return ret_code;
 }

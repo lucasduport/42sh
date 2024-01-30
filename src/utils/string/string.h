@@ -26,7 +26,7 @@ struct string *string_create(void);
  * @param str The strings
  * @param c The character
  */
-void string_append_char(struct string *str, char c);
+void feed(struct string *str, char c);
 
 /**
  * @brief Pop the last char to the string
