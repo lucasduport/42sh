@@ -54,7 +54,6 @@ struct token token_alloc(enum token_type type, enum token_family family,
 
     string_reset(lexer->current_word);
 
-    // print_token(token);
     return token;
 }
 

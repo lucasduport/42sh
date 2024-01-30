@@ -13,7 +13,6 @@ struct environment *environment_new(void)
 
 struct environment *dup_environment(struct environment *env)
 {
-    print_variables(env->variables);
     struct environment *new_env = calloc(1, sizeof(struct environment));
     new_env->variables = dup_variables(env->variables);
     new_env->functions = dup_functions(env->functions);

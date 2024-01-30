@@ -4,11 +4,12 @@
 
 int main(int argc, char **argv)
 {
-    // create_logger("stdout");
-    // enable_log_type(LOG_PARS);
-    enable_log_type(LOG_AST);
-    enable_log_type(LOG_UTILS);
-    // enable_log_type(LOG_EXEC);
+    create_logger("stdout");
+    enable_all_logs();
+    disable_all_logs();
+    enable_log_type(LOG_PARS);
+    disable_log_type(LOG_PARS);
+    destroy_logger();
 
     // Initialise lexer
     struct lexer *lex = lexer_new(argc, argv);
@@ -42,8 +43,6 @@ int main(int argc, char **argv)
         {
             if (res != NULL)
             {
-                ast_print(res);
-                debug_printf(LOG_AST, "\n");
                 code = execute_ast(res, env);
                 ast_free(res);
                 if (env->error == STOP)
@@ -56,6 +55,5 @@ int main(int argc, char **argv)
 
     lexer_free(lex);
     environment_free(env);
-    destroy_logger();
     return code;
 }

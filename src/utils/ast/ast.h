@@ -82,12 +82,4 @@ void ast_free(struct ast *ast);
 
 typedef void (*print_ast_node)(struct ast *ast);
 
-/**
- * @file ast_print.c
- * @brief Print ast format pretty-print
- *
- * @param parameter1 ast that we want to print
- */
-void ast_print(struct ast *ast);
-
 #endif /* !AST_H */

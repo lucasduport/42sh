@@ -72,11 +72,6 @@ struct token
 };
 
 /**
- * @brief Print token data & token type if --verbose
- */
-void print_token(struct token token);
-
-/**
  * @brief Return a NULL token
  */
 struct token token_null(void);

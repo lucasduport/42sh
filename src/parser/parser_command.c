@@ -1,11 +1,15 @@
 #include "parser.h"
 
+/**
+ * @brief Check if peek is first of shell command
+ * @return 1 it it's the case, 0 otherwise
+ */
 static int is_first_shell(struct token peek)
 {
     return peek.type == TOKEN_IF || peek.type == TOKEN_WHILE
-             || peek.type == TOKEN_UNTIL || peek.type == TOKEN_FOR
-             || peek.type == TOKEN_LEFT_BRACE || peek.type == TOKEN_LEFT_PAR
-             || peek.type == TOKEN_CASE;
+        || peek.type == TOKEN_UNTIL || peek.type == TOKEN_FOR
+        || peek.type == TOKEN_LEFT_BRACE || peek.type == TOKEN_LEFT_PAR
+        || peek.type == TOKEN_CASE;
 }
 
 enum parser_status parser_command(struct lexer *lex, struct ast **res)
@@ -215,6 +219,9 @@ enum parser_status parser_simple_command(struct lexer *lex, struct ast **res,
     return PARSER_OK;
 }
 
+/**
+ * @brief Handle the case of command substitution with parentheses
+*/
 static enum parser_status sub_parse_par(struct lexer *lex, struct ast **res)
 {
     token_free(lexer_pop(lex));
@@ -232,6 +239,9 @@ static enum parser_status sub_parse_par(struct lexer *lex, struct ast **res)
     return PARSER_OK;
 }
 
+/**
+ * @brief Handle the case of subshell with parentheses
+*/
 static enum parser_status sub_parse_brace(struct lexer *lex, struct ast **res)
 {
     token_free(lexer_pop(lex));
@@ -267,7 +277,7 @@ enum parser_status parser_shell_command(struct lexer *lex, struct ast **res)
 
     if (peek.type == TOKEN_LEFT_BRACE)
         return sub_parse_brace(lex, res);
-    
+
     if (peek.type == TOKEN_CASE)
         return parser_rule_case(lex, res);
 

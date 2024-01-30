@@ -235,7 +235,6 @@ static enum parser_status construct_case(struct ast **res, struct ast *clause)
 
 enum parser_status parser_case_item(struct lexer *lex, struct ast **res)
 {
-    // Remarque : res == AST_CASE
     struct ast *child = ast_new(AST_ITEM);
     struct token peek = lexer_peek(lex);
 
@@ -276,7 +275,7 @@ enum parser_status parser_case_item(struct lexer *lex, struct ast **res)
 
     peek = lexer_peek(lex);
     if (peek.type == TOKEN_DSEMI || peek.type == TOKEN_ESAC)
-        return construct_case(res, child); 
+        return construct_case(res, child);
 
     struct ast *command = NULL;
     if (parser_compound_list(lex, &command) == PARSER_ERROR)
