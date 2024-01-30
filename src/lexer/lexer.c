@@ -14,6 +14,31 @@
 #include "../logger/logger.h"
 
 /**
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *            - TOKEN CREATION -
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+
+/**
  * @brief Creates a new token
  *
  * @param type The type of the token
@@ -54,7 +79,7 @@ static int check_io_number(struct lexer *lexer)
 
 static int check_special_variable(const char *name)
 {
-    char special_char[] = { '$', '?', '@', '*', '#', '!', '.' };
+    char special_char[] = { '$', '?', '@', '*', '#', '!', '.', '-', '+' };
 
     for (size_t i = 0; name[i] != '\0'; i++)
     {
@@ -85,6 +110,9 @@ static int check_assignment(struct lexer *lexer)
 
     if (contains_equal >= 1)
     {
+        if (lexer->current_word->data[0] == '=')
+            return 0;
+
         char *word_cpy = strdup(lexer->current_word->data);
         char *variable_name = strtok(word_cpy, "=");
 
@@ -110,7 +138,7 @@ static int check_assignment(struct lexer *lexer)
  * @param word
  * @return struct token
  */
-static struct token token_new(struct lexer *lexer)
+struct token token_new(struct lexer *lexer)
 {
     string_append_char(lexer->current_word, '\0');
 
@@ -141,10 +169,35 @@ static struct token token_new(struct lexer *lexer)
         return token_alloc(TOKEN_WORD, TOKEN_FAM_IO_NUMBER, lexer);
 
     if (check_assignment(lexer))
-        return token_alloc(TOKEN_WORD, TOKEN_FAM_ASSIGNMENT_W, lexer);
+        return token_alloc(TOKEN_WORD, TOKEN_FAM_ASSW, lexer);
 
     return token_alloc(TOKEN_WORD, TOKEN_FAM_WORD, lexer);
 }
+
+/**
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *             - TOKEN RECOGNITION TOOLS -
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
 
 /**
  * @brief Check if the first char is an operator
@@ -243,9 +296,8 @@ static void set_quote(struct lexer *lexer)
     {
         string_append_char(lexer->current_word, lexer->current_char);
         lexer->current_char = io_getchar();
-        debug_printf(LOG_LEX, "[LEXER] current_char: %c\n",
-                     lexer->current_char);
-        string_append_char(lexer->current_word, lexer->current_char);
+        if (lexer->current_char != '\0')
+            string_append_char(lexer->current_word, lexer->current_char);
     }
     else
     {
@@ -265,8 +317,10 @@ static void set_quote(struct lexer *lexer)
  */
 static void skip_comment(struct lexer *lexer)
 {
-    while (lexer->current_char != '\n')
+    do
+    {
         lexer->current_char = io_getchar();
+    } while (lexer->current_char != '\n' && lexer->current_char != '\0');
 }
 
 /**
@@ -275,13 +329,23 @@ static void skip_comment(struct lexer *lexer)
  */
 static void check_special_behavior(struct lexer *lexer)
 {
-    if (lexer->is_quoted && lexer->current_char == lexer->current_quote)
+    if (lexer->is_quoted && lexer->current_char == '\\')
+    {
+        lexer->current_char = io_getchar();
+        if (lexer->current_char == '\0')
+            lexer->error = 1;
+        else
+            string_append_char(lexer->current_word, lexer->current_char);
+    }
+
+    else if (lexer->is_quoted && lexer->current_char == lexer->current_quote)
     {
         debug_printf(LOG_LEX, "[LEXER] quit quote mode\n");
         lexer->is_quoted = 0;
     }
 
-    if (lexer->is_subshell && !lexer->is_quoted && lexer->current_char == ')')
+    else if (lexer->is_subshell && !lexer->is_quoted
+             && lexer->current_char == ')')
     {
         debug_printf(LOG_LEX, "[LEXER] quit subshell mode\n");
         lexer->is_subshell = 0;
@@ -324,6 +388,32 @@ static int find_mode(struct lexer *lexer)
 }
 
 /**
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *              - TOKEN RECOGNITION ALGORITHM -
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+
+/**
  * @brief The token recognition algorithm described in the SCL
  *
  * @param lexer
@@ -331,39 +421,69 @@ static int find_mode(struct lexer *lexer)
  */
 static struct token parse_input_for_tok(struct lexer *lexer)
 {
+    if (lexer->error == 1)
+    {
+        lexer->error = 0;
+        return token_alloc(TOKEN_ERROR, TOKEN_FAM_WORD, lexer);
+    }
+
     lexer->current_char = io_getchar();
 
-    // rule 1
+    // -------------------------------------------------------------------------
+    // --------------------------------- RULE 1 --------------------------------
+    // -------------------------------------------------------------------------
     if (lexer->current_char == '\0')
     {
         if (lexer->current_word->len == 0)
             string_append_char(lexer->current_word, lexer->current_char);
 
+        if (lexer->is_quoted)
+        {
+            lexer->is_quoted = 0;
+            return token_alloc(TOKEN_ERROR, TOKEN_FAM_WORD, lexer);
+        }
+
         return token_new(lexer);
     }
 
-    // rule 2
+    // -------------------------------------------------------------------------
+    // --------------------------------- RULE 2 --------------------------------
+    // -------------------------------------------------------------------------
     else if (lexer->last_is_op && !lexer->is_quoted && is_valid_operator(lexer))
         string_append_char(lexer->current_word, lexer->current_char);
 
-    // rule 3
+    // -------------------------------------------------------------------------
+    // --------------------------------- RULE 3 --------------------------------
+    // -------------------------------------------------------------------------
     else if (lexer->last_is_op && !is_valid_operator(lexer))
     {
         lexer->last_is_op = !(lexer->current_char != '\n');
 
         struct token tok = token_new(lexer);
 
-        if (lexer->current_char != ' ' && lexer->current_char != '\t')
+        if (is_quote(lexer))
+            set_quote(lexer);
+        else if (lexer->current_char != ' ' && lexer->current_char != '\t'
+                 && lexer->current_char != '#')
             string_append_char(lexer->current_word, lexer->current_char);
+
+        if (lexer->current_char == '#')
+            skip_comment(lexer);
+        else if (first_char_op(lexer))
+            lexer->last_is_op = 1;
 
         return tok;
     }
 
-    // rule 4
+    // -------------------------------------------------------------------------
+    // --------------------------------- RULE 4 --------------------------------
+    // -------------------------------------------------------------------------
     else if (!lexer->is_quoted && is_quote(lexer))
         set_quote(lexer);
 
-    // rule 5
+    // -------------------------------------------------------------------------
+    // --------------------------------- RULE 5 --------------------------------
+    // -------------------------------------------------------------------------
     else if (!lexer->is_quoted && !lexer->is_subshell && is_subshell(lexer))
     {
         // Append '$' or '`'
@@ -377,7 +497,9 @@ static struct token parse_input_for_tok(struct lexer *lexer)
         }
     }
 
-    // rule 6
+    // -------------------------------------------------------------------------
+    // --------------------------------- RULE 6 --------------------------------
+    // -------------------------------------------------------------------------
     else if (!lexer->is_quoted && !lexer->is_subshell && first_char_op(lexer))
     {
         lexer->last_is_op = 1;
@@ -391,11 +513,13 @@ static struct token parse_input_for_tok(struct lexer *lexer)
 
             return tok;
         }
-
-        string_append_char(lexer->current_word, lexer->current_char);
+        else
+            string_append_char(lexer->current_word, lexer->current_char);
     }
 
-    // rule 7
+    // -------------------------------------------------------------------------
+    // --------------------------------- RULE 7 --------------------------------
+    // -------------------------------------------------------------------------
     else if (!lexer->is_quoted && !lexer->is_subshell
              && isblank(lexer->current_char))
     {
@@ -403,14 +527,18 @@ static struct token parse_input_for_tok(struct lexer *lexer)
             return token_new(lexer);
     }
 
-    // rule 8
+    // -------------------------------------------------------------------------
+    // --------------------------------- RULE 8 --------------------------------
+    // -------------------------------------------------------------------------
     else if (lexer->current_word->len != 0)
     {
         string_append_char(lexer->current_word, lexer->current_char);
         check_special_behavior(lexer);
     }
 
-    // rule 9
+    // -------------------------------------------------------------------------
+    // --------------------------------- RULE 9 --------------------------------
+    // -------------------------------------------------------------------------
     else if (lexer->current_char == '#')
         skip_comment(lexer);
 
@@ -419,6 +547,30 @@ static struct token parse_input_for_tok(struct lexer *lexer)
 
     return parse_input_for_tok(lexer);
 }
+
+/**
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *                   - LEXER FUNCTIONS -
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
 
 struct lexer *lexer_new(int argc, char *argv[])
 {
@@ -434,7 +586,11 @@ struct lexer *lexer_new(int argc, char *argv[])
 struct token lexer_peek(struct lexer *lexer)
 {
     if (lexer->last_token.type != TOKEN_NULL)
+    {
+        /*if (lexer->last_token.family == TOKEN_FAM_OPERATOR)
+            lexer->last_is_op = 1;*/
         return lexer->last_token;
+    }
 
     struct token tok;
     if (lexer->is_newline)

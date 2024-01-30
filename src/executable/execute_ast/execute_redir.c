@@ -13,6 +13,7 @@
 
 /**
  * @brief Exec each part of pipe
+ *
  * @param ast Current ast to execute
  * @param left 1 if it's left part of pipe 0 otherwise
  * @param fds_pipe Array that contain file descriptors of pipe
@@ -46,13 +47,6 @@ static int exec_fork(struct ast *ast, int is_left, int fds_pipe[2],
 
 int execute_pipe(struct ast *ast, struct environment *env)
 {
-    if (ast->first_child == NULL || ast->first_child->next == NULL)
-    {
-        debug_printf(LOG_EXEC,
-                     "[EXECUTE] Missing left or right node for 'pipe' node\n");
-        return -1;
-    }
-
     // Create pipe
     int fds_pipe[2];
     if (pipe(fds_pipe) == -1)
@@ -90,7 +84,8 @@ static struct redirection open_file(char *operator, char * filename)
     int default_io[] = { 1, -1, 0, -1, 1, 1, 1, -1, 0, 0 };
     char *operators[] = { ">>", NULL, "<>", NULL, ">",
                           ">|", ">&", NULL, "<",  "<&" };
-    int flags[] = { O_WRONLY | O_CREAT | O_APPEND, O_RDWR | O_CREAT | O_APPEND,
+
+    int flags[] = { O_WRONLY | O_CREAT | O_APPEND, O_RDWR | O_CREAT,
                     O_WRONLY | O_CREAT | O_TRUNC, O_RDONLY };
 
     size_t i = 0;
@@ -117,15 +112,24 @@ static struct redirection open_file(char *operator, char * filename)
 
 int execute_redir(struct ast *ast, struct environment *env)
 {
-    if (ast->arg == NULL)
-        return -1;
+    if (ast->first_child->type == AST_ASSIGNMENT)
+        return execute_ast(ast->first_child, env);
 
-    char *operator= ast->arg->current;
-    char *filename = ast->arg->next->current;
+    struct list *arg_expand = ast->arg;
+    if (!ast->is_expand)
+    {
+        int ret = 0;
+        arg_expand = expansion(ast->arg, env, &ret);
+        if (ret != 0)
+            return set_error(env, STOP, ret);
+    }
+
+    char *operator= arg_expand->current;
+    char *filename = arg_expand->next->current;
 
     struct redirection redir = open_file(operator, filename);
 
-    if (ast->arg->next->next != NULL)
+    if (arg_expand->next->next != NULL)
     {
         int fd = atoi(ast->arg->next->next->current);
         if (fcntl(fd, F_GETFD) != -1)
@@ -134,16 +138,12 @@ int execute_redir(struct ast *ast, struct environment *env)
 
     int save_fd = dup(redir.io_number);
     if (save_fd == -1)
-    {
-        debug_printf(LOG_EXEC, "redir: dup failed\n");
-        return -1;
-    }
+        goto error;
 
     if (dup2(redir.word_fd, redir.io_number) == -1)
     {
-        debug_printf(LOG_EXEC, "redir: dup2 failed\n");
         close(save_fd);
-        return -1;
+        goto error;
     }
 
     int code = execute_ast(ast->first_child, env);
@@ -152,5 +152,13 @@ int execute_redir(struct ast *ast, struct environment *env)
     close(save_fd);
     close(redir.word_fd);
 
+    if (!ast->is_expand)
+        list_destroy(arg_expand);
     return code;
+
+error:
+    if (!ast->is_expand)
+        list_destroy(arg_expand);
+    fprintf(stderr, "redir: dup2 failed\n");
+    return set_error(env, CONTINUE, 1);
 }

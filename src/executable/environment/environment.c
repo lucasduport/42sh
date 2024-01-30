@@ -16,18 +16,20 @@ struct environment *dup_environment(struct environment *env)
     print_variables(env->variables);
     struct environment *new_env = calloc(1, sizeof(struct environment));
     new_env->variables = dup_variables(env->variables);
+    new_env->functions = dup_functions(env->functions);
     return new_env;
 }
 
 void environment_free(struct environment *env)
 {
     free_variables(env->variables);
+    free_functions(env->functions);
     free(env);
 }
 
 int check_env_variable(const char *name)
 {
-    char *reserved_env_var[] = { "OLDPWD", "PWD", "IFS" };
+    char *reserved_env_var[] = { "OLDPWD", "PWD" };
 
     for (size_t i = 0; i < sizeof(reserved_env_var) / sizeof(char *); i++)
     {
@@ -37,49 +39,12 @@ int check_env_variable(const char *name)
     return 0;
 }
 
-void set_number_variable(struct environment *env, int argc, char *argv[])
-{
-    int i = 0;
-    int loop = 1;
-
-    if (strcmp(argv[1], "-c") == 0)
-    {
-        env->is_command = 1;
-        if (argc <= 4)
-            loop = 0;
-        else
-            i = 4;
-    }
-    else
-    {
-        if (argc <= 2)
-            loop = 0;
-        else
-            i = 2;
-    }
-
-    int var_number = 1;
-    while (argv[i] != NULL && loop)
-    {
-        char var_name[20];
-        sprintf(var_name, "%d", var_number);
-        set_variable(env, var_name, argv[i]);
-        var_number++;
-        i++;
-    }
-
-    var_number--;
-    char args_count[20];
-    sprintf(args_count, "%d", var_number);
-    set_variable(env, "#", args_count);
-}
-
 void set_environment(struct environment *env, int argc, char *argv[])
 {
     (void)argc;
     (void)argv;
 
-    // set_number_variable(env, argc, argv);
+    set_variable(env, "IFS", " \t\n");
 
     // set_star_variable(env);
     if (argc >= 2 && strcmp(argv[1], "-c") == 0)
@@ -88,8 +53,6 @@ void set_environment(struct environment *env, int argc, char *argv[])
     }
     set_variable(env, "#", "0");
 
-    // set_variable(&env->variables, "IFS", " \t\n");
-
     set_exit_variable(env, 0);
 
     set_dollar_dollar(env);
@@ -97,6 +60,10 @@ void set_environment(struct environment *env, int argc, char *argv[])
     set_random(env);
 
     set_uid(env);
+}
 
-    // print_variables(env->variables);
+int set_error(struct environment *env, enum type_error type, int ret_code)
+{
+    env->error = type;
+    return ret_code;
 }

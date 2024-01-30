@@ -1,4 +1,4 @@
-check_PROGRAMS = testsIo
+check_PROGRAMS = testsIo testsLogger
 
 testsIo_SOURCES = tests_io.c
 
@@ -6,13 +6,20 @@ testsIo_LDADD = -lcriterion \
 			$(top_srcdir)/src/io_backend/libio_backend.a \
 			$(top_srcdir)/src/logger/liblogger.a
 
-check-io: testsIo
-	./testsIo
+testsLogger_SOURCES = tests_logger.c
 
-check-local: testsIo
-	./$(check_PROGRAMS)
+testsLogger_LDADD = -lcriterion \
+			$(top_srcdir)/src/logger/liblogger.a \
+			$(top_srcdir)/src/utils/libutils.a
+
+check-o:
+	python3 launch_tests.py --verbose failure.yaml
+
+check-local: $(check_PROGRAMS)
+	./testsIo
+	./testsLogger
 	rm -f *.txt
-	python3 launch_tests.py --verbose tests_files
+	python3 launch_tests.py tests_files
 
 clean-local:
-	rm -f testsIo
+	rm -f $(check_PROGRAMS)

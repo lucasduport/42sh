@@ -18,6 +18,7 @@ struct lexer
     int is_quoted;
     int is_subshell;
     int is_newline;
+    int error;
 };
 
 /**

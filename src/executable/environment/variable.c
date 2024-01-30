@@ -4,13 +4,7 @@ int add_variable(struct variable **head, const char *name, char *value)
 {
     struct variable *new_variable = calloc(1, sizeof(struct variable));
     if (new_variable == NULL)
-    {
-        debug_printf(LOG_UTILS,
-                     "[VARIABLES] Error allocating memory for "
-                     "variable [%s=%s]\n",
-                     name, value);
         return -1;
-    }
     new_variable->name = strdup(name);
     new_variable->value = strdup(value);
     new_variable->next = *head;
@@ -36,8 +30,7 @@ int set_variable(struct environment *env, const char *name, char *value)
         }
         current = current->next;
     }
-    // User can't set IFS as an environment variable
-    if (check_env_variable(name) && strcmp(name, "IFS") != 0)
+    if (check_env_variable(name))
     {
         int ret = 0;
         if (setenv(name, value, 1) == -1)
@@ -82,6 +75,40 @@ struct variable *dup_variables(struct variable *head)
         current = current->next;
     }
     return new_head;
+}
+
+int exist_variables(struct variable *head, const char *name)
+{
+    struct variable *current = head;
+    while (current != NULL)
+    {
+        if (strcmp(current->name, name) == 0)
+            return 1;
+        current = current->next;
+    }
+    return 0;
+}
+
+void delete_variable(struct variable **head, char *name)
+{
+    struct variable *p = *head;
+    struct variable *prev = NULL;
+    while (p != NULL)
+    {
+        if (strcmp(p->name, name) == 0)
+        {
+            if (prev == NULL)
+                *head = p->next;
+            else
+                prev->next = p->next;
+            free(p->name);
+            free(p->value);
+            free(p);
+            return;
+        }
+        prev = p;
+        p = p->next;
+    }
 }
 
 void free_variables(struct variable *head)

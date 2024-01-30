@@ -21,11 +21,7 @@ static int execvp_wrapper(struct list *arg, struct environment *env)
 
     int argc = 0;
     if (arg == NULL)
-    {
-        debug_printf(LOG_EXEC,
-                     "[EXECUTE] execvp_wrapper: argv allocation failed\n");
         return -1;
-    }
 
     int pid = fork();
     if (pid == -1)
@@ -41,11 +37,7 @@ static int execvp_wrapper(struct list *arg, struct environment *env)
         {
             argv = realloc(argv, sizeof(char *) * (argc + 2));
             if (argv == NULL)
-            {
-                debug_printf(LOG_EXEC,
-                             "[EXECUTE] execvp_wrapper: argv realloc failed\n");
                 return -1;
-            }
             argc++;
             argv[i] = arg->current;
             arg = arg->next;
@@ -65,18 +57,20 @@ static int execvp_wrapper(struct list *arg, struct environment *env)
     return WEXITSTATUS(return_status);
 }
 
+exec_builtins builtins[] = { builtin_echo,  builtin_true,   builtin_false,
+                             builtin_exit,  builtin_export, builtin_continue,
+                             builtin_break, builtin_dot,    builtin_unset,
+                             builtin_cd };
+
 int execute_command(struct ast *ast, struct environment *env)
 {
-    if (ast->arg == NULL)
-        return 2;
-
     struct list *tmp_arg = ast->arg;
     if (!ast->is_expand)
     {
         int return_code = 0;
         tmp_arg = expansion(ast->arg, env, &return_code);
         if (tmp_arg == NULL)
-            return return_code;
+            return set_error(env, STOP, return_code);
     }
     ast->is_expand = !ast->is_expand;
 
@@ -84,33 +78,74 @@ int execute_command(struct ast *ast, struct environment *env)
     char *first_arg = list_get_n(tmp_arg, 0);
     int code = 0;
 
-    if (strcmp(first_arg, "echo") == 0)
-        code = builtin_echo(tmp_arg);
+    // Check if it's a function
+    struct ast *f = get_function(env, first_arg);
+    if (f != NULL)
+    {
+        struct variable *past_var = dup_variables(env->variables);
+        set_number_variable(env, tmp_arg->next);
 
-    else if (strcmp(first_arg, "true") == 0)
-        code = builtin_true(tmp_arg);
+        code = execute_ast(f, env);
 
-    else if (strcmp(first_arg, "false") == 0)
-        code = builtin_false(tmp_arg);
+        restore_number_variable(past_var, env);
+        free_variables(past_var);
+        goto retour;
+    }
 
-    else if (strcmp(first_arg, "exit") == 0)
-        code = builtin_exit(tmp_arg, env);
+    // Check if it's builtin
+    char *builtins_name[] = { "echo",     "true",  "false", "exit",  "export",
+                              "continue", "break", ".",     "unset", "cd" };
+    for (int i = 0; i < 10; i++)
+    {
+        if (strcmp(first_arg, builtins_name[i]) == 0)
+        {
+            code = builtins[i](tmp_arg, env);
+            goto retour;
+        }
+    }
 
-    else if (strcmp(first_arg, "export") == 0)
-        code = builtin_export(tmp_arg, env);
+    // If it's neither a function nor a builtin
+    code = execvp_wrapper(tmp_arg, env);
 
-    else if (strcmp(first_arg, "cd") == 0)
-        code = builtin_cd(tmp_arg);
-    else
-        code = execvp_wrapper(tmp_arg, env);
-
+retour:
     fflush(stderr);
     fflush(stdout);
-    // If we expand -> free tmp_arg
     if (ast->is_expand)
         list_destroy(tmp_arg);
     ast->is_expand = !ast->is_expand;
 
     set_exit_variable(env, code);
     return code;
+}
+
+int execute_subshell(struct ast *ast, struct environment *env)
+{
+    // Forks a new process and executes the ast in it
+    int pid = fork();
+    if (pid == -1)
+        return 2;
+    if (pid == 0)
+    {
+        // Child process
+        struct environment *child_env = dup_environment(env);
+        int code = execute_ast(ast->first_child, child_env);
+        // Set exit variable of the ast to the current environment
+        set_exit_variable(env, code);
+        environment_free(child_env);
+        _exit(code);
+    }
+    else
+    {
+        // Parent process
+        int return_status;
+        // Wait for child process to finish
+        waitpid(pid, &return_status, 0);
+        // Return child process return value
+        return WEXITSTATUS(return_status);
+    }
+}
+
+int execute_function(struct ast *ast, struct environment *env)
+{
+    return set_function(env, ast->arg->current, ast->first_child);
 }

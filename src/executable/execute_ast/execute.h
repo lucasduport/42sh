@@ -11,12 +11,14 @@
 /** ERROR VALUE
  *  0    if successfull
  *  127  if there is wrong command
+ *  128  if there is wrong argument given to break or continue
  *  2    expansion error
  * -1    if there is an error on our part
  *  1    otherwise
  */
 
 typedef int (*exec_ast_node)(struct ast *ast, struct environment *env);
+typedef int (*exec_builtins)(struct list *list, struct environment *env);
 
 /**
  * @file execute_commande.c
@@ -26,6 +28,24 @@ typedef int (*exec_ast_node)(struct ast *ast, struct environment *env);
  * @return return value from execution of the command
  */
 int execute_command(struct ast *ast, struct environment *env);
+
+/**
+ * @file execute_command.c
+ * @brief Execute subshell node (command in parenthesis)
+ *
+ * @param ast 'subshell' node
+ * @param env environment
+ * @return int return value from execution of the command
+ */
+int execute_subshell(struct ast *ast, struct environment *env);
+
+/**
+ * @file execute_command.c
+ * @brief Set function (used when AST_FUNC is found)
+ *
+ * @return -1 if failed; 0 otherwise
+ */
+int execute_function(struct ast *ast, struct environment *env);
 
 /**
  * @file execute_condition.c

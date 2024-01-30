@@ -4,6 +4,9 @@ enum parser_status parser_pipeline(struct lexer *lex, struct ast **res)
 {
     struct token peek = lexer_peek(lex);
 
+    if (peek.type == TOKEN_ERROR)
+        return token_free(lexer_pop(lex)), PARSER_ERROR;
+
     // Catch negation if there is
     struct ast *tmp_final = NULL;
     if (peek.type == TOKEN_NEG)
@@ -13,10 +16,10 @@ enum parser_status parser_pipeline(struct lexer *lex, struct ast **res)
         peek = lexer_peek(lex);
     }
 
-    if (parser_command(lex, res) == PARSER_UNEXPECTED_TOKEN)
+    if (parser_command(lex, res) == PARSER_ERROR)
     {
         ast_free(tmp_final);
-        return PARSER_UNEXPECTED_TOKEN;
+        return PARSER_ERROR;
     }
     if (tmp_final != NULL)
         tmp_final->first_child = *res;
@@ -25,21 +28,22 @@ enum parser_status parser_pipeline(struct lexer *lex, struct ast **res)
 
     // Parse optional { '|' {'\n'} command }
     peek = lexer_peek(lex);
+
     while (peek.type == TOKEN_PIPE)
     {
         struct ast *tmp_pipe = ast_new(AST_PIPE);
         token_free(lexer_pop(lex));
-        peek = lexer_peek(lex);
 
         // Skip optional newline
         skip_newline(lex);
 
         peek = lexer_peek(lex);
-        if (parser_command(lex, res) == PARSER_UNEXPECTED_TOKEN)
+        if (peek.type == TOKEN_ERROR
+            || parser_command(lex, res) == PARSER_ERROR)
         {
             ast_free(tmp_pipe);
             ast_free(tmp_final);
-            return PARSER_UNEXPECTED_TOKEN;
+            return PARSER_ERROR;
         }
 
         // Create pipeline AST
@@ -50,7 +54,8 @@ enum parser_status parser_pipeline(struct lexer *lex, struct ast **res)
         peek = lexer_peek(lex);
     }
 
-    debug_printf(LOG_PARS, "[PARSER] Quit parser pipeline\n");
+    if (peek.type == TOKEN_ERROR)
+        return token_free(lexer_pop(lex)), PARSER_ERROR;
     *res = tmp_final;
     return PARSER_OK;
 }
@@ -58,10 +63,9 @@ enum parser_status parser_pipeline(struct lexer *lex, struct ast **res)
 enum parser_status parser_prefix(struct lexer *lex, struct ast **res)
 {
     struct token peek = lexer_peek(lex);
-    if (peek.family == TOKEN_FAM_ASSIGNMENT_W)
+    if (peek.family == TOKEN_FAM_ASSW)
     {
         list_append(&((*res)->arg), peek.data);
-
         lexer_pop(lex);
         return PARSER_OK;
     }
@@ -72,6 +76,8 @@ enum parser_status parser_prefix(struct lexer *lex, struct ast **res)
 enum parser_status parser_redirection(struct lexer *lex, struct ast **res)
 {
     struct token number = lexer_peek(lex);
+    if (number.type == TOKEN_ERROR)
+        goto error;
 
     if (number.family == TOKEN_FAM_IO_NUMBER)
         lexer_pop(lex);
@@ -104,5 +110,5 @@ error:
     if (number.family == TOKEN_FAM_IO_NUMBER)
         token_free(number);
     token_free(lexer_pop(lex));
-    return PARSER_UNEXPECTED_TOKEN;
+    return PARSER_ERROR;
 }

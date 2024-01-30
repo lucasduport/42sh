@@ -112,3 +112,106 @@
         for for in a b c
         do echo $for
         done
+    
+    - command: |
+        for i in a b c
+        do echo $i; for j in d e f
+        do echo $j; continue 2
+        done
+        done
+    
+    - command: |
+        for i in a b c
+        do echo $i; for j in d e f
+        do echo $j; continue 4
+        done
+        done
+    
+    - command: |
+        for i in a b c
+        do echo $i; for j in d e f
+        do echo $j; break 2
+        done
+        done
+
+    - command: |
+        for i in a b c
+        do echo $i; for j in d e f
+        do echo $j; break 4
+        done
+        done
+
+- category: scripts
+  sub-category: functions
+  tests:
+    - command: |
+        foo () {
+            bar () {
+                echo foobar
+            }
+        }
+        foo
+        bar
+    - command: |
+        foo () {
+            bar () {
+                echo foobar
+            }
+        }
+        change () {
+            bar () {
+                echo coucou
+            }
+        }
+        foo
+        bar
+        change
+        bar
+
+- category: scripts
+  sub-category: comments
+  tests:
+    - command: |
+        # This is a comment
+        echo "This is a simple command"
+        # This is a comment
+        echo "with multiple lines" # This is a comment
+        # This is a comment
+        echo "and no special characters" # This is a comment
+    - command: |
+        for i in a b c # This is a comment
+        do echo $i # This is a comment
+        done # This is a comment
+    - command: |
+        for i in a b c # This is a comment
+        do echo $i # This is a comment
+        done # This is a comment
+        # This is a comment
+        echo "This is a simple command"
+        # This is a comment
+        echo "with multiple lines" # This is a comment
+        # This is a comment
+        echo "and no special characters" # This is a comment
+    - command: |
+        while false # This is a comment
+        do echo coucou # This is a comment
+        done # This is a comment
+    - command: |
+        until true # This is a comment
+        do echo coucou # This is a comment
+        done # This is a comment
+    - command: |
+        for i in a b c # This is a comment
+        do echo coucou # This is a comment
+        done # This is a comment
+    - command: |
+        # This is a comment
+        # This is a comment
+        # This is a comment # This is a comment
+        # This is a comment # This is a comment
+        echo # This is a comment
+        echo # This is a comment
+        for i in a b c # This is a comment
+        do # This is a comment
+        echo $i # This is a comment
+        done # This is a comment

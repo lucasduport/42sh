@@ -77,7 +77,8 @@ static void print_str_escape(char *str)
     }
 }
 
-int builtin_echo(struct list *list)
+int builtin_echo(struct list *list,
+                 __attribute__((unused)) struct environment *env)
 {
     struct list *p = list->next;
 
@@ -92,6 +93,7 @@ int builtin_echo(struct list *list)
         p = p->next;
     }
 
+    // Display all argumentss
     while (p != NULL)
     {
         if (options->escape)
@@ -99,7 +101,7 @@ int builtin_echo(struct list *list)
         else
             printf("%s", p->current);
         p = p->next;
-        if (p != NULL)
+        if (p != NULL && strlen(p->current) != 0)
             putchar(' ');
     }
 

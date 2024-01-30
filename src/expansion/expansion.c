@@ -4,8 +4,11 @@
 
 #include "expansion.h"
 
+#include <err.h>
 #include <stddef.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 /**
  * @brief Check if a character is a special character
@@ -46,12 +49,6 @@ static int is_valid_char(char c)
 static void insert_at_n(char **str, char *to_insert, size_t n)
 {
     char *new_str = calloc(strlen(*str) + strlen(to_insert) + 1, sizeof(char));
-    if (new_str == NULL)
-    {
-        debug_printf(LOG_EXP,
-                     "[EXPANSION] insert_at_n: new_str allocation failed\n");
-        return;
-    }
     strncpy(new_str, *str, n);
     strcat(new_str, to_insert);
     strcat(new_str, *str + n);
@@ -68,12 +65,6 @@ static void insert_at_n(char **str, char *to_insert, size_t n)
 static void remove_at_n(char **str, size_t n)
 {
     char *new_str = calloc(strlen(*str), sizeof(char));
-    if (new_str == NULL)
-    {
-        debug_printf(LOG_EXP,
-                     "[EXPANSION] remove_at_n: new_str allocation failed\n");
-        return;
-    }
     strncpy(new_str, *str, n);
     strcat(new_str, *str + n + 1);
     free(*str);
@@ -201,9 +192,7 @@ static int expand_variable(struct environment *env, char **str, size_t *index)
         }
     }
     if (var_name == NULL)
-    {
         return 0;
-    }
     var_name[var_len] = '\0';
     char *var_value;
 
@@ -303,13 +292,174 @@ static int expand_brace(struct environment *env, char **str, size_t *index)
     return 0;
 }
 
-static int expand_cmd_substitution(struct environment *env, char **str,
-                                   size_t *index)
+/**
+ * @brief Fork our 42sh to execute a command and insert the output in the string
+ *
+ * @param cmd Command to execute
+ * @param current_env Environment to use
+ * @return int  Return code of the command
+ */
+static int main_bis(char *cmd, struct environment *current_env)
 {
-    (void)env;
-    (void)str;
-    (void)index;
-    return 0;
+    int argc = 3;
+    char *argv[4] = { "../src/42sh", "-c", cmd, NULL };
+    struct lexer *lex = lexer_new(argc, argv);
+    if (lex == NULL)
+    {
+        if (argc > 2 && strlen(argv[2]) == 0)
+            return 0;
+        return 127;
+    }
+
+    // Dupplicate environment to not modify the current one
+    struct environment *env = dup_environment(current_env);
+
+    struct ast *res;
+    int code = 0;
+    enum parser_status parse_code = PARSER_OK;
+    while (parse_code != PARSER_EOF)
+    {
+        parse_code = parser_input(lex, &res);
+        if (parse_code == PARSER_OK || parse_code == PARSER_EOF)
+        {
+            if (res != NULL)
+            {
+                // ast_print(res);
+                debug_printf(LOG_AST, "\n");
+                code = execute_ast(res, env);
+                ast_free(res);
+                if (env->error == STOP)
+                    break;
+            }
+        }
+        else
+            code = 2;
+    }
+
+    lexer_free(lex);
+    environment_free(env);
+    return code;
+}
+
+/**
+ * @brief Fork our 42sh to execute a command and insert the output in the string
+ *
+ * @param env Environment
+ * @param str String to expand
+ * @param index Index where we actually are in the string
+ * @param cmd Command to execute
+ */
+static void insert_cmd_output(struct environment *env, char **str,
+                              size_t *index, char *cmd)
+{
+    // Create a pipe
+    int pipe_fd[2];
+    if (pipe(pipe_fd) == -1)
+        errx(1, "Failed to create pipe file descriptors.");
+
+    int pid = fork();
+    if (pid == -1)
+        errx(1, "Failed to fork.");
+
+    if (pid == 0)
+    {
+        // Closing read end
+        close(pipe_fd[0]);
+        // Redirect stdout to the pipe
+        dup2(pipe_fd[1], STDOUT_FILENO);
+        int code = main_bis(cmd, env);
+        close(pipe_fd[1]);
+        _exit(code);
+    }
+    else
+    {
+        // Close write end
+        close(pipe_fd[1]);
+        char *output = NULL;
+        size_t output_len = 0;
+        char buffer[1024];
+        ssize_t read_len;
+        while ((read_len = read(pipe_fd[0], buffer, sizeof(buffer))) > 0)
+        {
+            output = realloc(output, output_len + read_len + 1);
+            memcpy(output + output_len, buffer, read_len);
+            output_len += read_len;
+        }
+        close(pipe_fd[0]);
+        // Wait for child process to finish
+        int status;
+        waitpid(pid, &status, 0);
+        set_exit_variable(env, status);
+        if (output == NULL)
+            return;
+        output[output_len] = '\0';
+        insert_at_n(str, output, *index);
+        *index += strlen(output);
+        free(output);
+    }
+}
+
+/**
+ * @brief Insert the output of a command in the string
+ *
+ * @param env  Environment
+ * @param str String to expand
+ * @param index Index where we actually are in the string
+ * @return int 0 if success, error code otherwise
+ */
+static int expand_cmd_sub(struct environment *env, char **str, size_t *index)
+{
+    // *index is at ( or `
+    size_t first_del = *index;
+    // DEtermine which delimiter to look for
+    char del = ((*str)[*index] == '(' ? ')' : '`');
+    *index += 1;
+    bool double_quote = 0;
+    bool simple_quote = 0;
+    bool escaped = false;
+    char *cmd = NULL;
+    size_t cmd_len = 0;
+    int ret_code = 0;
+    for (; (*str)[*index] != '\0';)
+    {
+        if ((*str)[*index] == '\"' && !simple_quote && !escaped)
+            double_quote = !double_quote;
+        else if ((*str)[*index] == '\'' && !double_quote && !escaped)
+            simple_quote = !simple_quote;
+        else if ((*str)[*index] == del && !double_quote && !simple_quote
+                 && !escaped)
+            break;
+        else
+        {
+            escaped = ((*str)[*index] == '\\' && !escaped);
+            // Remove the character from the string and add it to the command
+            cmd = realloc(cmd, cmd_len + 2);
+            cmd[cmd_len] = (*str)[*index];
+            cmd[++cmd_len] = '\0';
+            remove_at_n(str, *index);
+        }
+    }
+    // If we reached the end of the string, it means that the command
+    // substitution is not closed
+    if ((*str)[*index] == '\0')
+    {
+        ret_code = 2;
+        goto bye;
+    }
+    if (cmd != NULL)
+        insert_cmd_output(env, str, index, cmd);
+
+    // Remove the last delimiter
+    remove_at_n(str, *index);
+
+    // Remove the first delimiter
+    remove_at_n(str, first_del);
+    *index -= 2;
+
+bye:
+    if (cmd != NULL)
+        free(cmd);
+    return ret_code;
 }
 
 /**
@@ -323,7 +473,16 @@ static int expand_cmd_substitution(struct environment *env, char **str,
 static int expand_dollar(struct environment *env, char **str, size_t *index)
 {
     if ((*str)[*index + 1] == '(')
-        return expand_cmd_substitution(env, str, index);
+    {
+        size_t dollar = *index;
+        *index += 1;
+        int code = expand_cmd_sub(env, str, index);
+        if (env->error != NO_ERROR)
+            return code;
+        remove_at_n(str, dollar);
+        return code;
+    }
+
     else if ((*str)[*index + 1] == '{')
         return expand_brace(env, str, index);
     else
@@ -367,13 +526,35 @@ static int expand_double_quotes(struct environment *env, char **str,
         }
         else if ((*str)[*index] == '`')
         {
-            if (expand_cmd_substitution(env, str, index) == -1)
+            if (expand_cmd_sub(env, str, index) == -1)
                 return -1;
         }
         else
             *index += 1;
     }
     return 2;
+}
+
+struct ast *expand_ast(struct ast *ast, struct environment *env, int *ret)
+{
+    if (ast == NULL)
+        return NULL;
+
+    struct ast *copy = ast_new(ast->type);
+    copy->arg = expansion(ast->arg, env, ret);
+    if (*ret == -1)
+    {
+        ast_free(copy);
+        return NULL;
+    }
+    copy->first_child = expand_ast(ast->first_child, env, ret);
+    if (*ret == -1)
+    {
+        ast_free(copy);
+        return NULL;
+    }
+    copy->is_expand = 1;
+    return copy;
 }
 
 char *expand_string(char *str, struct environment *env, int *ret)
@@ -394,11 +575,13 @@ char *expand_string(char *str, struct environment *env, int *ret)
             *ret = expand_dollar(env, &copy, &i);
         else if (copy[i] == '\\')
             *ret = escape_backlash(env, &copy, &i);
+        else if (copy[i] == '`')
+            *ret = expand_cmd_sub(env, &copy, &i);
         else
             i++;
         if (*ret == -1)
         {
-            fprintf(stderr, "Failed to expand %s\n", str);
+            fprintf(stderr, "Failed expand_variable %s\n", str);
             free(copy);
             return NULL;
         }
@@ -426,6 +609,8 @@ struct list *expansion(struct list *arguments, struct environment *env,
                 *ret = expand_dollar(env, &current, &i);
             else if (current[i] == '\\')
                 *ret = escape_backlash(env, &current, &i);
+            else if (current[i] == '`')
+                *ret = expand_cmd_sub(env, &current, &i);
             else
                 i++;
             if (*ret != 0)

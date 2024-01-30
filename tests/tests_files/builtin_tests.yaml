@@ -21,6 +21,8 @@
     - command: "echo -E 'This is a multiline\\nstring without interpreting escape characters\\tand \\ backslashes'"
     - command: "echo -n -e -E 'Mixing options and\\n multiline\\t strings with \\ backslashes\\n'"
     - command: echo -e 'This is another\nmultines \\n'
+    - command: |
+        echo ←{\#\#\\ŧ^#~\]{^]~\[]~##^]¹\\\¹}\¹\\\\@\¹#]@[^\{\\\^\^~\#¶\¶#~¶~é\\'"é'\'é\_\"\éé\é"\\\\"éé"é\é"é"é"é"é"\#\
 
 - category: builtins
   sub-category: booleans
@@ -100,6 +102,96 @@
         export b
         echo 'echo $b' > b.txt
         bash b.txt
+    - command: |
+        export a=5; export b; export c=6; export d=5 a=6 b=7 c=8 d=9; echo $a $b $c $d
+    - command: |
+        export a=5 b c= d=${   kk    } e=$(echo baba); echo $a $b $c $d $e
+
+- category: builtins
+  sub-category: dot
+  tests:
+    - command: "."
+    - command: ". test.sh; echo coucou"
+    - command: |
+        echo 'echo var=val' > script.txt
+        . ./script.txt
+    - command: |
+        echo 'if then true echo kk' > script2.txt
+        . ./script2.txt
+    - command: ". bintest.sh"
+    - command: ". bintest.sh; echo $CACA"
+    - command: ". ./noperm.txt"
+    - command: ". nofile; echo kk"
+    - command: . tests_files
+    - command: . . . . . . . . . . . .caca
+    - command: |
+        echo 'var=val; echo $var' > script3.txt
+        . ./script3.txt; echo $var
+    - command: . ./script3.sh; echo $var; . ./script3.txt; echo $var;
+    - command: |
+        echo $var2
+        echo 'var2=val2; echo $var2; if then fi' > script4.txt
+        . ./script4.txt; echo $var2
+    - command: |
+        echo $var2
+        echo 'var2=val2; echo $var2; if then fi; echo $var2' > script4.txt
+        . ./script4.txt; echo $var2
+
+- category: builtins
+  sub-category: unset
+  tests:
+    - command: unset
+    - command: a=b; unset -vf a
+    - command: |
+        a=b
+        echo $a
+        unset -v a
+        echo $a
+    - command: unset -a badoption
+    - command: |
+        a=b
+        b=c
+        c=d
+        d=e
+        unset a b c d
+    - command: |
+        a=b
+        b=c
+        c=d
+        d=e
+        unset -f a b c d
+    - command: |
+        a=barguments list, expand
+        b=c
+        c=d
+        d=e
+        unset -v a b c d
+    - command: |
+        a=b
+        b=c
+        c=d
+        d=e
+        unset a UID c d
+    - command: |
+        a=a
+        b=g
+        unset a -f b
+        echo $a
+        echo $b
+    - command: |
+        a=b
+        b=c
+        unset -v a -f b
+        echo $b
+    - command: a=b; b=c; unset UID a b; echo $a; echo $b
+    - command: |
+        fun () {
+          echo hello
+        } 
+        unset -f hello
+        hello
+
+
   
 - category: builtins
   sub-category: cd
