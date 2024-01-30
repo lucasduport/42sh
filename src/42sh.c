@@ -9,7 +9,6 @@ int main(int argc, char **argv)
     disable_all_logs();
     enable_log_type(LOG_PARS);
     disable_log_type(LOG_PARS);
-    destroy_logger();
 
     // Initialise lexer
     struct lexer *lex = lexer_new(argc, argv);
@@ -55,5 +54,6 @@ int main(int argc, char **argv)
 
     lexer_free(lex);
     environment_free(env);
+    destroy_logger();
     return code;
 }

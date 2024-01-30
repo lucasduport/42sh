@@ -78,6 +78,9 @@ int execute_command(struct ast *ast, struct environment *env)
     char *first_arg = list_get_n(tmp_arg, 0);
     int code = 0;
 
+    if (strlen(first_arg) == 0)
+        goto goodbye;
+
     // Check if it's a function
     struct ast *f = get_function(env, first_arg);
     if (f != NULL)
@@ -89,7 +92,7 @@ int execute_command(struct ast *ast, struct environment *env)
 
         restore_number_variable(past_var, env);
         free_variables(past_var);
-        goto retour;
+        goto goodbye;
     }
 
     // Check if it's builtin
@@ -100,14 +103,14 @@ int execute_command(struct ast *ast, struct environment *env)
         if (strcmp(first_arg, builtins_name[i]) == 0)
         {
             code = builtins[i](tmp_arg, env);
-            goto retour;
+            goto goodbye;
         }
     }
 
     // If it's neither a function nor a builtin
     code = execvp_wrapper(tmp_arg, env);
 
-retour:
+goodbye:
     fflush(stderr);
     fflush(stdout);
     if (ast->is_expand)
