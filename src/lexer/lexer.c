@@ -72,9 +72,6 @@ struct token token_new(struct lexer *lexer)
     int family = 0;
     for (size_t i = 0; i < sizeof(reserved_words) / sizeof(char *); i++)
     {
-        // debug_printf(LOG_LEX,"test '%s' == '%s'\n", reserved_words[i],
-        //              lexer->current_word->data);
-
         if (i == 16 || i == 25)
             family++;
 
