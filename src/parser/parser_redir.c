@@ -43,6 +43,7 @@ enum parser_status parser_pipeline(struct lexer *lex, struct ast **res)
         {
             ast_free(tmp_pipe);
             ast_free(tmp_final);
+            *res = NULL;
             return PARSER_ERROR;
         }
 
