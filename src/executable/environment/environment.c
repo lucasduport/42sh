@@ -25,6 +25,8 @@ struct environment *dup_environment(struct environment *env)
 void environment_free(struct environment *env)
 {
     free_variables(env->variables);
+    free_variables(env->aliases);
+    free_variables(env->future_aliases);
     free_functions(env->functions);
     free(env);
 }

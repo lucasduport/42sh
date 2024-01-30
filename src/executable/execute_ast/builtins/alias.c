@@ -6,18 +6,6 @@
 
 #include "builtins.h"
 
-int exist_aliases(struct variable *head, const char *name)
-{
-    struct variable *current = head;
-    while (current != NULL)
-    {
-        if (strcmp(current->name, name) == 0)
-            return 1;
-        current = current->next;
-    }
-    return 0;
-}
-
 /**
  * @brief Set an alias in future aliases
  *  Update the value if alias already exists, create the alias otherwise
@@ -117,10 +105,11 @@ int builtin_alias(struct list *list, struct environment *env)
             if (name == NULL)
             {
                 ret_code = 1;
+                free(cpy);
                 continue;
             }
 
-            char *value = strstr(cpy, "=");
+            char *value = strtok(NULL, "");
             // If there is no value, juste print it
             if (value == NULL)
             {
@@ -132,59 +121,67 @@ int builtin_alias(struct list *list, struct environment *env)
             }
             else
                 set_alias(&env->future_aliases, name, value);
+            free(cpy);
         }
         return ret_code;
     }
 }
 
+/**
+ * @brief Delete an alias
+ * 
+ * @param env  Environment
+ * @param name  Name of the alias to delete
+ * @return int  0 if the alias was deleted, -1 otherwise
+ */
 static int delete_alias(struct environment *env, char *name)
 {
     int code = -1;
-    struct variable *future = env->future_aliases;
+    struct variable *current = env->future_aliases;
     struct variable *previous = NULL;
-    while (future != NULL)
-    {
-        if (strcmp(future->name, name) == 0)
-        {
-            if (previous != NULL)
-                previous->next = future->next;
-            else
-                previous = future->next;
-
-            free(future->name);
-            free(future->value);
-            free(future);
-            code = 0;
-        }
-        previous = future;
-        future = future->next;
-    }
-
-    struct variable *current = env->aliases;
-    struct variable *previous_c = NULL;
-    while (future != NULL)
+    while (current != NULL)
     {
         if (strcmp(current->name, name) == 0)
         {
-            if (previous_c != NULL)
-                previous_c->next = current->next;
+            if (previous != NULL)
+                previous->next = current->next;
             else
-                previous_c = current->next;
+                env->future_aliases = current->next;
 
             free(current->name);
             free(current->value);
             free(current);
             code = 0;
-
+            break;
         }
-        previous_c = current;
+        previous = current;
+        current = current->next;
+    }
+
+    current = env->aliases;
+    previous = NULL;
+    while (current != NULL)
+    {
+        if (strcmp(current->name, name) == 0)
+        {
+            if (previous != NULL)
+                previous->next = current->next;
+            else
+                env->aliases = current->next;
+
+            free(current->name);
+            free(current->value);
+            free(current);
+            code = 0;
+            break;
+        }
+        previous = current;
         current = current->next;
     }
     return code;
 }
 
-
-int unalias(struct list *arguments, struct environment *env)
+int builtin_unalias(struct list *arguments, struct environment *env)
 {
     if (arguments->next == NULL)
     {
@@ -215,6 +212,7 @@ void update_aliases(struct environment *env)
         f = f->next;
     }
     free_variables(env->future_aliases);
+    env->future_aliases = NULL;
 }
 
 void alias_expansion(struct variable *alias, char **string)

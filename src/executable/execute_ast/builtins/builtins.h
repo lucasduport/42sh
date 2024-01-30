@@ -66,13 +66,18 @@ int builtin_export(struct list *list, struct environment *env);
 /**
  * @file stop_loop.c
  * @brief continue builtin
- *
+ * 
+ * @param list Linked list of argument (continue -> ...)
+ * @return int return code
  */
 int builtin_continue(struct list *list, struct environment *env);
 
 /**
  * @file stop_loop.c
  * @brief break builtin
+ * 
+ * @param list Linked list of argument (break -> ...)
+ * @return int return code
  */
 int builtin_break(struct list *list, struct environment *env);
 
@@ -88,16 +93,38 @@ int builtin_unset(struct list *list, struct environment *env);
 /**
  * @file alias.c
  * @brief alias builtin
+ * 
+ * @param list Linked list of argument (alias -> ...)
+ * @return int return code
 */
 int builtin_alias(struct list *list, struct environment *env);
 
 /**
  * @file alias.c
- * @brief set the new aliases after execution.
- * Free the future aliases list
+ * @brief unalias builtin
+ * 
+* @param list Linked list of argument (unalias -> ...)
+ * @return int return code
+ */
+int builtin_unalias(struct list *arguments, struct environment *env);
+
+/**
+ * @file alias.c
+ * @brief set the new aliases after execution
+ * 
+ * @param env environment
+ * @return void
 */
 void update_aliases(struct environment *env);
 
+/**
+ * @file alias.c
+ * @brief expands the alias in the string (in place) if needed
+ * 
+ * @param alias aliases to try to expand
+ * @param string string to expand
+ * @return void
+*/
 void alias_expansion(struct variable *alias, char **string);
 
 #endif /* ! BUILTINS_H */
