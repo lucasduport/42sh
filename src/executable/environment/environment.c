@@ -65,7 +65,6 @@ void set_environment(struct environment *env, int argc, char *argv[])
 
     set_variable(env, "IFS", " \t\n");
 
-    // set_star_variable(env);
     if (argc >= 2 && strcmp(argv[1], "-c") == 0)
     {
         env->is_command = 1;
