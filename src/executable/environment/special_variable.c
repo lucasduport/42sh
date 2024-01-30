@@ -35,7 +35,7 @@ void set_number_variable(struct environment *env, struct list *param)
 
 /**
  * @brief Get value of variable but directly from the list of variables
-*/
+ */
 static char *get_from_var(struct variable *var, const char *name)
 {
     while (var != NULL)

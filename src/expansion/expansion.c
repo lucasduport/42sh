@@ -587,7 +587,8 @@ struct too_much_arg
  * @param index Index of the variable
  * @return int 0 if success, -1 otherwise
  */
-static int process_cmd_sub(struct environment *env, char **str, struct too_much_arg *args)
+static int process_cmd_sub(struct environment *env, char **str,
+                           struct too_much_arg *args)
 {
     int par = 0;
     for (; (*str)[*args->index] != '\0';)
@@ -642,22 +643,22 @@ int expand_cmd_sub(struct environment *env, char **str, size_t *index)
     // Determine which delimiter to look for
     char del = ((*str)[*index] == '(' ? ')' : '`');
     *index += 1;
-    struct too_much_arg args= {
-        .delim = del,
-        .first_char_cmd = *index,
-        .last_char_cmd = *index,
-        .index = index
-    };
+    struct too_much_arg args = { .delim = del,
+                                 .first_char_cmd = *index,
+                                 .last_char_cmd = *index,
+                                 .index = index };
 
     int ret_code = process_cmd_sub(env, str, &args);
     if (ret_code != 0)
         return 0;
-    
+
     if (args.first_char_cmd != args.last_char_cmd)
     {
         // Recreate command content with index
-        char *cmd = calloc(args.last_char_cmd - args.first_char_cmd + 1, sizeof(char));
-        strncpy(cmd, *str + args.first_char_cmd, args.last_char_cmd - args.first_char_cmd);
+        char *cmd =
+            calloc(args.last_char_cmd - args.first_char_cmd + 1, sizeof(char));
+        strncpy(cmd, *str + args.first_char_cmd,
+                args.last_char_cmd - args.first_char_cmd);
         cmd[args.last_char_cmd - args.first_char_cmd] = '\0';
         for (size_t i = args.first_char_cmd; i < *index; i++)
             remove_at_n(str, args.first_char_cmd);
@@ -671,6 +672,6 @@ int expand_cmd_sub(struct environment *env, char **str, size_t *index)
 
     // Remove the first delimiter
     remove_at_n(str, first_del);
-    *index = (*index - 1 == 0)? *index -1 : *index -2;
+    *index = (*index - 1 == 0) ? *index - 1 : *index - 2;
     return ret_code;
 }
