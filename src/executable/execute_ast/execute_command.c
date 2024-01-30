@@ -60,7 +60,7 @@ static int execvp_wrapper(struct list *arg, struct environment *env)
 exec_builtins builtins[] = { builtin_echo,  builtin_true,   builtin_false,
                              builtin_exit,  builtin_export, builtin_continue,
                              builtin_break, builtin_dot,    builtin_unset,
-                             builtin_alias, builtin_unalias };
+                             builtin_alias, builtin_unalias, builtin_cd };
 
 int execute_command(struct ast *ast, struct environment *env)
 {
@@ -78,17 +78,20 @@ int execute_command(struct ast *ast, struct environment *env)
     char *first_arg = list_get_n(tmp_arg, 0);
     int code = 0;
 
+    if (strlen(first_arg) == 0)
+        goto goodbye;
+
     // Check if it's a function
     struct ast *f = get_function(env, first_arg);
     if (f != NULL)
     {
-        struct variable *tmp_var = dup_variables(env->variables);
+        struct variable *past_var = dup_variables(env->variables);
         set_number_variable(env, tmp_arg->next);
 
         code = execute_ast(f, env);
 
-        free_variables(env->variables);
-        env->variables = tmp_var;
+        restore_number_variable(past_var, env);
+        free_variables(past_var);
         goto goodbye;
     }
 
@@ -98,7 +101,7 @@ int execute_command(struct ast *ast, struct environment *env)
     // Check if it's builtin
     char *builtins_name[] = { "echo",   "true",     "false",   "exit",
                               "export", "continue", "break",   ".",
-                              "unset",  "alias",    "unalias", NULL };
+                              "unset",  "alias",    "unalias", "cd", NULL };
     for (int i = 0; builtins_name[i] != NULL; i++)
     {
         if (strcmp(tmp_arg->current, builtins_name[i]) == 0)

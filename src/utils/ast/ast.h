@@ -21,7 +21,9 @@ enum ast_type
     AST_PIPE,
     AST_REDIR,
     AST_ASSIGNMENT,
-    AST_SUBSHELL
+    AST_SUBSHELL,
+    AST_CASE,
+    AST_ITEM
 };
 
 struct ast
@@ -79,13 +81,5 @@ struct ast *ast_copy(struct ast *ast);
 void ast_free(struct ast *ast);
 
 typedef void (*print_ast_node)(struct ast *ast);
-
-/**
- * @file ast_print.c
- * @brief Print ast format pretty-print
- *
- * @param parameter1 ast that we want to print
- */
-void ast_print(struct ast *ast);
 
 #endif /* !AST_H */

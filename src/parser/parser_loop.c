@@ -48,8 +48,6 @@ error:
 
 enum parser_status parser_rule_until(struct lexer *lex, struct ast **res)
 {
-    debug_printf(LOG_PARS, "[PARSER] In until rule\n");
-
     struct token peek = lexer_peek(lex);
 
     if (peek.type != TOKEN_UNTIL)

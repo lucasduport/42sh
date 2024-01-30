@@ -45,13 +45,18 @@ enum parser_status parser_list(struct lexer *lex, struct ast **res)
     return PARSER_OK;
 }
 
+/**
+ * @brief Check if tok is a follow of compund list
+ * @return 1 if it is, 0 otherwise
+ */
 static int is_follow_complist(struct token tok)
 {
-    enum token_type follows[] = { TOKEN_ELIF,        TOKEN_ELSE,     TOKEN_THEN,
-                                  TOKEN_FI,          TOKEN_DONE,     TOKEN_DO,
-                                  TOKEN_RIGHT_BRACE, TOKEN_RIGHT_PAR };
+    enum token_type follows[] = {
+        TOKEN_ELIF, TOKEN_ELSE,        TOKEN_THEN,      TOKEN_FI,    TOKEN_DONE,
+        TOKEN_DO,   TOKEN_RIGHT_BRACE, TOKEN_RIGHT_PAR, TOKEN_DSEMI, TOKEN_ESAC
+    };
 
-    for (size_t i = 0; i < 8; i++)
+    for (size_t i = 0; i < 10; i++)
     {
         if (tok.type == follows[i])
             return 1;
@@ -77,7 +82,6 @@ enum parser_status parser_compound_list(struct lexer *lex, struct ast **res)
         skip_newline(lex);
 
         peek = lexer_peek(lex);
-        debug_printf(LOG_PARS, "[PARSER] peek = %s\n", peek.data);
         if (is_follow_complist(peek))
         {
             struct ast *tmp = *res;

@@ -56,11 +56,4 @@ struct list *list_copy(struct list *original);
  */
 void list_destroy(struct list *l);
 
-/**
- * @brief Display a linked list.
- *
- * @param l Linked list to display.
- */
-void list_print(struct list *l);
-
 #endif /* ! LIST_H */

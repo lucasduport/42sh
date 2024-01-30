@@ -19,6 +19,8 @@ enum token_type
     TOKEN_FOR,
     TOKEN_IN,
     TOKEN_NEG,
+    TOKEN_CASE,
+    TOKEN_ESAC,
 
     TOKEN_LEFT_BRACE, // {
     TOKEN_RIGHT_BRACE, // }
@@ -68,11 +70,6 @@ struct token
     enum token_family family;
     char *data;
 };
-
-/**
- * @brief Print token data & token type if --verbose
- */
-void print_token(struct token token);
 
 /**
  * @brief Return a NULL token

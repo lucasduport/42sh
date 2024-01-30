@@ -192,9 +192,7 @@ static int expand_variable(struct environment *env, char **str, size_t *index)
         }
     }
     if (var_name == NULL)
-    {
         return 0;
-    }
     var_name[var_len] = '\0';
     char *var_value;
 
@@ -326,8 +324,6 @@ static int main_bis(char *cmd, struct environment *current_env)
         {
             if (res != NULL)
             {
-                // ast_print(res);
-                debug_printf(LOG_AST, "\n");
                 code = execute_ast(res, env);
                 update_aliases(env);
                 ast_free(res);
@@ -600,11 +596,20 @@ int expand_cmd_sub(struct environment *env, char **str, size_t *index)
             par++;
         else if ((*str)[*index] == '$')
         {
-            if (expand_dollar(env, str, index) == -1)
-                return -1;
+            if ((*str)[*index + 1] == '(')
+            {
+                size_t dollar = *index;
+                *index += 1;
+                int code = expand_cmd_sub(env, str, index);
+                if (code != 0)
+                    return code;
+                remove_at_n(str, dollar);
+            }
+            else
+                *index += 1;
         }
         else if ((*str)[*index] == '\\')
-        {
+        {        return expand_brace(env, str, index);
             if (escape_backlash(env, str, index) == -1)
                 return -1;
         }
@@ -616,7 +621,7 @@ int expand_cmd_sub(struct environment *env, char **str, size_t *index)
         else
             *index += 1;
     }
-    if (first_char_cmd + 1 != last_char_cmd)
+    if (first_char_cmd != last_char_cmd)
     {
         // Recreate command content with index
         char *cmd = calloc(last_char_cmd - first_char_cmd + 1, sizeof(char));
@@ -634,6 +639,8 @@ int expand_cmd_sub(struct environment *env, char **str, size_t *index)
 
     // Remove the first delimiter
     remove_at_n(str, first_del);
-    *index -= 2;
+    *index -= 1;
+    if (*index != 0)
+        *index -= 1;
     return ret_code;
 }

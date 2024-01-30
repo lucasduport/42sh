@@ -2,7 +2,14 @@
 
 void set_number_variable(struct environment *env, struct list *param)
 {
+    // Recover old number of parameters
+    char *past_param = get_value(env, "#");
+    int nb_past = 0;
+    if (past_param != NULL)
+        nb_past = atoi(past_param);
+
     int nb_var = 0;
+    // Set new_variable
     for (int i = 1; param != NULL; i++)
     {
         char var_name[20];
@@ -12,9 +19,62 @@ void set_number_variable(struct environment *env, struct list *param)
         nb_var++;
     }
 
+    // Delete current in plus
+    for (int i = nb_var + 1; i <= nb_past; i++)
+    {
+        char var_name[20];
+        sprintf(var_name, "%d", i);
+        delete_variable(&(env->variables), var_name);
+    }
+
+    // Set $# variable
     char args_count[20];
     sprintf(args_count, "%d", nb_var);
     set_variable(env, "#", args_count);
+}
+
+static char *get_from_var(struct variable *var, const char *name)
+{
+    while (var != NULL)
+    {
+        if (strcmp(var->name, name) == 0)
+            return var->value;
+        var = var->next;
+    }
+    return NULL;
+}
+
+void restore_number_variable(struct variable *past_var, struct environment *env)
+{
+    // Recover old number of parameters
+    char *past_param = get_from_var(past_var, "#");
+    int nb_past = 0;
+    if (past_param != NULL)
+        nb_past = atoi(past_param);
+
+    // Recover current number of parameters
+    char *curr_param = get_value(env, "#");
+    int nb_curr = 0;
+    if (curr_param != NULL)
+        nb_curr = atoi(curr_param);
+
+    // Delete current in plus
+    for (int i = nb_past + 1; i <= nb_curr; i++)
+    {
+        char var_name[20];
+        sprintf(var_name, "%d", i);
+        delete_variable(&(env->variables), var_name);
+    }
+
+    // Restore all past variable
+    for (int i = 1; i <= nb_past; i++)
+    {
+        char var_name[20];
+        sprintf(var_name, "%d", i);
+        set_variable(env, var_name, get_from_var(past_var, var_name));
+    }
+
+    set_variable(env, "#", past_param);
 }
 
 void set_exit_variable(struct environment *env, int return_code)

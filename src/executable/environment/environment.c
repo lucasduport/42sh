@@ -13,7 +13,6 @@ struct environment *environment_new(void)
 
 struct environment *dup_environment(struct environment *env)
 {
-    print_variables(env->variables);
     struct environment *new_env = calloc(1, sizeof(struct environment));
     new_env->variables = dup_variables(env->variables);
     new_env->functions = dup_functions(env->functions);
@@ -41,21 +40,37 @@ int check_env_variable(const char *name)
     return 0;
 }
 
+static void init_pwd()
+{
+    char *pwds[] = { "OLDPWD", "PWD" };
+
+    for (size_t i = 0; i < sizeof(pwds) / sizeof(char *); i++)
+    {
+        char *var = getenv(pwds[i]);
+        if (var != NULL)
+            continue;
+
+        char cwd[1024];
+        getcwd(cwd, sizeof(cwd));
+
+        setenv(pwds[i], cwd, 1);
+    }
+}
+
 void set_environment(struct environment *env, int argc, char *argv[])
 {
     (void)argc;
     (void)argv;
 
+    init_pwd();
+
     set_variable(env, "IFS", " \t\n");
 
-    // set_star_variable(env);
     if (argc >= 2 && strcmp(argv[1], "-c") == 0)
     {
         env->is_command = 1;
     }
     set_variable(env, "#", "0");
-
-    // set_variable(&env->variables, "IFS", " \t\n");
 
     set_exit_variable(env, 0);
 
@@ -64,8 +79,6 @@ void set_environment(struct environment *env, int argc, char *argv[])
     set_random(env);
 
     set_uid(env);
-
-    // print_variables(env->variables);
 }
 
 int set_error(struct environment *env, enum type_error type, int ret_code)

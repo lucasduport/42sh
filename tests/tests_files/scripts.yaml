@@ -176,7 +176,7 @@
         echo "This is a simple command"
         # This is a comment
         echo "with multiple lines" # This is a comment
-        # This is a comment
+        # This is a commentboudin
         echo "and no special characters" # This is a comment
     - command: |
         for i in a b c # This is a comment
@@ -215,3 +215,49 @@
         do # This is a comment
         echo $i # This is a comment
         done # This is a comment
+
+- category: scripts
+  sub-category: case
+  tests:
+    - command: |
+        case abc in
+        coucou ) echo pas ca ;;
+        abc ) echo ca ;;
+        other ) echo other ;;
+    
+    - command: |
+        a=abc
+        case $a in
+        a ) echo pas ca ;;
+        abc ) echo ca ;;
+        other ) echo other ;;
+        esac
+
+    - command: |
+        a=bcd
+        case $a in
+        a ) echo pas ca;;
+        b ) echo pas ca;;
+        c ) echo pas ca;;
+    
+    - command: |
+        case autre in
+        test) echo "C est un test." ;;
+        autre) echo "C est autre chose." ;;
+        *) echo "Cas non reconnu." ;;
+        esac
+    
+    - command: |
+        case other in
+        test) echo "C est un test." ;;
+        autre) echo "C est autre chose." ;;
+        *) echo "Cas non reconnu." ;;
+        esac
+
+    - command: |
+        var="a b"
+        case $var in
+        a) echo "a" ;;
+        b) echo "b";;
+        "a b") echo "a b";;
+        esac

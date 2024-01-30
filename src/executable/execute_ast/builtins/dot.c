@@ -50,8 +50,6 @@ static int parse_and_exec(char *file, struct environment *current_env)
         {
             if (res != NULL)
             {
-                // ast_print(res);
-                debug_printf(LOG_AST, "\n");
                 code = execute_ast(res, env);
                 update_aliases(env);
                 ast_free(res);

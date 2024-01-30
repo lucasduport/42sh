@@ -147,3 +147,148 @@ enum parser_status parser_else_clause(struct lexer *lex, struct ast **res)
     token_free(lexer_pop(lex));
     return PARSER_ERROR;
 }
+
+enum parser_status parser_rule_case(struct lexer *lex, struct ast **res)
+{
+    struct token peek = lexer_peek(lex);
+
+    token_free(lexer_pop(lex));
+    if (peek.type != TOKEN_CASE)
+        return PARSER_ERROR;
+
+    peek = lexer_peek(lex);
+    if (peek.type != TOKEN_WORD && peek.family != TOKEN_FAM_RESERVED)
+    {
+        token_free(lexer_pop(lex));
+        return PARSER_ERROR;
+    }
+
+    struct ast *tmp_case = ast_new(AST_CASE);
+    tmp_case->arg = list_create(peek.data);
+    lexer_pop(lex);
+
+    skip_newline(lex);
+
+    peek = lexer_peek(lex);
+    token_free(lexer_pop(lex));
+    if (peek.type != TOKEN_IN)
+        goto error;
+
+    skip_newline(lex);
+
+    peek = lexer_peek(lex);
+    if (peek.type != TOKEN_ESAC
+        && parser_case_clause(lex, &tmp_case) == PARSER_ERROR)
+        goto error;
+
+    peek = lexer_peek(lex);
+    token_free(lexer_pop(lex));
+
+    if (peek.type != TOKEN_ESAC)
+        goto error;
+
+    *res = tmp_case;
+    return PARSER_OK;
+
+error:
+    ast_free(tmp_case);
+    return PARSER_ERROR;
+}
+
+enum parser_status parser_case_clause(struct lexer *lex, struct ast **res)
+{
+    if (parser_case_item(lex, res) == PARSER_ERROR)
+        return PARSER_ERROR;
+
+    struct token peek = lexer_peek(lex);
+    while (peek.type == TOKEN_DSEMI)
+    {
+        token_free(lexer_pop(lex));
+        skip_newline(lex);
+
+        peek = lexer_peek(lex);
+        if (peek.type == TOKEN_ESAC)
+            return PARSER_OK;
+
+        if (parser_case_item(lex, res) == PARSER_ERROR)
+            return PARSER_ERROR;
+
+        peek = lexer_peek(lex);
+    }
+
+    skip_newline(lex);
+
+    if (peek.type == TOKEN_ERROR)
+        return PARSER_ERROR;
+
+    return PARSER_OK;
+}
+
+static enum parser_status construct_case(struct ast **res, struct ast *clause)
+{
+    if ((*res)->first_child == NULL)
+        (*res)->first_child = clause;
+    else
+        ast_add_brother((*res)->first_child, clause);
+    return PARSER_OK;
+}
+
+enum parser_status parser_case_item(struct lexer *lex, struct ast **res)
+{
+    struct ast *child = ast_new(AST_ITEM);
+    struct token peek = lexer_peek(lex);
+
+    if (peek.type == TOKEN_LEFT_PAR)
+    {
+        token_free(lexer_pop(lex));
+        peek = lexer_peek(lex);
+    }
+
+    if (peek.type != TOKEN_WORD && peek.family != TOKEN_FAM_RESERVED)
+        goto error;
+
+    // Create the ITEM with its first pattern
+    child->arg = list_create(peek.data);
+    lexer_pop(lex);
+
+    // While there is a pattern
+    peek = lexer_peek(lex);
+    while (peek.type == TOKEN_PIPE)
+    {
+        token_free(lexer_pop(lex));
+
+        // Get the pattern
+        peek = lexer_peek(lex);
+        if (peek.type != TOKEN_WORD && peek.family != TOKEN_FAM_RESERVED)
+            goto error;
+        list_append(&child->arg, peek.data);
+        lexer_pop(lex);
+
+        peek = lexer_peek(lex);
+    }
+
+    if (peek.type != TOKEN_RIGHT_PAR)
+        goto error;
+
+    token_free(lexer_pop(lex));
+    skip_newline(lex);
+
+    peek = lexer_peek(lex);
+    if (peek.type == TOKEN_DSEMI || peek.type == TOKEN_ESAC)
+        return construct_case(res, child);
+
+    struct ast *command = NULL;
+    if (parser_compound_list(lex, &command) == PARSER_ERROR)
+    {
+        ast_free(command);
+        goto error;
+    }
+
+    child->first_child = command;
+    return construct_case(res, child);
+
+error:
+    token_free(lexer_pop(lex));
+    ast_free(child);
+    return PARSER_ERROR;
+}

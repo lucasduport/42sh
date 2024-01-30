@@ -46,3 +46,9 @@ int is_empty(struct stack *s)
 {
     return s == NULL;
 }
+
+int stack_quoted(struct stack *s)
+{
+    enum quote_type q = stack_peek(s);
+    return q == DOUBLE_Q || q == SINGLE_Q;
+}

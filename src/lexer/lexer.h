@@ -24,10 +24,54 @@ struct lexer
     struct stack *mode_stack;
 
     int last_is_op;
-    int is_newline;
 };
 
-// --------------------------- LEXER TOOLS ------------------------------------
+/**
+ * @file lexer_rules.c
+ * @brief Catch the case when there is a dollar or a backslash at the top of the stack
+ * 
+ * @return 1 if need to call tokenizer, right after; 0 if not 
+*/
+int preprocess(struct lexer *lexer);
+
+/**
+ * @file lexer_rules.c
+ * @brief Process rule 1
+ *  EOF
+*/
+struct token process_rule_one(struct lexer *lexer);
+
+/**
+ * @file lexer_rules.c
+ * @brief Process rule 3
+ *   last_is_op and concatenation with current doesn't make an operator
+*/
+struct token process_rule_three(struct lexer *lexer);
+
+/**
+ * @file lexer_rules.c
+ * @brief Process rule 4
+ *  Quote char
+*/
+void process_rule_four(struct lexer *lexer);
+
+/**
+ * @file lexer_rules.c
+ * @brief Process rule 5
+ *  Subshell char but not in quoting mode
+*/
+void process_rule_five(struct lexer *lexer);
+
+/**
+ * @file lexer_rules.c
+ * @brief Process rule 6
+ *  current_char is first char of an operator
+ * 
+ * @return 1 if we need to create a new token, 0 otherwise
+*/
+int process_rule_six(struct lexer *lexer);
+
+
 
 /**
  * @file lexer_tools.c
@@ -78,13 +122,28 @@ int is_sub_char(struct lexer *lexer);
  */
 struct token skip_comment(struct lexer *lexer);
 
-//
-//
-//
-//
-// ------------------------- LEXER FUNCTIONS ----------------------------------
+/**
+ * @file lexer_tools.c
+ * @brief ???????
+*/
+int check_special_variable(const char *name);
 
 /**
+ * @file lexer_tools.c
+ * @brief Check if the current word could be an IO number
+ */
+int check_io_number(struct lexer *lexer);
+
+/**
+ * @file lexer_tools.c
+ * @brief Check if the current word could be an assignment word
+ */
+int check_assignment(struct lexer *lexer);
+
+
+
+/**
+ * @file lexer.c
  * @brief Initialize io_abstraction and create a new lexer
  *
  * @return A new lexer or NULL if something failed
@@ -92,6 +151,7 @@ struct token skip_comment(struct lexer *lexer);
 struct lexer *lexer_new(int argc, char *argv[]);
 
 /**
+ * @file lexer.c
  * @brief Gets the next token without consuming it
  *
  * @return The next token
@@ -99,6 +159,7 @@ struct lexer *lexer_new(int argc, char *argv[]);
 struct token lexer_peek(struct lexer *lexer);
 
 /**
+ * @file lexer.c
  * @brief Gets the next token and consumes it.
  *
  * @param lexer
@@ -107,10 +168,37 @@ struct token lexer_peek(struct lexer *lexer);
 struct token lexer_pop(struct lexer *lexer);
 
 /**
+ * @file lexer.c
  * @brief Frees the lexer.
  *
  * @param lexer Struc lexer to free.
  */
 void lexer_free(struct lexer *lexer);
+
+
+/**
+ * @brief Creates a new token
+ *
+ * @param type The type of the token
+ * @param lexer
+ * @return The new token
+ */
+struct token token_alloc(enum token_type type, enum token_family family, struct lexer *lexer);
+
+/**
+ * @brief check if the word is a reserved word
+ *
+ * @param word
+ * @return struct token
+ */
+struct token token_new(struct lexer *lexer);
+
+/**
+ * @brief The token recognition algorithm described in the SCL
+ *
+ * @param lexer
+ * @return struct token
+ */
+struct token tokenizer(struct lexer *lexer);
 
 #endif /* ! LEXER_H */

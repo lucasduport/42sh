@@ -176,6 +176,14 @@ void set_number_variable(struct environment *env, struct list *param);
 
 /**
  * @file special_variable.c
+ *
+ * @brief Restore positional parameters after call to a function
+ */
+void restore_number_variable(struct variable *past_var,
+                             struct environment *env);
+
+/**
+ * @file special_variable.c
  * @brief Set the $? in the environment
  *
  * @param env The environment
@@ -253,7 +261,7 @@ int set_variable(struct environment *env, const char *name, char *value);
  *
  * @param head The head of the list
  * @param name The name of the variable
- * @return char* The value of the variable
+ * @return The value of the variable, if by default
  */
 char *get_value(struct environment *env, const char *name);
 
@@ -276,18 +284,16 @@ int exist_variables(struct variable *head, const char *name);
 
 /**
  * @file variable.c
+ * @brief Delete a variable
+ */
+void delete_variable(struct variable **head, char *name);
+
+/**
+ * @file variable.c
  * @brief Free a list of variables
  *
  * @param head The head of the list
  */
 void free_variables(struct variable *head);
-
-/**
- * @file variable.c
- * @brief Debug function that prints the var list
- *
- * @param head The head of the list
- */
-void print_variables(struct variable *head);
 
 #endif /* ! ENVIRONMENT_H */

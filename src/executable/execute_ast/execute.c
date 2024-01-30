@@ -20,7 +20,8 @@ exec_ast_node executes[] = { [AST_IF] = execute_if,
                              [AST_ASSIGNMENT] = execute_assignment,
                              [AST_FOR] = execute_for,
                              [AST_SUBSHELL] = execute_subshell,
-                             [AST_FUNC] = execute_function };
+                             [AST_FUNC] = execute_function,
+                             [AST_CASE] = execute_case};
 
 int execute_assignment(struct ast *ast, struct environment *env)
 {
