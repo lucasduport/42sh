@@ -83,21 +83,7 @@
         if cat unexisting; then
           exit 1
         else
-          exit 2
-        fi
-
-- category: builtins
-  sub-category: export
-  tests:
-    - command: |
-        export a=5
-        echo 'echo $a' > a.txt
-        bash a.txt
-    - command: |
-        export a=5
-        export b=6
-        echo $a $b
-    - command: |
+          exit 2a=6; echo `echo -n `echo -n `echo -n $(echo -n baba)```; echo $a
         b=9
         export b
         echo 'echo $b' > b.txt
@@ -190,8 +176,6 @@
         } 
         unset -f hello
         hello
-
-
   
 - category: builtins
   sub-category: cd

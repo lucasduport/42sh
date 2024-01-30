@@ -1,0 +1,12 @@
+- category: wont_be_fixed_but_coverage
+  sub-category: backticks
+  tests:
+    - command: a=6; echo `echo -n `echo -n `echo -n $(echo -n baba)```; echo $a
+
+- category: wont_be_fixed_but_coverage
+  sub-category: field_splitting
+  tests:
+    - command: |
+        ``
+    - command: |
+        $()
