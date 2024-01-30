@@ -191,5 +191,22 @@
         unset -f hello
         hello
 
-
-
+- category: builtins
+  sub-category: alias
+  tests:
+    - command: alias caca
+    - command: alias flav=goat; alias flav
+    - command: |
+        alias flav=goat popo pupupo coco=malade
+        alias flav pupu coco
+    - command: |
+        unalias flav
+        alias flav
+        alias papi=papadepapa
+        unalias hello papi world
+        alias papi
+    - command: |
+        alias coco=echo
+        coco Hello World
+        unalias coco
+        coco Hello World
