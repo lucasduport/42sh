@@ -215,3 +215,26 @@
         do # This is a comment
         echo $i # This is a comment
         done # This is a comment
+
+- category: scripts
+  sub-category: case
+  tests:
+    - command: |
+        case abc in
+        coucou ) echo pas ca ;;
+        abc ) echo ca ;;
+        other ) echo other ;;
+    
+    - command: |
+        a=abc
+        case $a in
+        a ) echo pas ca ;;
+        abc ) echo ca ;;
+        other ) echo other ;;
+
+    - command: |
+        a=bcd
+        case $a in
+        a ) echo pas ca;;
+        b ) echo pas ca;;
+        c ) echo pas ca;;

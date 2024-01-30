@@ -21,7 +21,9 @@ enum ast_type
     AST_PIPE,
     AST_REDIR,
     AST_ASSIGNMENT,
-    AST_SUBSHELL
+    AST_SUBSHELL,
+    AST_CASE,
+    AST_ITEM
 };
 
 struct ast

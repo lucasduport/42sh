@@ -118,6 +118,25 @@ static void ast_print_subshell(struct ast *ast)
     debug_printf(LOG_AST, "}");
 }
 
+static void ast_print_case(struct ast *ast)
+{
+    debug_printf(LOG_AST, "\ncase %s\n", ast->arg->current);
+    
+    for (struct ast *c = ast->first_child; c != NULL; c = c->next)
+        ast_print(c);
+    
+    debug_printf(LOG_AST, "end_case\n");
+}
+
+static void ast_print_item(struct ast *ast)
+{
+    debug_printf(LOG_AST, "\t");
+    list_print(ast->arg);
+    debug_printf(LOG_AST, " )\n\t\t");
+    ast_print(ast->first_child);
+    debug_printf(LOG_AST, "\n\t;;\n");
+}
+
 print_ast_node printers[] = { [AST_COMMAND] = ast_print_command,
                               [AST_LIST] = ast_print_list,
                               [AST_FUNC] = ast_print_function,
@@ -131,7 +150,9 @@ print_ast_node printers[] = { [AST_COMMAND] = ast_print_command,
                               [AST_PIPE] = ast_print_pipe,
                               [AST_REDIR] = ast_print_redir,
                               [AST_ASSIGNMENT] = ast_print_assignment,
-                              [AST_SUBSHELL] = ast_print_subshell };
+                              [AST_SUBSHELL] = ast_print_subshell,
+                              [AST_CASE] = ast_print_case,
+                              [AST_ITEM] = ast_print_item};
 
 void ast_print(struct ast *ast)
 {

@@ -109,6 +109,30 @@ enum parser_status parser_rule_if(struct lexer *lex, struct ast **res);
 enum parser_status parser_else_clause(struct lexer *lex, struct ast **res);
 
 /**
+ * @file parser_if.c
+ * @brief Parse case grammar :
+ * 
+ * 'case' WORD {'\n'} 'in' {'\n'} [case_clause] 'esac'
+*/
+enum parser_status parser_rule_case(struct lexer *lex, struct ast **res);
+
+/**
+ * @file parser_if.c
+ * @brief Parse case clause grammar :
+ * 
+ * case_item {';;' {'\n'} case_item } [';;'] {'\n'}
+*/
+enum parser_status parser_case_clause(struct lexer *lex, struct ast **res);
+
+/**
+ * @file parser_if.c
+ * @brief Parse case item grammar :
+ * 
+ * ['('] WORD {'|' WORD } ')' {'\n'} [compund_list]
+*/
+enum parser_status parser_case_item(struct lexer *lex, struct ast **res);
+
+/**
  * @file parser_list.c
  * @brief Parse list grammar :
  *
