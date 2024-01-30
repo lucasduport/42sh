@@ -39,10 +39,29 @@ int check_env_variable(const char *name)
     return 0;
 }
 
+static void init_pwd()
+{
+    char *pwds[] = { "OLDPWD", "PWD" };
+
+    for (size_t i = 0; i < sizeof(pwds) / sizeof(char *); i++)
+    {
+        char *var = getenv(pwds[i]);
+        if (var != NULL)
+            continue;
+
+        char cwd[1024];
+        getcwd(cwd, sizeof(cwd));
+
+        setenv(pwds[i], cwd, 1);
+    }
+}
+
 void set_environment(struct environment *env, int argc, char *argv[])
 {
     (void)argc;
     (void)argv;
+
+    init_pwd();
 
     set_variable(env, "IFS", " \t\n");
 

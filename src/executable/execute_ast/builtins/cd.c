@@ -7,14 +7,15 @@
 int builtin_cd(struct list *list,
                __attribute__((unused)) struct environment *env)
 {
-    char *pwd = getenv("PWD");
+    char pwd[1024];
+    getcwd(pwd, sizeof(pwd));
+
     char *currpath;
 
-    // rule 1
     if (list->next == NULL && getenv("HOME") == NULL)
         return 1;
 
-    // rule 2
+    // cd 
     if (list->next == NULL)
         list_append(&list, strdup(getenv("HOME")));
 
