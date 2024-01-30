@@ -50,6 +50,7 @@ int main(int argc, char **argv)
                 ast_print(res);
                 debug_printf(LOG_AST, "\n");
                 code = execute_ast(res, env);
+                update_aliases(env);
                 ast_free(res);
                 if (env->error == STOP)
                     break;

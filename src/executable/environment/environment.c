@@ -16,6 +16,8 @@ struct environment *dup_environment(struct environment *env)
     print_variables(env->variables);
     struct environment *new_env = calloc(1, sizeof(struct environment));
     new_env->variables = dup_variables(env->variables);
+    new_env->aliases = dup_variables(env->aliases);
+    new_env->future_aliases = dup_variables(env->future_aliases);
     new_env->functions = dup_functions(env->functions);
     return new_env;
 }

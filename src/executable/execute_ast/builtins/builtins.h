@@ -91,4 +91,13 @@ int builtin_unset(struct list *list, struct environment *env);
 */
 int builtin_alias(struct list *list, struct environment *env);
 
+/**
+ * @file alias.c
+ * @brief set the new aliases after execution.
+ * Free the future aliases list
+*/
+void update_aliases(struct environment *env);
+
+void alias_expansion(struct variable *alias, char **string);
+
 #endif /* ! BUILTINS_H */

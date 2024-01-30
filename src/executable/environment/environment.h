@@ -25,8 +25,10 @@ struct environment
 {
     struct variable *variables;
     struct function *functions;
+
     struct variable *aliases;
     struct variable *future_aliases;
+
     int nb_break;
     int nb_continue;
     int nb_loop;

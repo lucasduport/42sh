@@ -8,6 +8,7 @@ libbuiltins_a_SOURCES =  \
     export.c \
     unset.c \
     stop_loop.c \
+    alias.c \
     builtins.h
 
 libbuiltins_a_CPPFLAGS = -I$(top_srcdir)/src
