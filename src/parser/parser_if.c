@@ -172,29 +172,27 @@ enum parser_status parser_rule_case(struct lexer *lex, struct ast **res)
     peek = lexer_peek(lex);
     token_free(lexer_pop(lex));
     if (peek.type != TOKEN_IN)
-        return PARSER_ERROR;
+        goto error;
 
     skip_newline(lex);
 
     peek = lexer_peek(lex);
     if (peek.type != TOKEN_ESAC
         && parser_case_clause(lex, &tmp_case) == PARSER_ERROR)
-    {
-        ast_free(tmp_case);
-        return PARSER_ERROR;
-    }
+        goto error;
 
     peek = lexer_peek(lex);
     token_free(lexer_pop(lex));
 
     if (peek.type != TOKEN_ESAC)
-    {
-        ast_free(tmp_case);
-        return PARSER_ERROR;
-    }
+        goto error;
 
     *res = tmp_case;
     return PARSER_OK;
+
+error:
+    ast_free(tmp_case);
+    return PARSER_ERROR;
 }
 
 enum parser_status parser_case_clause(struct lexer *lex, struct ast **res)

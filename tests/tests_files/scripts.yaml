@@ -231,6 +231,7 @@
         a ) echo pas ca ;;
         abc ) echo ca ;;
         other ) echo other ;;
+        esac
 
     - command: |
         a=bcd
@@ -238,3 +239,25 @@
         a ) echo pas ca;;
         b ) echo pas ca;;
         c ) echo pas ca;;
+    
+    - command: |
+        case autre in
+        test) echo "C est un test." ;;
+        autre) echo "C est autre chose." ;;
+        *) echo "Cas non reconnu." ;;
+        esac
+    
+    - command: |
+        case other in
+        test) echo "C est un test." ;;
+        autre) echo "C est autre chose." ;;
+        *) echo "Cas non reconnu." ;;
+        esac
+
+    - command: |
+        var="a b"
+        case $var in
+        a) echo "a" ;;
+        b) echo "b";;
+        "a b") echo "a b";;
+        esac
