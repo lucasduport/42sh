@@ -10,8 +10,8 @@
 
 #include "../io_backend/io.h"
 #include "../logger/logger.h"
-#include "../utils/string/string.h"
 #include "../utils/stack/stack.h"
+#include "../utils/string/string.h"
 #include "token.h"
 
 struct lexer
@@ -28,50 +28,49 @@ struct lexer
 
 /**
  * @file lexer_rules.c
- * @brief Catch the case when there is a dollar or a backslash at the top of the stack
- * 
- * @return 1 if need to call tokenizer, right after; 0 if not 
-*/
+ * @brief Catch the case when there is a dollar or a backslash at the top of the
+ * stack
+ *
+ * @return 1 if need to call tokenizer, right after; 0 if not
+ */
 int preprocess(struct lexer *lexer);
 
 /**
  * @file lexer_rules.c
  * @brief Process rule 1
  *  EOF
-*/
+ */
 struct token process_rule_one(struct lexer *lexer);
 
 /**
  * @file lexer_rules.c
  * @brief Process rule 3
  *   last_is_op and concatenation with current doesn't make an operator
-*/
+ */
 struct token process_rule_three(struct lexer *lexer);
 
 /**
  * @file lexer_rules.c
  * @brief Process rule 4
  *  Quote char
-*/
+ */
 void process_rule_four(struct lexer *lexer);
 
 /**
  * @file lexer_rules.c
  * @brief Process rule 5
  *  Subshell char but not in quoting mode
-*/
+ */
 void process_rule_five(struct lexer *lexer);
 
 /**
  * @file lexer_rules.c
  * @brief Process rule 6
  *  current_char is first char of an operator
- * 
+ *
  * @return 1 if we need to create a new token, 0 otherwise
-*/
+ */
 int process_rule_six(struct lexer *lexer);
-
-
 
 /**
  * @file lexer_tools.c
@@ -125,7 +124,7 @@ struct token skip_comment(struct lexer *lexer);
 /**
  * @file lexer_tools.c
  * @brief ???????
-*/
+ */
 int check_special_variable(const char *name);
 
 /**
@@ -139,8 +138,6 @@ int check_io_number(struct lexer *lexer);
  * @brief Check if the current word could be an assignment word
  */
 int check_assignment(struct lexer *lexer);
-
-
 
 /**
  * @file lexer.c
@@ -175,7 +172,6 @@ struct token lexer_pop(struct lexer *lexer);
  */
 void lexer_free(struct lexer *lexer);
 
-
 /**
  * @brief Creates a new token
  *
@@ -183,7 +179,8 @@ void lexer_free(struct lexer *lexer);
  * @param lexer
  * @return The new token
  */
-struct token token_alloc(enum token_type type, enum token_family family, struct lexer *lexer);
+struct token token_alloc(enum token_type type, enum token_family family,
+                         struct lexer *lexer);
 
 /**
  * @brief check if the word is a reserved word

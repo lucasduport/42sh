@@ -85,9 +85,9 @@ int execute_neg(struct ast *ast, struct environment *env);
 
 /**
  * @brief Execute 'case' node
- * 
+ *
  * @return 0 if no match, result of execution otherwise
-*/
+ */
 int execute_case(struct ast *ast, struct environment *env);
 
 /**

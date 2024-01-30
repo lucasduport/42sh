@@ -17,10 +17,8 @@ int first_char_op(struct lexer *lexer)
 
 int is_valid_operator(struct lexer *lexer)
 {
-    char *reserved_operators[] = {
-        "&",  "&&", "(", ")",  ";",  ";;", "|",
-        "||", "<",  ">", ">|", ">>", "<&", ">&", "<>"
-    };
+    char *reserved_operators[] = { "&", "&&", "(",  ")",  ";",  ";;", "|", "||",
+                                   "<", ">",  ">|", ">>", "<&", ">&", "<>" };
 
     feed(lexer->current_word, lexer->current_char);
 
@@ -65,13 +63,17 @@ struct token skip_comment(struct lexer *lexer)
     string_reset(lexer->current_word);
     while (lexer->current_char != '\n' && lexer->current_char != '\0')
         lexer->current_char = io_getchar();
-    
+
     struct token tok;
     if (lexer->current_char == '\n')
-        tok = (struct token){.type = TOKEN_NEWLINE, .family = TOKEN_FAM_OPERATOR, .data = NULL};
+        tok = (struct token){ .type = TOKEN_NEWLINE,
+                              .family = TOKEN_FAM_OPERATOR,
+                              .data = NULL };
     else
-        tok = (struct token){.type = TOKEN_EOF, .family = TOKEN_FAM_OPERATOR, .data = NULL};
-    
+        tok = (struct token){ .type = TOKEN_EOF,
+                              .family = TOKEN_FAM_OPERATOR,
+                              .data = NULL };
+
     return tok;
 }
 

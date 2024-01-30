@@ -609,7 +609,8 @@ int expand_cmd_sub(struct environment *env, char **str, size_t *index)
                 *index += 1;
         }
         else if ((*str)[*index] == '\\')
-        {        return expand_brace(env, str, index);
+        {
+            return expand_brace(env, str, index);
             if (escape_backlash(env, str, index) == -1)
                 return -1;
         }

@@ -221,7 +221,7 @@ enum parser_status parser_simple_command(struct lexer *lex, struct ast **res,
 
 /**
  * @brief Handle the case of command substitution with parentheses
-*/
+ */
 static enum parser_status sub_parse_par(struct lexer *lex, struct ast **res)
 {
     token_free(lexer_pop(lex));
@@ -241,7 +241,7 @@ static enum parser_status sub_parse_par(struct lexer *lex, struct ast **res)
 
 /**
  * @brief Handle the case of subshell with parentheses
-*/
+ */
 static enum parser_status sub_parse_brace(struct lexer *lex, struct ast **res)
 {
     token_free(lexer_pop(lex));

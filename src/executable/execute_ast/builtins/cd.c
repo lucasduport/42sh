@@ -15,7 +15,7 @@ int builtin_cd(struct list *list,
     if (list->next == NULL && getenv("HOME") == NULL)
         return 1;
 
-    // cd 
+    // cd
     if (list->next == NULL)
         list_append(&list, strdup(getenv("HOME")));
 
