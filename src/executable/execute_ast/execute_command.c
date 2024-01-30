@@ -59,7 +59,8 @@ static int execvp_wrapper(struct list *arg, struct environment *env)
 
 exec_builtins builtins[] = { builtin_echo,  builtin_true,   builtin_false,
                              builtin_exit,  builtin_export, builtin_continue,
-                             builtin_break, builtin_dot,    builtin_unset, builtin_cd};
+                             builtin_break, builtin_dot,    builtin_unset,
+                             builtin_cd };
 
 int execute_command(struct ast *ast, struct environment *env)
 {
@@ -92,7 +93,8 @@ int execute_command(struct ast *ast, struct environment *env)
     }
 
     // Check if it's builtin
-    char *builtins_name[] = { "echo", "true", "false", "exit", "export", "continue", "break", ".", "unset", "cd"};
+    char *builtins_name[] = { "echo",     "true",  "false", "exit",  "export",
+                              "continue", "break", ".",     "unset", "cd" };
     for (int i = 0; i < 10; i++)
     {
         if (strcmp(first_arg, builtins_name[i]) == 0)
