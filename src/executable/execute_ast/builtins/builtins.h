@@ -72,7 +72,7 @@ int builtin_continue(struct list *list, struct environment *env);
 
 /**
  * @file stop_loop.c
- * @brief exec 'break' builtin
+ * @brief break builtin
  */
 int builtin_break(struct list *list, struct environment *env);
 
@@ -84,5 +84,11 @@ int builtin_break(struct list *list, struct environment *env);
  * @return int return code
  */
 int builtin_unset(struct list *list, struct environment *env);
+
+/**
+ * @file alias.c
+ * @brief alias builtin
+*/
+int builtin_alias(struct list *list, struct environment *env);
 
 #endif /* ! BUILTINS_H */

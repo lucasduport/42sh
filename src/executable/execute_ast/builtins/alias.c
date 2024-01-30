@@ -1,32 +1,119 @@
 #include "builtins.h"
 
-int alias(struct list *arguments, struct environment *env)
+/**
+ * @brief Set an alias in future aliases
+ *  Update the value if alias already exists, create the alias otherwise
+ * 
+ * @param name Name of the alias
+ * @param value Value of the alias
+*/
+static int set_alias(struct environment *env, const char *name, const char *value)
 {
-    if (arguments->next == NULL)
+    // Check in all future aliases
+    for (struct variable *it = env->future_aliases; it != NULL; it = it->next)
     {
-        print_aliases(env);
+        // If found in future aliases
+        if (strcmp(it->name, name) == 0)
+        {
+            // Remove actual value
+            free(it->value);
+            it->value = strdup(value);
+            return 0;
+        }
+    }
+
+    // If the alias is not found, add it to the list
+    return add_variable(&env->future_aliases, name, value);
+}
+
+/**
+ * @brief Print an alias
+ * 
+ * @param env  Environment
+ * @param alias Name of the alias to print
+ * 
+ * @return -1 if the alias was not found, 0 otherwise
+ */
+static int print_alias(struct environment *env, char *alias)
+{
+    // Search in future aliases in priority
+    for (struct variable *it = env->future_aliases; it != NULL; it = it->next)
+    {
+        if (strcmp(it->name, alias) == 0)
+        {
+            printf("%s='%s'\n", it->name, it->value);
+            return 0;
+        }
+    }
+
+    // Otherwise search in current aliases
+    for (struct variable *it = env->aliases; it != NULL; it = it->next)
+    {
+        if (strcmp(it->name, alias) == 0)
+        {
+            printf("%s='%s'\n", it->name, it->value);
+            return 0;
+        }
+    }
+    return -1;
+}
+
+/**
+ * @brief Print all aliases in alphabetical order, including future aliases
+ *  If an alias is in current and future lists, we write the value in future list
+ * 
+ * @param env Environment
+ */
+static void print_aliases(struct environment *env)
+{
+    struct variable *head = NULL;
+    for (struct variable *it = env->aliases; it != NULL; it = it->next)
+        head = add_alias(head, it->name, it->value);
+
+    for (struct variable *it = env->future_aliases; it != NULL; it = it->next)
+        head = add_alias(head, it->name, it->value);
+
+    for (struct variable *it = head; it != NULL; it = it->next)
+        printf("%s='%s'\n", it->name, it->value);
+
+    free_variables(head);
+}
+
+
+int builtin_alias(struct list *list, struct environment *env)
+{
+    // Only alias word
+    if (list->next == NULL)
+    {
+        print_aliases(list);
         return 0;
     }
     else
     {
+        // Set all aliases
         int ret_code = 0;
-        for (struct list *it = arguments->next; it != NULL; it = it->next)
+        for (struct list *it = list->next; it != NULL; it = it->next)
         {
-            char *arg = it->current;
-            char *alias = strtok(arg, "=");
-            char *value = strtok(NULL, "=");
+            char *cpy = strdup(it->current);
+            char *name = strtok(cpy, "=");
+            if (name == NULL)
+            {
+                ret_code = 1;
+                continue;
+            }
+
+            char *value = strstr(cpy, "=");
+            // If there is no value, juste print it
             if (value == NULL)
             {
-                if (print_alias(env, alias) == -1)
+                if (print_alias(env, name) == -1)
                 {
-                    fprintf(stderr, "alias: %s: not found\n", alias);
+                    fprintf(stderr, "alias: %s: not found\n", name);
                     ret_code = 1;
                 }
             }
             else
-            {
-                set_alias(env, alias, value);
-            }
+                set_alias(env, name, value);
         }
         return ret_code;
     }
@@ -51,92 +138,5 @@ int unalias(struct list *arguments, struct environment *env)
             }
         }
         return ret;
-    }
-}
-
-/**
- * @brief Print all aliases
- * 
- * @param env  Environment
- * @param alias Alias to print
- * @return int 0 if success, -1 otherwise
- */
-static int print_alias(struct environment *env, char *alias)
-{
-    for (struct variable *it = env->future_aliases; it != NULL; it = it->next)
-    {
-        if (strcmp(it->name, alias) == 0)
-        {
-            printf("%s='%s'\n", it->name, it->value);
-            return 0;
-        }
-    }
-    for (struct variable *it = env->aliases; it != NULL; it = it->next)
-    {
-        if (strcmp(it->name, alias) == 0)
-        {
-            printf("%s='%s'\n", it->name, it->value);
-            return 0;
-        }
-    }
-    return -1;
-}
-
-/**
- * @brief Print all aliases in alphabetical order, including future aliases
- * 
- * @param env Environment
- */
-static void print_aliases(struct environment *env)
-{
-    struct variable *head = NULL;
-    for (struct variable *it = env->aliases; it != NULL; it = it->next)
-        head = add_alias(head, it->name, it->value);
-
-    for (struct variable *it = env->future_aliases; it != NULL; it = it->next)
-        head = add_alias(head, it->name, it->value);
-
-    for (struct variable *it = head; it != NULL; it = it->next)
-        printf("%s='%s'\n", it->name, it->value);
-
-    free_variables(head);
-}
-
-/**
- * @brief Add an alias to the list in alphabetical order
- * 
- * @param head Head of the list
- * @param name Name of the alias
- * @param value Value of the alias
- * @return struct variable* New head of the list
- */
-static struct variable *add_alias(struct variable **aliases, char *name, char *value)
-{
-    struct variable *new = malloc(sizeof(struct variable));
-    new->name = strdup(name);
-    new->value = strdup(value);
-    new->next = NULL;
-
-    if (head == NULL)
-        return new;
-
-    struct variable *it = head;
-    struct variable *prev = NULL;
-    while (it != NULL && strcmp(it->name, name) < 0)
-    {
-        prev = it;
-        it = it->next;
-    }
-
-    if (prev == NULL)
-    {
-        new->next = head;
-        return new;
-    }
-    else
-    {
-        prev->next = new;
-        new->next = it;
-        return head;
     }
 }

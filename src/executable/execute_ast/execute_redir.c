@@ -85,7 +85,6 @@ static struct redirection open_file(char *operator, char * filename)
     char *operators[] = { ">>", NULL, "<>", NULL, ">",
                           ">|", ">&", NULL, "<",  "<&" };
 
-    // FIXME J'ai delete le flag O_APPEND pour <>
     int flags[] = { O_WRONLY | O_CREAT | O_APPEND, O_RDWR | O_CREAT,
                     O_WRONLY | O_CREAT | O_TRUNC, O_RDONLY };
 
