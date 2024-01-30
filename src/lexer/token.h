@@ -19,6 +19,8 @@ enum token_type
     TOKEN_FOR,
     TOKEN_IN,
     TOKEN_NEG,
+    TOKEN_CASE,
+    TOKEN_ESAC,
 
     TOKEN_LEFT_BRACE, // {
     TOKEN_RIGHT_BRACE, // }

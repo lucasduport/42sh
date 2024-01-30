@@ -43,7 +43,7 @@ void lexer_free(struct lexer *lexer)
 
 // ---------------------- TOKENIZER ------------------------
 struct token token_alloc(enum token_type type, enum token_family family,
-                                struct lexer *lexer)
+                         struct lexer *lexer)
 {
     struct token token;
     token.data = calloc(lexer->current_word->len, sizeof(char));
@@ -64,10 +64,10 @@ struct token token_new(struct lexer *lexer)
 
     char *reserved_words[] = { "if",   "then",  "elif",  "else", "fi", "do",
                                "done", "while", "until", "for",  "in", "!",
-                               "{",    "}",     ";",     "\n",   "|",  "&&",
-                               "||",   ";;",    "\0",    "(",    ")",  "<",
-                               ">",    "<<",    ">>",    "<&",   ">&", "<>",
-                               ">|" };
+                               "case", "esac",  "{",     "}",    ";",  "\n",
+                               "|",    "&&",    "||",    ";;",   "\0", "(",
+                               ")",    "<",     ">",     "<<",   ">>", "<&",
+                               ">&",   "<>",    ">|" };
 
     int family = 0;
     for (size_t i = 0; i < sizeof(reserved_words) / sizeof(char *); i++)
@@ -75,7 +75,7 @@ struct token token_new(struct lexer *lexer)
         // debug_printf(LOG_LEX,"test '%s' == '%s'\n", reserved_words[i],
         //              lexer->current_word->data);
 
-        if (i == 14 || i == 23)
+        if (i == 16 || i == 25)
             family++;
 
         if (!strcmp(reserved_words[i], lexer->current_word->data))
@@ -97,9 +97,9 @@ struct token token_new(struct lexer *lexer)
 static int check_comment(struct lexer *lexer)
 {
     return !stack_quoted(lexer->mode_stack)
-             && ((lexer->current_char == '#' && lexer->current_word->len == 0)
-                 || (lexer->current_word->len == 1
-                     && lexer->current_word->data[0] == '#'));
+        && ((lexer->current_char == '#' && lexer->current_word->len == 0)
+            || (lexer->current_word->len == 1
+                && lexer->current_word->data[0] == '#'));
 }
 
 struct token tokenizer(struct lexer *lexer)
@@ -108,7 +108,7 @@ struct token tokenizer(struct lexer *lexer)
 
     // ---------------------------- PREPROCESS ---------------------------
     if (preprocess(lexer))
-        return tokenizer(lexer); 
+        return tokenizer(lexer);
 
     // ---------------------------- RULE 1 ---------------------------
     if (lexer->current_char == '\0')
@@ -148,7 +148,7 @@ struct token tokenizer(struct lexer *lexer)
             feed(lexer->current_word, lexer->current_char);
 
             return tok;
-        } 
+        }
     }
 
     // ---------------------------- RULE 7 ---------------------------

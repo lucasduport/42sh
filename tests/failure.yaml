@@ -1,3 +1,43 @@
+- category: expansion
+  sub-category: $()
+  tests:
+  - command: a=6; echo $(echo -n $a; a=8; echo -n $a); echo $a
+- category: expansion
+  sub-category: $()
+  tests:
+  - command: a=6; echo $(echo -n $a; a=8; echo -n $a); echo $a
+- category: expansion
+  sub-category: $()
+  tests:
+  - command: a=6; echo $(echo $(echo $(echo `echo baba`))); echo $a
+- category: expansion
+  sub-category: backticks
+  tests:
+  - command: a=6; echo `echo -n ${a}; a=8; echo -n $a`; echo $a
+- category: expansion
+  sub-category: backticks
+  tests:
+  - command: a=6; echo `echo `echo `echo $(echo baba)```; echo $a
+- category: errors
+  sub-category: functions
+  tests:
+  - command: 'fun () {
+
+      echo $(echo baba`echo "coucou`echo)
+
+      }; fun
+
+      '
+- category: errors
+  sub-category: functions
+  tests:
+  - command: 'fun () {
+
+      echo `echo baba`echo "coucou`echo"
+
+      }; fun
+
+      '
 - category: builtins
   sub-category: echo
   tests:
