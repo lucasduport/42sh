@@ -112,7 +112,7 @@ static struct redirection open_file(char *operator, char * filename)
 
 int execute_redir(struct ast *ast, struct environment *env)
 {
-    if (ast->first_child->type == AST_ASSIGNMENT)
+    if (ast->first_child != NULL && ast->first_child->type == AST_ASSIGNMENT)
         return execute_ast(ast->first_child, env);
 
     struct list *arg_expand = ast->arg;

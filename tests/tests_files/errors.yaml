@@ -49,6 +49,10 @@
   tests:
     - command: echo coucou | sjfirbguerj
     - command: fbzrihgbzer | echo coucou
+    - command: |
+        if echo coucou
+        then echo ahhh
+        fi > '
 
 - category: errors
   sub-category: functions

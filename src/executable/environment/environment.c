@@ -43,7 +43,7 @@ int check_env_variable(const char *name)
 /**
  * @brief Initialize pwd at the beginning of execution
  */
-static void init_pwd()
+static void init_pwd(void)
 {
     char *pwds[] = { "OLDPWD", "PWD" };
 

@@ -24,20 +24,20 @@ enum parser_status parser_command(struct lexer *lex, struct ast **res)
         if (parser_shell_command(lex, res) == PARSER_ERROR)
             return PARSER_ERROR;
 
-        struct ast *tmp_command = *res;
         struct ast *tmp_redir = NULL;
 
         peek = lexer_peek(lex);
         while (peek.family != TOKEN_FAM_OPERATOR)
         {
-            if (parser_redirection(lex, res) == PARSER_ERROR)
+            struct ast *tmp_res = NULL;
+            if (parser_redirection(lex, &tmp_res) == PARSER_ERROR)
             {
-                ast_free(tmp_command);
+                ast_free(tmp_res);
                 ast_free(tmp_redir);
                 return PARSER_ERROR;
             }
 
-            ast_add_child_to_child(&tmp_redir, *res);
+            ast_add_child_to_child(&tmp_redir, tmp_res);
             peek = lexer_peek(lex);
         }
         if (tmp_redir != NULL)
