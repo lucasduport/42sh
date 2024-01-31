@@ -341,6 +341,23 @@ static int main_bis(char *cmd, struct environment *current_env)
 }
 
 /**
+ * @brief Remove the trailing \n of a string
+ * 
+ * @param str String to modify
+ */
+static void remove_trailing_lf(char *str)
+{
+    size_t len = strlen(str);
+    for (size_t i = len - 1; i > 0; i--)
+    {
+        if (str[i] == '\n')
+            str[i] = '\0';
+        else
+            break;
+    }
+}
+
+/**
  * @brief Fork our 42sh to execute a command and insert the output in the string
  *
  * @param env Environment
@@ -392,6 +409,7 @@ static void insert_cmd_output(struct environment *env, char **str,
         if (output == NULL)
             return;
         output[output_len] = '\0';
+        remove_trailing_lf(output);
         insert_at_n(str, output, *index);
         *index += strlen(output);
         free(output);
