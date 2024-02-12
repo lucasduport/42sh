@@ -1,7 +1,7 @@
 
 # 42sh
 
-# ⚠️ Disclaimer: School Project for Open Source and Educational Purposes
+## ⚠️ Disclaimer: School Project for Open Source and Educational Purposes
 
 This repository contains code and materials from a school project created for educational purposes. While I encourage the open-source community to explore, learn, and potentially build upon this work, please be aware of the following:
 
