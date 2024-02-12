@@ -1,6 +1,3 @@
-
-# 42sh
-
 ## ⚠️ Disclaimer: School Project for Open Source and Educational Purposes
 
 This repository contains code and materials from a school project created for educational purposes. While I encourage the open-source community to explore, learn, and potentially build upon this work, please be aware of the following:
@@ -19,6 +16,8 @@ Remember, this repository is intended to foster learning and collaboration withi
 
 This project is a posix shell written in C
 A kind of equivalent to `bash --posix`
+
+# 42sh
 
 ## Prerequisites
 
