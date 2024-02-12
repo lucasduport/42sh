@@ -1,7 +1,7 @@
 # 42sh
 
 This project is a posix shell written in C
-A kind of equivalent to bash `--posix`
+A kind of equivalent to `bash --posix`
 
 ## Prerequisites
 
