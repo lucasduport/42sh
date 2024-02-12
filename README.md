@@ -14,10 +14,10 @@ This repository contains code and materials from a school project created for ed
 
 Remember, this repository is intended to foster learning and collaboration within the open-source and educational communities. Enjoy exploring and happy coding! 🚀
 
+# 42sh
+
 This project is a posix shell written in C
 A kind of equivalent to `bash --posix`
-
-# 42sh
 
 ## Prerequisites
 
